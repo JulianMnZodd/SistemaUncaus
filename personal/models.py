@@ -1,5 +1,3 @@
-from django.db import models
-# Create your models here.
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
@@ -26,7 +24,7 @@ class PersonaManager(BaseUserManager):
     
 class Persona(AbstractUser):
     # Campos adicionales
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True)  # Asegúrate de que el email sea único
     dni = models.IntegerField(unique=True)
     domicilio = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15, blank=True, null=True)
@@ -37,9 +35,9 @@ class Persona(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'dni']
 
-
     class Meta:
         db_table = 'persona'
+
 
 class Medico(models.Model):
     persona = models.OneToOneField(Persona, on_delete=models.CASCADE, db_column='Persona_idPersona', primary_key=True)  # Field name made lowercase.
