@@ -4,12 +4,26 @@ from django.utils import timezone
 from habitaciones.models import Cama, Habitacion
 from .forms import DiagnosticoForm, AsignarCamaForm
 from .models import Paciente, Medico, Enfermero, Internacion
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @login_required
 def asignar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
-    pacientes = Paciente.objects.all()
+    pacientes_list = Paciente.objects.all()  # Obtén todos los pacientes
+
+    # Paginación
+    paginator = Paginator(pacientes_list, 10)  # 10 pacientes por página
+    page_number = request.GET.get('page')  # Obtén el número de página de la URL
+
+    try:
+        pacientes = paginator.page(page_number)
+    except PageNotAnInteger:
+        # Si el parámetro 'page' no es un número, muestra la primera página
+        pacientes = paginator.page(1)
+    except EmptyPage:
+        # Si la página está fuera de rango (por ejemplo, 9999), muestra la última página
+        pacientes = paginator.page(paginator.num_pages)
 
     if request.method == "POST":
         form = AsignarCamaForm(request.POST)
@@ -34,7 +48,11 @@ def asignar_cama(request, idcama):
     else:
         form = AsignarCamaForm()
 
-    return render(request, 'asignar_cama.html', {'form': form, 'cama': cama, 'pacientes': pacientes})
+    return render(request, 'asignar_cama.html', {
+        'form': form,
+        'cama': cama,
+        'pacientes': pacientes,  # Pasa los pacientes paginados al template
+    })
 
 
 @login_required
