@@ -1,28 +1,55 @@
-<!-- filepath: /C:/Users/julia/Documents/sistemuncaus/templates/internacion/detalle_diagnostico.html -->
 {% extends '_base.html' %}
 
 {% block content %}
-<h2 class="text-xl font-bold mb-4">Detalle del Diagnóstico para la Internación {{ internacion.idinternacion }}</h2>
+<div class="container mx-auto px-4 py-8">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Detalle del Diagnóstico para la Internación {{ internacion.idinternacion }}</h2>
 
-<div class="mb-4">
-  <strong>Paciente:</strong> {{ diagnostico.idpaciente.nombre }} {{ diagnostico.idpaciente.apellido }}
-</div>
-<div class="mb-4">
-  <strong>Médico:</strong> {{ diagnostico.idmedico.persona.first_name }} {{ diagnostico.idmedico.persona.last_name }}
-</div>
-<div class="mb-4">
-  <strong>Fecha:</strong> {{ diagnostico.fecha }}
-</div>
-<div class="mb-4">
-  <strong>Detalles:</strong> {{ diagnostico.detalles }}
-</div>
-<div class="mb-4">
-  <strong>Gravedad:</strong> {{ diagnostico.gravedad }}
-</div>
-<div class="mb-4">
-  <strong>Tratamiento:</strong> {{ diagnostico.tratamiento }}
-</div>
+  <!-- Tarjeta de Información del Diagnóstico -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+    <div class="space-y-4">
+      <!-- Paciente -->
+      <div>
+        <strong class="block text-sm font-medium text-gray-700">Paciente:</strong>
+        <p class="mt-1 text-gray-900">{{ diagnostico.idpaciente.nombre }} {{ diagnostico.idpaciente.apellido }}</p>
+      </div>
 
-<a href="{% url 'listar_internaciones' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Volver a Internaciones</a>
+      <!-- Médico -->
+      <div>
+        <strong class="block text-sm font-medium text-gray-700">Médico:</strong>
+        <p class="mt-1 text-gray-900">{{ diagnostico.idmedico.persona.first_name }} {{ diagnostico.idmedico.persona.last_name }}</p>
+      </div>
 
+      <!-- Fecha -->
+      <div>
+        <strong class="block text-sm font-medium text-gray-700">Fecha:</strong>
+        <p class="mt-1 text-gray-900">{{ diagnostico.fecha }}</p>
+      </div>
+
+      <!-- Detalles -->
+      <div>
+        <strong class="block text-sm font-medium text-gray-700">Detalles:</strong>
+        <p class="mt-1 text-gray-900 whitespace-pre-line">{{ diagnostico.detalles }}</p>
+      </div>
+
+      <!-- Gravedad -->
+      <div>
+        <strong class="block text-sm font-medium text-gray-700">Gravedad:</strong>
+        <p class="mt-1 text-gray-900">{{ diagnostico.gravedad }}</p>
+      </div>
+
+      <!-- Tratamiento -->
+      <div>
+        <strong class="block text-sm font-medium text-gray-700">Tratamiento:</strong>
+        <p class="mt-1 text-gray-900 whitespace-pre-line">{{ diagnostico.tratamiento }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón Volver -->
+  <div class="mt-6">
+    <a href="{% url 'listar_internaciones' %}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      Volver a Internaciones
+    </a>
+  </div>
+</div>
 {% endblock content %}

@@ -194,37 +194,66 @@ def generar_consentimiento_pdf(request, paciente_id):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="consentimiento_{paciente.idpaciente}.pdf"'
 
-    # Crear el objeto PDF, usando el objeto HttpResponse como "archivo".
+    # Crear el objeto PDF usando el HttpResponse como "archivo".
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
 
-    # Título del documento
+    # Título del documento (centrado)
     p.setFont("Helvetica-Bold", 16)
-    p.drawString(100, height - 100, "Formulario de Consentimiento")
+    p.drawCentredString(width/2, height - 50, "ACTA DE CONSENTIMIENTO INFORMADO PARA INTERNACIÓN")
 
-    # Información del paciente
+    # Datos del paciente o representante
     p.setFont("Helvetica", 12)
-    p.drawString(100, height - 150, f"Nombre del Paciente: {paciente.nombre} {paciente.apellido}")
-    p.drawString(100, height - 170, f"Fecha de Nacimiento: {paciente.fecha_nacimiento}")
-    p.drawString(100, height - 190, f"Dirección: {paciente.domicilio}")
-    p.drawString(100, height - 210, f"Teléfono: {paciente.telefono}")
-    p.drawString(100, height - 230, f"Email: {paciente.email}")
+    p.drawString(50, height - 80, f"Nombre del Paciente: {paciente.nombre} {paciente.apellido}")
+    p.drawString(50, height - 100, f"Fecha de Nacimiento: {paciente.fecha_nacimiento}")
+    p.drawString(50, height - 120, f"Dirección: {paciente.domicilio}")
+    p.drawString(50, height - 140, f"Teléfono: {paciente.telefono}")
+    p.drawString(50, height - 160, f"Email: {paciente.email}")
+    # Campos adicionales que se pueden complementar desde la BD o dejar en blanco
+    p.drawString(50, height - 180, f"Documento de Identidad: {paciente.dni}")
+    p.drawString(50, height - 200, "Relación (si es representante): _________________")
 
-    # Contenido del consentimiento
-    p.drawString(100, height - 270, "Yo, el paciente mencionado anteriormente, doy mi consentimiento para ser internado en")
-    p.drawString(100, height - 290, "el hospital y recibir el tratamiento médico necesario.")
-    p.drawString(100, height - 310, "Entiendo los riesgos y beneficios del tratamiento propuesto y doy mi consentimiento")
-    p.drawString(100, height - 330, "voluntariamente.")
+    # Datos del establecimiento y personal médico
+    p.drawString(50, height - 250, "Médico Responsable: _________")
+    p.drawString(50, height - 270, "Registro Profesional: _________")
 
-    # Firma del paciente
-    p.drawString(100, height - 370, "Firma del Paciente: ___________________________")
-    p.drawString(100, height - 390, "Fecha: ___________________________")
+    # Exposición de la información
+    text = p.beginText(50, height - 300)
+    text.setFont("Helvetica", 12)
+    exposicion = [
+        "Yo, el suscrito, declaro haber sido informado de manera clara y comprensible",
+        "sobre la situación médica que requiere la internación, incluyendo:",
+        "  - Diagnóstico y necesidad del tratamiento hospitalario.",
+        "  - Procedimientos, exámenes y terapias previstos.",
+        "  - Riesgos, complicaciones y beneficios asociados.",
+        "  - Alternativas de tratamiento y posibilidad de realizar consultas adicionales.",
+        "He tenido la oportunidad de formular preguntas, las cuales han sido contestadas",
+        "a mi entera satisfacción."
+    ]
+    for line in exposicion:
+        text.textLine(line)
+    p.drawText(text)
 
-    # Firma del médico
-    p.drawString(100, height - 430, "Firma del Médico: ___________________________")
-    p.drawString(100, height - 450, "Fecha: ___________________________")
+    # Consentimiento
+    text = p.beginText(50, height - 420)
+    text.setFont("Helvetica", 12)
+    consentimiento = [
+        "Doy mi consentimiento libre y voluntario para la internación y la realización",
+        "de los procedimientos y tratamientos que el personal médico estime necesarios,",
+        "exonerando de responsabilidad al personal del establecimiento, siempre que",
+        "se actúe conforme a la normatividad vigente y al debido proceder profesional."
+    ]
+    for line in consentimiento:
+        text.textLine(line)
+    p.drawText(text)
 
-    # Cerrar el PDF
+    # Firmas y fechas
+    p.drawString(50, height - 500, "Firma del Paciente o Representante: ______")
+    p.drawString(50, height - 520, "Fecha: __________________________")
+    p.drawString(50, height - 550, "Firma del Médico: ___________________")
+    p.drawString(50, height - 570, "Fecha: ____________________")
+
+    # Finalizar el PDF
     p.showPage()
     p.save()
 
