@@ -1,32 +1,54 @@
-<!-- filepath: /C:/Users/julia/Documents/sistemuncaus/templates/internacion/listar_seguimientos.html -->
 {% extends '_base.html' %}
 
 {% block content %}
-<h2 class="text-xl font-bold mb-4">Seguimientos de la Internación ID: {{ internacion.idinternacion }}</h2>
+<div class="container mx-auto px-4 py-8">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Seguimientos de la Internación ID: {{ internacion.idinternacion }}</h2>
 
-<table class="table-auto w-full">
-  <thead>
-    <tr>
-      <th class="px-4 py-2">ID Seguimiento</th>
-      <th class="px-4 py-2">Enfermero</th>
-      <th class="px-4 py-2">Observación</th>
-      <th class="px-4 py-2">Acción</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for seguimiento in seguimientos %}
-    <tr>
-      <td class="border px-4 py-2">{{ seguimiento.idseguimiento }}</td>
-      <td class="border px-4 py-2">{{ seguimiento.idenfermero.persona.first_name }}</td>
-      <td class="border px-4 py-2">{{ seguimiento.observacion }}</td>
-      <td class="border px-4 py-2">
-        <a href="{% url 'seguimiento_detalles' seguimiento.idseguimiento %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Ver Detalles</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <div class="bg-white shadow-md rounded-lg overflow-x-auto">
+    <table class="w-full table-auto">
+      <thead>
+        <tr>
+          <th class="px-4 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            ID Seguimiento
+          </th>
+          <th class="px-4 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Enfermero
+          </th>
+          <th class="px-4 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Observación
+          </th>
+          <th class="px-4 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Acción
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for seguimiento in seguimientos %}
+        <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+          <td class="px-4 py-3 border-b border-gray-200 text-sm">
+            {{ seguimiento.idseguimiento }}
+          </td>
+          <td class="px-4 py-3 border-b border-gray-200 text-sm">
+            {{ seguimiento.idenfermero.persona.first_name }}
+          </td>
+          <td class="px-4 py-3 border-b border-gray-200 text-sm">
+            {{ seguimiento.observacion }}
+          </td>
+          <td class="px-4 py-3 border-b border-gray-200 text-sm">
+            <a href="{% url 'seguimiento_detalles' seguimiento.idseguimiento %}" class="text-blue-500 hover:text-blue-700 font-semibold">
+              Ver Detalles
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-<a href="{% url 'listar_internaciones' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Volver a Internaciones</a>
-
+  <div class="mt-6">
+    <a href="{% url 'listar_internaciones' %}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      Volver a Internaciones
+    </a>
+  </div>
+</div>
 {% endblock content %}

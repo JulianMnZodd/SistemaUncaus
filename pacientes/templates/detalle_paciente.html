@@ -1,0 +1,155 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
+  <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Detalles del Paciente</h1>
+
+  <!-- Sección de Datos Personales -->
+  <div class="space-y-6">
+    <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Datos Personales</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Nombre -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Nombre</label>
+        <p class="text-gray-800">{{ paciente.nombre }}</p>
+      </div>
+
+      <!-- Apellido -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Apellido</label>
+        <p class="text-gray-800">{{ paciente.apellido }}</p>
+      </div>
+
+      <!-- DNI -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">DNI</label>
+        <p class="text-gray-800">{{ paciente.dni }}</p>
+      </div>
+
+      <!-- Fecha de Nacimiento -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Fecha de Nacimiento</label>
+        <p class="text-gray-800">{{ paciente.fecha_nacimiento }}</p>
+      </div>
+
+      <!-- Género -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Género</label>
+        <p class="text-gray-800">{{ paciente.get_genero_display }}</p>
+      </div>
+
+      <!-- Estado -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Estado</label>
+        <p class="text-gray-800">{{ paciente.get_estado_display }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Contacto -->
+  <div class="space-y-6 mt-8">
+    <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Datos de Contacto</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Domicilio -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Domicilio</label>
+        <p class="text-gray-800">{{ paciente.domicilio }}</p>
+      </div>
+
+      <!-- Localidad -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Localidad</label>
+        <p class="text-gray-800">{{ paciente.localidad }}</p>
+      </div>
+
+      <!-- Provincia -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Provincia</label>
+        <p class="text-gray-800">{{ paciente.provincia }}</p>
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Teléfono</label>
+        <p class="text-gray-800">{{ paciente.telefono }}</p>
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Email</label>
+        <p class="text-gray-800">{{ paciente.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Obra Social -->
+  <div class="space-y-6 mt-8">
+    <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Obra Social</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Obra Social -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Obra Social</label>
+        <p class="text-gray-800">{{ paciente.obra_social }}</p>
+      </div>
+
+      <!-- Número de Afiliado -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Número de Afiliado</label>
+        <p class="text-gray-800">{{ paciente.nro_afiliado }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Salud -->
+  <div class="space-y-6 mt-8">
+    <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Datos de Salud</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Diabetes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Diabetes</label>
+        <p class="text-gray-800">{{ paciente.diabetes|yesno:"Sí,No" }}</p>
+      </div>
+
+      <!-- Hipertensión -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Hipertensión</label>
+        <p class="text-gray-800">{{ paciente.hipertension|yesno:"Sí,No" }}</p>
+      </div>
+
+      <!-- Fumador -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Fumador</label>
+        <p class="text-gray-800">{{ paciente.fumador|yesno:"Sí,No" }}</p>
+      </div>
+
+      <!-- Alergias -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Alergias</label>
+        <p class="text-gray-800">{{ paciente.alergias }}</p>
+      </div>
+
+      <!-- Antecedentes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Antecedentes</label>
+        <p class="text-gray-800">{{ paciente.antecedentes }}</p>
+      </div>
+
+      <!-- Cirugías -->
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-2">Cirugías</label>
+        <p class="text-gray-800">{{ paciente.cirugias }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón para volver -->
+  <div class="flex justify-center mt-8">
+    <a href="{% url 'listar_pacientes' %}" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+      Volver a la lista de pacientes
+    </a>
+  </div>
+</div>
+{% endblock %}

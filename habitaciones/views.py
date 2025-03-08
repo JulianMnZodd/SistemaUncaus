@@ -1,15 +1,26 @@
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse, JsonResponse
+from django.db import models
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Habitacion,Cama
+from .models import Habitacion,Cama,Sector
 from .models import Cama, Medico, Reserva
+from internacion.models import Internacion
+
 
 def lista_habitaciones(request):
-    habitaciones = Habitacion.objects.prefetch_related('camas').all()  # Traemos todas las habitaciones con sus camas
+    # Obtener todos los sectores con sus habitaciones relacionadas
+    sectores = Sector.objects.prefetch_related('habitaciones__camas').all()
     
+    # Crear un diccionario para mapear camas a pacientes
+    cama_paciente_map = {}
+    internaciones = Internacion.objects.filter(fecha_alta__isnull=True).select_related('idpaciente', 'cama')
+    for internacion in internaciones:
+        cama_paciente_map[internacion.cama.idcama] = internacion.idpaciente
+
+    # Pasar los sectores y el mapa de camas a pacientes al template
     context = {
-        'habitaciones': habitaciones,
+        'sectores': sectores,
+        'cama_paciente_map': cama_paciente_map,
     }
-    
     return render(request, 'lista_habitaciones.html', context)
 
 def habitacion_detalle(request, habitacion_id):
@@ -90,3 +101,53 @@ def liberar_camas_expiradas():
         cama.estado = 'L'  # Suponiendo que 'L' es el estado para 'Libre'
         cama.save()
         reserva.delete()
+        
+        
+        
+import matplotlib.pyplot as plt
+import io
+import base64
+from django.shortcuts import render
+from .models import Sector
+from internacion.models import Internacion
+from datetime import datetime, timedelta
+
+
+def generar_grafico_porcentaje_internados():
+    # Obtener los datos de internaciones por sector
+    sectores = Sector.objects.all()
+    data = []
+    labels = []
+
+    for sector in sectores:
+        total_camas = sector.habitaciones.aggregate(total_camas=models.Count('camas'))['total_camas']
+        camas_ocupadas = sector.habitaciones.filter(camas__estado='O').count()
+        porcentaje_ocupacion = (camas_ocupadas / total_camas) * 100 if total_camas > 0 else 0
+        data.append(porcentaje_ocupacion)
+        labels.append(sector.tipo)
+
+    # Crear el gráfico
+    fig, ax = plt.subplots()
+    ax.pie(data, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')  # Para asegurar que el gráfico sea un círculo
+
+    # Guardar el gráfico en un buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+
+    # Codificar la imagen en base64
+    graphic = base64.b64encode(image_png)
+    graphic = graphic.decode('utf-8')
+
+    return graphic
+
+def reporte_grafico_porcentaje_internados(request):
+    graphic = generar_grafico_porcentaje_internados()
+    context = {
+        'graphic': graphic,
+    }
+    return render(request, 'reporte_grafico_porcentaje_internados.html', context)
+        

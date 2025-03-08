@@ -26,7 +26,6 @@ class Paciente(models.Model):
     genero = models.CharField(max_length=10, choices=[('M', 'Masculino'), ('F', 'Femenino'), ('O', 'Otro')], blank=True)
     obra_social = models.ForeignKey(ObraSocial, models.SET_NULL, db_column='idObra_social', blank=True, null=True)  # Relación con ObraSocial
     nro_afiliado = models.IntegerField(blank=True, null=True)  # Número de afiliado
-    descripcion = models.CharField(max_length=256)
     diabetes = models.BooleanField()
     hipertension = models.BooleanField()
     fumador = models.BooleanField()
@@ -34,6 +33,7 @@ class Paciente(models.Model):
     antecedentes = models.CharField(max_length=256, blank=True, null=True)
     cirugias = models.CharField(max_length=256, blank=True, null=True)
     email = models.EmailField(max_length=254, blank=True, null=True)
+    estado = models.CharField(max_length=10, choices=[('Vivo', 'Vivo'), ('Difunto', 'Difunto')], default='Vivo')
     
     class Meta:
         managed = True

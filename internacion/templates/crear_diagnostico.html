@@ -1,14 +1,101 @@
-<!-- filepath: /C:/Users/julia/Documents/sistemuncaus/templates/internacion/crear_diagnostico.html -->
 {% extends '_base.html' %}
 
 {% block content %}
-<h2 class="text-xl font-bold mb-4">Crear Diagnóstico para {{ paciente.nombre }} {{ paciente.apellido }}</h2>
+<div class="container mx-auto px-4 py-8">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Crear Diagnóstico para {{ paciente.nombre }} {{ paciente.apellido }}</h2>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Guardar</button>
-  {% comment %} <a href="{% url 'detalle_diagnostico' internacion.idinternacion %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Cancelar</a> {% endcomment %}
-</form>
+  <form method="post" class="bg-white shadow-md rounded-lg p-6">
+    {% csrf_token %}
 
+    <!-- Campo Fecha -->
+    <div class="mb-4">
+      <label for="{{ form.fecha.id_for_label }}" class="block text-sm font-medium text-gray-700">
+        {{ form.fecha.label }}
+      </label>
+      <input
+        type="datetime-local"
+        name="{{ form.fecha.name }}"
+        id="{{ form.fecha.id_for_label }}"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      >
+    </div>
+
+    <!-- Campo Detalles -->
+    <div class="mb-4">
+      <label for="{{ form.detalles.id_for_label }}" class="block text-sm font-medium text-gray-700">
+        {{ form.detalles.label }}
+      </label>
+      <textarea
+        name="{{ form.detalles.name }}"
+        id="{{ form.detalles.id_for_label }}"
+        rows="4"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      ></textarea>
+    </div>
+
+    <!-- Campo Gravedad -->
+    <div class="mb-4">
+      <label for="{{ form.gravedad.id_for_label }}" class="block text-sm font-medium text-gray-700">
+        {{ form.gravedad.label }}
+      </label>
+      <input
+        type="text"
+        name="{{ form.gravedad.name }}"
+        id="{{ form.gravedad.id_for_label }}"
+        placeholder="Ej: Leve"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      >
+    </div>
+
+    <!-- Campo Tratamiento -->
+    <div class="mb-4">
+      <label for="{{ form.tratamiento.id_for_label }}" class="block text-sm font-medium text-gray-700">
+        {{ form.tratamiento.label }}
+      </label>
+      <textarea
+        name="{{ form.tratamiento.name }}"
+        id="{{ form.tratamiento.id_for_label }}"
+        rows="4"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      ></textarea>
+    </div>
+
+    <!-- Campo Médico Derivado -->
+    <div class="mb-6">
+      <label for="{{ form.idmedico_derivado.id_for_label }}" class="block text-sm font-medium text-gray-700">
+        {{ form.idmedico_derivado.label }}
+      </label>
+      <select
+        name="{{ form.idmedico_derivado.name }}"
+        id="{{ form.idmedico_derivado.id_for_label }}"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Seleccione un médico</option>
+        {% for medico in form.idmedico_derivado.field.queryset %}
+          <option value="{{ medico.id }}">{{ medico.persona.first_name }} {{ medico.persona.last_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex items-center justify-end space-x-4">
+      <button
+        type="submit"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      >
+        Guardar
+      </button>
+      {% comment %} <a
+        href="{% url 'detalle_diagnostico' internacion.idinternacion %}"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      >
+        Cancelar
+      </a> {% endcomment %}
+    </div>
+  </form>
+</div>
 {% endblock content %}

@@ -55,6 +55,28 @@ def crear_medico(request):
         'persona_form': persona_form,
         'medico_form': medico_form,
     })
+    
+def editar_medico(request, medico_id):
+    medico = get_object_or_404(Medico, persona_id=medico_id)
+    
+    if request.method == 'POST':
+        persona_form =  CustomUserCreationForm(request.POST, instance=medico.persona)
+        medico_form = MedicoForm(request.POST, instance=medico)
+        if persona_form.is_valid() and medico_form.is_valid():
+            persona_form.save()
+            medico_form.save()
+            messages.success(request, '¡Médico actualizado exitosamente!')
+            return redirect('listar_medicos')  # Redirige a la lista de médicos
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+    else:
+        persona_form =  CustomUserCreationForm(instance=medico.persona)
+        medico_form = MedicoForm(instance=medico)
+    
+    return render(request, 'editar_medico.html', {
+        'persona_form': persona_form,
+        'medico_form': medico_form,
+    })
 
 
 @login_required
@@ -83,6 +105,30 @@ def crear_enfermero(request):
         'persona_form': persona_form,
         'enfermero_form': enfermero_form,
     })
+    
+
+
+def editar_enfermero(request, id_enfermero):
+    enfermero = get_object_or_404(Enfermero, persona_id=id_enfermero)
+    
+    if request.method == 'POST':
+        persona_form = CustomUserCreationForm(request.POST, instance=enfermero.persona)
+        enfermero_form = EnfermeroForm(request.POST, instance=enfermero)
+        if persona_form.is_valid() and enfermero_form.is_valid():
+            persona_form.save()
+            enfermero_form.save()
+            messages.success(request, '¡Enfermero actualizado exitosamente!')
+            return redirect('listar_enfermeros')  # Redirige a la lista de enfermeros
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+    else:
+        persona_form = CustomUserCreationForm(instance=enfermero.persona)
+        enfermero_form = EnfermeroForm(instance=enfermero)
+    
+    return render(request, 'editar_enfermero.html', {
+        'persona_form': persona_form,
+        'enfermero_form': enfermero_form,
+    })
 
 
 @login_required
@@ -102,7 +148,7 @@ def crear_recepcionista(request):
             recepcionista.save()
 
             messages.success(request, '¡Recepcionista creado exitosamente!')
-            return redirect('crear_recepcionista')
+            return redirect('listar_recepcionistas')
     else:
         persona_form = CustomUserCreationForm()
         recepcionista_form = RecepcionistaForm()
@@ -116,17 +162,7 @@ def listar_medicos(request):
     medicos = Medico.objects.all()
     return render(request, 'listar_medicos.html', {'medicos': medicos})
 
-@login_required
-def editar_medico(request, id_medico):
-    medico = get_object_or_404(Medico, persona_id=id_medico)
-    if request.method == "POST":
-        form = MedicoForm(request.POST, instance=medico)
-        if form.is_valid():
-            form.save()
-            return redirect('lista_medicos')
-    else:
-        form = MedicoForm(instance=medico)
-    return render(request, 'editar_medico.html', {'form': form, 'medico': medico})
+
 
 def eliminar_medico(request, id_medico):
     medico = get_object_or_404(Medico, persona_id=id_medico)
@@ -140,17 +176,6 @@ def listar_enfermeros(request):
     enfermeros = Enfermero.objects.all()
     return render(request, 'listar_enfermeros.html', {'enfermeros': enfermeros})
 
-def editar_enfermero(request, enfermero_id):
-    enfermero = get_object_or_404(Enfermero, id=enfermero_id)
-    if request.method == 'POST':
-        form = EnfermeroForm(request.POST, instance=enfermero)
-        if form.is_valid():
-            form.save()
-            messages.success(request, '¡Enfermero editado exitosamente!')
-            return redirect('listar_enfermeros')
-    else:
-        form = EnfermeroForm(instance=enfermero)
-    return render(request, 'editar_enfermeros.html', {'form': form})
 
 def eliminar_enfermero(request, id_enfermero):
     enfermero = get_object_or_404(Enfermero, persona_id=id_enfermero)
@@ -162,17 +187,29 @@ def listar_recepcionistas(request):
     recepcionistas = Recepcionista.objects.all()
     return render(request, 'listar_recepcionistas.html', {'recepcionistas': recepcionistas})
 
-def editar_recepcionista(request, id_recepcionista):
-    recepcionista = get_object_or_404(Recepcionista, persona_id=id_recepcionista)
+
+
+def editar_recepcionista(request, recepcionista_id):
+    recepcionista = get_object_or_404(Recepcionista, persona_id=recepcionista_id)
+    
     if request.method == 'POST':
-        form = RecepcionistaForm(request.POST, instance=recepcionista)
-        if form.is_valid():
-            form.save()
-            messages.success(request, '¡Recepcionista editado exitosamente!')
-            return redirect('listar_recepcionistas')
+        persona_form = CustomUserCreationForm(request.POST, instance=recepcionista.persona)
+        recepcionista_form = RecepcionistaForm(request.POST, instance=recepcionista)
+        if persona_form.is_valid() and recepcionista_form.is_valid():
+            persona_form.save()
+            recepcionista_form.save()
+            messages.success(request, '¡Recepcionista actualizado exitosamente!')
+            return redirect('listar_recepcionistas')  # Redirige a la lista de recepcionistas
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
-        form = RecepcionistaForm(instance=recepcionista)
-    return render(request, 'editar_recepcionistas.html', {'form': form})
+        persona_form = CustomUserCreationForm(instance=recepcionista.persona)
+        recepcionista_form = RecepcionistaForm(instance=recepcionista)
+    
+    return render(request, 'editar_recepcionista.html', {
+        'persona_form': persona_form,
+        'recepcionista_form': recepcionista_form,
+    })
 
 def eliminar_recepcionista(request, id_recepcionista):
     recepcionista = get_object_or_404(Recepcionista, persona_id=id_recepcionista)
