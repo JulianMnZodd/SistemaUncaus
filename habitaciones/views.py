@@ -7,14 +7,16 @@ from internacion.models import Internacion
 
 
 def lista_habitaciones(request):
-    # Obtener todos los sectores con sus habitaciones relacionadas
-    sectores = Sector.objects.prefetch_related('habitaciones__camas').all()
-    
+    # Obtener todos los sectores con sus habitaciones y camas relacionadas
+    sectores = Sector.objects.prefetch_related(
+        'habitaciones__camas'
+    ).all()
+
     # Crear un diccionario para mapear camas a pacientes
     cama_paciente_map = {}
     internaciones = Internacion.objects.filter(fecha_alta__isnull=True).select_related('idpaciente', 'cama')
     for internacion in internaciones:
-        cama_paciente_map[internacion.cama.idcama] = internacion.idpaciente
+        cama_paciente_map[internacion.cama.idcama] = internacion.idpaciente.nombre  # Asumiendo que el paciente tiene un campo 'nombre'
 
     # Pasar los sectores y el mapa de camas a pacientes al template
     context = {
@@ -22,35 +24,6 @@ def lista_habitaciones(request):
         'cama_paciente_map': cama_paciente_map,
     }
     return render(request, 'lista_habitaciones.html', context)
-
-def habitacion_detalle(request, habitacion_id):
-    # Obtener la habitación por su ID y sus camas
-    habitacion = get_object_or_404(Habitacion, id=habitacion_id)
-    camas = habitacion.camas.all()  # Obtener las camas de la habitación
-
-    # Crear el contexto para pasar a la plantilla
-    camas_context = []
-
-    for cama in camas:
-        if cama.estado == 'O':
-            color = "#FF0000"  # Rojo para ocupada
-            paciente = cama.paciente
-        elif cama.estado == 'R':
-            color = "#FFFF00"  # Amarillo para reservada
-            paciente = 'Reservada'
-        else:
-            color = "#00FF00"  # Verde para libre
-            paciente = 'Libre'
-        
-        camas_context.append({
-            "paciente": paciente,
-            "color": color
-        })
-
-    return render(request, 'habitacion_detalle.html', {
-        "habitacion": habitacion,
-        "camas": camas_context
-    })
 
 
 def liberar_cama(request, idcama):

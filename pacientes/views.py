@@ -3,6 +3,8 @@ from pacientes.models import Paciente
 from .forms import PacienteForm
 from internacion.models import Internacion
 from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 def crear_paciente(request):
     if request.method == 'POST':
@@ -44,8 +46,26 @@ def asignar_paciente_cama(request):
     return render(request, 'asignar_paciente_cama.html', {'pacientes': pacientes})
 
 def listar_pacientes(request):
-    pacientes = Paciente.objects.all()  # Obtén todos los pacientes del sistema
-    return render(request, 'listar_pacientes.html', {'pacientes': pacientes})
+    query = request.GET.get('q', '')
+    
+    pacientes_list = Paciente.objects.all().order_by('apellido')
+    
+    if query:
+        pacientes_list = pacientes_list.filter(
+            Q(nombre__icontains=query) |
+            Q(apellido__icontains=query) |
+            Q(dni__icontains=query) |
+            Q(telefono__icontains=query)
+        )
+    
+    paginator = Paginator(pacientes_list, 10)
+    page_number = request.GET.get('page')
+    pacientes = paginator.get_page(page_number)
+    
+    return render(request, 'listar_pacientes.html', {
+        'pacientes': pacientes,
+        'request': request  # Para acceder a los parámetros GET en la plantilla
+    })
 
 def listar_internaciones_historicas(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)

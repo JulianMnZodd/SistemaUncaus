@@ -10,7 +10,7 @@ django.setup()
 from pacientes.models import Paciente
 
 # Inicializar Faker
-fake = Faker()
+fake = Faker('es_ES')
 
 def generate_patients(n):
     for _ in range(n):

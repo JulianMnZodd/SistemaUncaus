@@ -142,14 +142,16 @@
     </div>
   </div>
 
-  <!-- Botón para volver -->
-  <div class="flex justify-center mt-8">
-    <a href="{% url 'listar_pacientes' %}" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center">
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-      </svg>
-      Volver a la lista de pacientes
-    </a>
-  </div>
+  <!-- Botón para volver a la vista anterior -->
+<div class="flex justify-center mt-8">
+  <a href="#" 
+     onclick="event.preventDefault(); window.history.back();" 
+     class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center cursor-pointer">
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    Volver
+  </a>
+</div>
 </div>
 {% endblock %}

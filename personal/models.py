@@ -24,6 +24,7 @@ class PersonaManager(BaseUserManager):
     
 class Persona(AbstractUser):
     # Campos adicionales
+    username = None
     email = models.EmailField(unique=True)  # Asegúrate de que el email sea único
     dni = models.IntegerField(unique=True)
     domicilio = models.CharField(max_length=100)
