@@ -4,8 +4,9 @@ from django.shortcuts import redirect, render, get_object_or_404
 from .models import Habitacion,Cama,Sector
 from .models import Cama, Medico, Reserva
 from internacion.models import Internacion
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def lista_habitaciones(request):
     # Obtener todos los sectores con sus habitaciones y camas relacionadas
     sectores = Sector.objects.prefetch_related(
@@ -25,7 +26,7 @@ def lista_habitaciones(request):
     }
     return render(request, 'lista_habitaciones.html', context)
 
-
+@login_required
 def liberar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     if request.method == 'POST':
@@ -35,6 +36,8 @@ def liberar_cama(request, idcama):
 
 from django.utils import timezone
 from datetime import timedelta
+
+@login_required
 def reservar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     medicos = Medico.objects.all()
@@ -85,7 +88,7 @@ from .models import Sector
 from internacion.models import Internacion
 from datetime import datetime, timedelta
 
-
+@login_required
 def generar_grafico_porcentaje_internados():
     # Obtener los datos de internaciones por sector
     sectores = Sector.objects.all()
@@ -117,6 +120,7 @@ def generar_grafico_porcentaje_internados():
 
     return graphic
 
+@login_required
 def reporte_grafico_porcentaje_internados(request):
     graphic = generar_grafico_porcentaje_internados()
     context = {

@@ -5,7 +5,9 @@ from internacion.models import Internacion
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def crear_paciente(request):
     if request.method == 'POST':
         form = PacienteForm(request.POST)
@@ -17,6 +19,8 @@ def crear_paciente(request):
         form = PacienteForm()
     return render(request, 'crear_paciente.html', {'form': form})
 
+
+@login_required
 def editar_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     
@@ -33,6 +37,7 @@ def editar_paciente(request, paciente_id):
     
     return render(request, 'editar_paciente.html', {'form': form})
 
+@login_required
 def eliminar_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     paciente.delete()
@@ -40,11 +45,12 @@ def eliminar_paciente(request, paciente_id):
     return redirect('listar_pacientes')
 
 
-
+@login_required
 def asignar_paciente_cama(request):
     pacientes = Paciente.objects.all()  # Obtén todos los pacientes del sistema
     return render(request, 'asignar_paciente_cama.html', {'pacientes': pacientes})
 
+@login_required
 def listar_pacientes(request):
     query = request.GET.get('q', '')
     
@@ -67,6 +73,7 @@ def listar_pacientes(request):
         'request': request  # Para acceder a los parámetros GET en la plantilla
     })
 
+@login_required
 def listar_internaciones_historicas(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     internaciones = Internacion.objects.filter(idpaciente=paciente)
@@ -76,7 +83,7 @@ def listar_internaciones_historicas(request, paciente_id):
     })
 
 
-
+@login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     return render(request, 'detalle_paciente.html', {'paciente': paciente})

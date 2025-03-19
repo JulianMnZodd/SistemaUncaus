@@ -146,7 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ar'
 
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
@@ -154,6 +154,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+USE_L10N = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -166,6 +167,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',  # Django buscará aquí traducciones adicionales
+]
 
 #Configuracion compresor 
 COMPRESS_ENABLED = True

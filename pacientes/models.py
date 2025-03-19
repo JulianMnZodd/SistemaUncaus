@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 class ObraSocial(models.Model):
     idobra_social = models.AutoField(db_column='idObra_social', primary_key=True)  # Field name made lowercase.
@@ -17,7 +19,7 @@ class Paciente(models.Model):
     idpaciente = models.AutoField(db_column='idPaciente', primary_key=True)  # Clave primaria
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
-    dni = models.IntegerField(unique=True)
+    dni = models.IntegerField(unique=True,validators=[MinValueValidator(1), MaxValueValidator(8)])
     domicilio = models.CharField(max_length=100, blank=True, null=True)
     localidad = models.CharField(max_length=50, blank=True, null=True)
     provincia = models.CharField(max_length=50, blank=True, null=True)

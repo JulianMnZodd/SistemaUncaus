@@ -51,6 +51,15 @@
         {% endif %}
       </div>
 
+      <div>
+        <label for="{{ form.email.id_for_label }}" class="block text
+        -sm font-medium text-gray-600 mb-2">Email</label>
+        {{ form.email|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        {% if form.email.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.email.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+
       <!-- Fecha de Nacimiento -->
       <div>
         <label for="{{ form.fecha_nacimiento.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Fecha de Nacimiento</label>

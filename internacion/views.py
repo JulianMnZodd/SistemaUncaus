@@ -64,7 +64,9 @@ def generar_consentimiento(request):
             return generar_consentimiento_pdf(request, paciente.id)
     else:
         return redirect('asignar_cama')
-
+    
+    
+@login_required
 def seleccionar_cama(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     habitaciones = Habitacion.objects.prefetch_related(
@@ -76,7 +78,7 @@ def seleccionar_cama(request, paciente_id):
         {"habitaciones": habitaciones, "paciente": paciente},
     )
 
-
+@login_required
 def listar_internaciones(request):
     internaciones = Internacion.objects.filter(fecha_alta__isnull=True)
     es_medico = hasattr(request.user, "medico")
@@ -184,7 +186,7 @@ def seguimiento(request, internacion_id):
         },
     )
 
-
+@login_required
 def listar_seguimientos(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     seguimientos = Seguimiento.objects.filter(idinternacion=internacion)
@@ -193,7 +195,7 @@ def listar_seguimientos(request, internacion_id):
         'seguimientos': seguimientos,
     })
     
-
+@login_required
 def seguimiento_detalles(request, seguimiento_id):
     seguimiento = get_object_or_404(Seguimiento, idseguimiento=seguimiento_id)
     return render(request, 'seguimiento_detalles.html', {

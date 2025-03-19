@@ -7,7 +7,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de internación UME</title>
+    <title>BedWise</title>
+    <link rel="icon" href="{% static 'logo.ico' %}" type="image/x-icon" />
 
     {% compress css %}
     <link rel="stylesheet" href="{% static 'src/output.css' %}" />
@@ -49,13 +50,13 @@
             </button>
             <a href="{% url 'lista_habitaciones'%}" class="flex ms-2 md:me-24">
               <img
-                src="https://flowbite.com/docs/images/logo.svg"
-                class="h-8 me-3"
-                alt="FlowBite Logo"
+                src={% static 'logoBEDWISE.png' %}
+                class="h-12 me-3 rounded-xl"
+                alt="BEDWISE LOGO"
               />
               <span
                 class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
-                >Proyecto Uncaus</span
+                >BEDWISE</span
               >
             </a>
           </div>
@@ -68,7 +69,7 @@
                   aria-expanded="false"
                   data-dropdown-toggle="dropdown-user"
                 >
-                  <span class="sr-only">Open user menu</span>
+                  <span class="sr-only">Abrir menu</span>
                   <img
                     class="w-8 h-8 rounded-full"
                     src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"

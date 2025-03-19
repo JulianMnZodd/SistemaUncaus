@@ -107,7 +107,7 @@ def crear_enfermero(request):
     })
     
 
-
+@login_required
 def editar_enfermero(request, id_enfermero):
     enfermero = get_object_or_404(Enfermero, persona_id=id_enfermero)
     
@@ -157,13 +157,15 @@ def crear_recepcionista(request):
         'persona_form': persona_form,
         'recepcionista_form': recepcionista_form,
     })
-
+    
+    
+@login_required
 def listar_medicos(request):
     medicos = Medico.objects.all()
     return render(request, 'listar_medicos.html', {'medicos': medicos})
 
 
-
+@login_required
 def eliminar_medico(request, id_medico):
     medico = get_object_or_404(Medico, persona_id=id_medico)
     medico.delete()
@@ -171,24 +173,25 @@ def eliminar_medico(request, id_medico):
     return redirect('listar_medicos')
 
 
-
+@login_required
 def listar_enfermeros(request):
     enfermeros = Enfermero.objects.all()
     return render(request, 'listar_enfermeros.html', {'enfermeros': enfermeros})
 
-
+@login_required
 def eliminar_enfermero(request, id_enfermero):
     enfermero = get_object_or_404(Enfermero, persona_id=id_enfermero)
     enfermero.delete()
     messages.success(request, '¡Enfermero eliminado exitosamente!')
     return redirect('listar_enfermeros')
 
+@login_required
 def listar_recepcionistas(request):
     recepcionistas = Recepcionista.objects.all()
     return render(request, 'listar_recepcionistas.html', {'recepcionistas': recepcionistas})
 
 
-
+@login_required
 def editar_recepcionista(request, recepcionista_id):
     recepcionista = get_object_or_404(Recepcionista, persona_id=recepcionista_id)
     
@@ -211,6 +214,7 @@ def editar_recepcionista(request, recepcionista_id):
         'recepcionista_form': recepcionista_form,
     })
 
+@login_required
 def eliminar_recepcionista(request, id_recepcionista):
     recepcionista = get_object_or_404(Recepcionista, persona_id=id_recepcionista)
     recepcionista.delete()
