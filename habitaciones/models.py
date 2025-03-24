@@ -11,11 +11,10 @@ class Sector(models.Model):
         ('TER', 'Terapia'),
         ('VIP', 'VIP'),
         ('QUI', 'Quirófano'),
-        ('NEO', 'Neonatología'),
     ]
     
     idsector = models.AutoField(db_column='idSector', primary_key=True)  # Field name made lowercase.
-    tipo = models.CharField(max_length=3, choices=TIPOS_SECTOR)
+    tipo = models.CharField(max_length=15, choices=TIPOS_SECTOR)
     cantidad_habitaciones = models.IntegerField()
     piso = models.IntegerField()
 

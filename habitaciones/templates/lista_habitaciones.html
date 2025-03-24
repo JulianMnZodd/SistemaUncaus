@@ -1,12 +1,54 @@
 {% extends "_base.html" %}
-{% load static %} 
+{% load static %}
 {% block content %}
+
+<!-- Formulario de Filtros -->
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <form method="get" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Filtro por Sectores -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sectores:</label>
+                <div class="grid grid-cols-2 gap-2">
+                    {% for sector in all_sectors %}
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="sector" value="{{ sector.idsector }}" 
+                               {% if sector.id in selected_sectors %}checked{% endif %}
+                               class="h-4 w-4 text-blue-600 rounded border-gray-300">
+                        <span class="ml-2 text-sm text-gray-700">{{ sector.tipo }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Filtro por Disponibilidad -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Estado:</label>
+                <div class="mt-1">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="available_beds" {% if available_beds %}checked{% endif %}
+                               class="h-4 w-4 text-blue-600 rounded border-gray-300">
+                        <span class="ml-2 text-sm text-gray-700">Mostrar solo camas disponibles</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" 
+                class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            Aplicar Filtros
+        </button>
+    </form>
+</div>
+
+<!-- Resto del contenido... -->
 <div class="space-y-8">
   {% for sector in sectores %}
   <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-4">Sector: {{ sector.tipo }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       {% for habitacion in sector.habitaciones.all %}
+      {% if habitacion.camas.all %} 
       <div class="bg-white rounded-lg shadow-lg overflow-hidden">
         <div class="p-4 border-b-2 border-gray-100">
           <h2 class="text-xl font-bold text-gray-700">Habitación #{{ habitacion.numero }}</h2>
@@ -111,9 +153,11 @@
               </div>
             </div>
           </div>
+          
           {% endfor %}
         </div>
       </div>
+      {% endif %}
       {% endfor %}
     </div>
   </div>

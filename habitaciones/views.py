@@ -5,23 +5,44 @@ from .models import Habitacion,Cama,Sector
 from .models import Cama, Medico, Reserva
 from internacion.models import Internacion
 from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 
 @login_required
 def lista_habitaciones(request):
-    # Obtener todos los sectores con sus habitaciones y camas relacionadas
-    sectores = Sector.objects.prefetch_related(
-        'habitaciones__camas'
-    ).all()
-
-    # Crear un diccionario para mapear camas a pacientes
+    # Parámetros de filtrado
+    selected_sectors = request.GET.getlist('sector')
+    available_beds = 'available_beds' in request.GET
+    
+    # Convertir a enteros solo si hay valores válidos
+    selected_sectors_ids = []
+    if selected_sectors:  # Verifica si hay valores en selected_sectors
+        selected_sectors_ids = [int(s_id) for s_id in selected_sectors if s_id.isdigit()]
+    
+    # Configurar prefetch con filtros
+    camas_filter = Cama.objects.filter(estado='L') if available_beds else Cama.objects.all()
+    habitaciones_prefetch = Prefetch(
+        'habitaciones',
+        queryset=Habitacion.objects.prefetch_related(
+            Prefetch('camas', queryset=camas_filter)
+        )
+    )
+    
+    # Obtener sectores con filtros
+    sectores = Sector.objects.prefetch_related(habitaciones_prefetch)
+    if selected_sectors_ids:  # Aplicar filtro solo si hay IDs válidos
+        sectores = sectores.filter(idsector__in=selected_sectors_ids)
+    
+    # Mapa de pacientes
     cama_paciente_map = {}
     internaciones = Internacion.objects.filter(fecha_alta__isnull=True).select_related('idpaciente', 'cama')
     for internacion in internaciones:
-        cama_paciente_map[internacion.cama.idcama] = internacion.idpaciente.nombre  # Asumiendo que el paciente tiene un campo 'nombre'
+        cama_paciente_map[internacion.cama.idcama] = f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}"
 
-    # Pasar los sectores y el mapa de camas a pacientes al template
     context = {
         'sectores': sectores,
+        'all_sectors': Sector.objects.all(),
+        'selected_sectors': selected_sectors_ids,
+        'available_beds': available_beds,
         'cama_paciente_map': cama_paciente_map,
     }
     return render(request, 'lista_habitaciones.html', context)
