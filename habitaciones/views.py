@@ -148,4 +148,91 @@ def reporte_grafico_porcentaje_internados(request):
         'graphic': graphic,
     }
     return render(request, 'reporte_grafico_porcentaje_internados.html', context)
+
+
+
+from django.db.models import Count, Q, F, ExpressionWrapper, fields, Avg
+from django.db.models.functions import TruncDay
+from django.utils import timezone
+import json
+from datetime import timedelta
+
+def estadisticas_camas(request):
+    now = timezone.now()
+    
+    # Obtener parámetro de días (default: 7)
+    try:
+        days = int(request.GET.get('days', 7))
+    except (ValueError, TypeError):
+        days = 7
+    
+    # Limitar máximo a 365 días
+    days = min(days, 365)
+    
+    # Filtro dinámico para tendencia
+    start_date = now - timedelta(days=days)
+    
+    # Datos básicos de ocupación
+    total_camas = Cama.objects.count()
+    camas_ocupadas = Cama.objects.filter(estado='O').count()
+    camas_reservadas = Cama.objects.filter(estado='R').count()
+    camas_disponibles = total_camas - (camas_ocupadas + camas_reservadas)
+    
+    # Tendencia dinámica según días seleccionados
+    tendencia_data = (
+        Internacion.objects
+        .filter(fecha_admision__gte=start_date)
+        .annotate(fecha=TruncDay('fecha_admision'))
+        .values('fecha')
+        .annotate(total=Count('idinternacion'))
+        .order_by('fecha')
+    )
+    
+    # Distribución por sector
+    distribucion_sector = (
+        Sector.objects
+        .annotate(
+            total_camas=Count('habitaciones__camas'),
+            ocupadas=Count('habitaciones__camas', filter=Q(habitaciones__camas__estado='O')),
+            reservadas=Count('habitaciones__camas', filter=Q(habitaciones__camas__estado='R'))
+        )
+        .values('tipo', 'total_camas', 'ocupadas', 'reservadas')
+    )
+    
+    # Tiempo promedio de ocupación
+    internaciones = Internacion.objects.annotate(
+        duracion=ExpressionWrapper(
+            F('fecha_alta') - F('fecha_admision'),
+            output_field=fields.DurationField()
+        )
+    ).exclude(duracion__isnull=True)
+    
+    duracion_promedio = internaciones.aggregate(
+        avg_duracion=Avg('duracion')
+    )['avg_duracion'] or timedelta(0)
+
+    context = {
+        # Datos básicos
+        'total_camas': total_camas,
+        'camas_ocupadas': camas_ocupadas,
+        'camas_reservadas': camas_reservadas,
+        'camas_disponibles': camas_disponibles,
         
+        # Tendencia
+        'tendencia_labels': json.dumps([item['fecha'].strftime('%Y-%m-%d') for item in tendencia_data]),
+        'tendencia_data': json.dumps([item['total'] for item in tendencia_data]),
+        'selected_days': days,  # Nuevo parámetro para el template
+        
+        # Distribución por sector
+        'distribucion_labels': json.dumps([item['tipo'] for item in distribucion_sector]),
+        'distribucion_total': json.dumps([item['total_camas'] for item in distribucion_sector]),
+        'distribucion_ocupadas': json.dumps([item['ocupadas'] for item in distribucion_sector]),
+        'distribucion_reservadas': json.dumps([item['reservadas'] for item in distribucion_sector]),
+        
+        # Tiempos
+        'duracion_promedio': f"{duracion_promedio.days}d {duracion_promedio.seconds//3600}h",
+        
+        # Reservas activas
+        'reservas_activas': Reserva.objects.filter(fecha_expiracion__gte=now).count()
+    }
+    return render(request, 'estadisticas.html', context)

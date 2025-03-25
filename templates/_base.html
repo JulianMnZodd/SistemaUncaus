@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{% static 'src/output.css' %}" />
     {% endcompress %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.1/flowbite.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {{ select2_css }}
   </head>
 
@@ -132,7 +133,7 @@
         <ul class="space-y-2 font-medium">
           <li>
             <a
-              href="{% url 'lista_habitaciones'%}"
+              href="{% url 'estadisticas'%}"
               class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
             >
               <svg

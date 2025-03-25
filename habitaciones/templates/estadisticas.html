@@ -1,0 +1,215 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <!-- Tarjetas resumen con estilo Flowbite -->
+    <div class="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+        <div class="flex flex-col items-center p-6 bg-blue-100 rounded-lg">
+            <div class="mb-2 text-blue-600">
+                <i class="bi bi-bed text-3xl"></i>
+            </div>
+            <h3 class="mb-2 text-xl font-semibold text-gray-700">Total Camas</h3>
+            <p class="text-3xl font-bold text-blue-600">{{ total_camas }}</p>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+        <div class="flex flex-col items-center p-6 bg-green-100 rounded-lg">
+            <div class="mb-2 text-green-600">
+                <i class="bi bi-check-circle text-3xl"></i>
+            </div>
+            <h3 class="mb-2 text-xl font-semibold text-gray-700">Disponibles</h3>
+            <p class="text-3xl font-bold text-green-600">{{ camas_disponibles }}</p>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+        <div class="flex flex-col items-center p-6 bg-red-100 rounded-lg">
+            <div class="mb-2 text-red-600">
+                <i class="bi bi-exclamation-triangle text-3xl"></i>
+            </div>
+            <h3 class="mb-2 text-xl font-semibold text-gray-700">Ocupadas</h3>
+            <p class="text-3xl font-bold text-red-600">{{ camas_ocupadas }}</p>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+        <div class="flex flex-col items-center p-6 bg-yellow-100 rounded-lg">
+            <div class="mb-2 text-yellow-600">
+                <i class="bi bi-clock-history text-3xl"></i>
+            </div>
+            <h3 class="mb-2 text-xl font-semibold text-gray-700">Reservadas</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ camas_reservadas }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Gráfico de distribución con estilo Flowbite -->
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+        <div class="p-6 border-b border-gray-200">
+            <h5 class="text-xl font-semibold text-gray-700">
+                <i class="bi bi-bar-chart-line mr-2 text-blue-500"></i>
+                Distribución por Sector
+            </h5>
+        </div>
+        <div class="p-4">
+            <canvas id="sectorChart" class="w-full h-96"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfico de tendencia con estilo Flowbite -->
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+        <div class="p-6 border-b border-gray-200">
+            <h5 class="text-xl font-semibold">
+                <i class="bi bi-graph-up mr-2 text-green-500"></i>
+                Tendencia de Ingresos (Últimos {{ selected_days }} días)
+            </h5>
+            <div class="flex gap-2 mb-4">
+                <a href="?days=7" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg {% if selected_days == 7 %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    7 días
+                </a>
+                <a href="?days=30" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg {% if selected_days == 30 %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    30 días
+                </a>
+            </div>
+        </div>
+        <div class="p-4">
+            <canvas id="tendenciaChart" class="w-full h-96"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<script>
+// Gráfico de distribución mejorado
+new Chart(document.getElementById('sectorChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ distribucion_labels|safe }},
+        datasets: [
+            {
+                label: 'Disponibles',
+                data: {{ distribucion_total|safe }}.map((total, i) => 
+                    total - {{ distribucion_ocupadas|safe }}[i] - {{ distribucion_reservadas|safe }}[i]),
+                backgroundColor: '#60A5FA',
+                hoverBackgroundColor: '#3B82F6',
+                borderWidth: 0
+            },
+            {
+                label: 'Reservadas',
+                data: {{ distribucion_reservadas|safe }},
+                backgroundColor: '#FBBF24',
+                hoverBackgroundColor: '#F59E0B',
+                borderWidth: 0
+            },
+            {
+                label: 'Ocupadas',
+                data: {{ distribucion_ocupadas|safe }},
+                backgroundColor: '#EF4444',
+                hoverBackgroundColor: '#DC2626',
+                borderWidth: 0
+            }
+        ]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: '#6B7280',
+                    font: { size: 14 }
+                }
+            }
+        },
+        scales: {
+            x: { 
+                stacked: true,
+                grid: { display: false },
+                ticks: { 
+                    color: '#6B7280',
+                    font: { size: 12 }
+                }
+            },
+            y: { 
+                stacked: true,
+                ticks: {
+                    color: '#6B7280',
+                    stepSize: 1,
+                    precision: 0
+                },
+                grid: {
+                    color: '#E5E7EB'
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de tendencia mejorado
+new Chart(document.getElementById('tendenciaChart'), {
+    type: 'line',
+    data: {
+        labels: {{ tendencia_labels|safe }},
+        datasets: [{
+            label: 'Ingresos diarios',
+            data: {{ tendencia_data|safe }},
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.05)',
+            tension: 0.3,
+            borderWidth: 2,
+            pointRadius: 5,
+            pointBackgroundColor: '#10B981',
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                backgroundColor: '#1F2937',
+                titleColor: '#F9FAFB',
+                bodyColor: '#F9FAFB',
+                borderColor: '#374151',
+                borderWidth: 1,
+                callbacks: {
+                    title: (context) => `Fecha: ${context[0].label}`,
+                    label: (context) => `📈 Ingresos: ${context.raw}`
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: { 
+                    color: '#6B7280',
+                    font: { size: 12 }
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#6B7280',
+                    stepSize: 1
+                },
+                grid: {
+                    color: '#E5E7EB'
+                }
+            }
+        }
+    }
+});
+</script>
+
+<style>
+/* Personalización adicional */
+.chart-tooltip {
+    border-radius: 8px!important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)!important;
+}
+</style>
+
+{% endblock content %}
