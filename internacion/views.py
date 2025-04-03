@@ -278,3 +278,117 @@ def generar_consentimiento_pdf(request, paciente_id):
     p.save()
 
     return response
+
+
+from datetime import timedelta
+
+@login_required
+def generar_informe_internaciones(request):
+    
+    hace_un_mes = timezone.now() - timedelta(days=30)
+    
+    internaciones = Internacion.objects.filter(fecha_admision__gte=hace_un_mes).order_by('-fecha_admision')
+
+    # Crear el objeto HttpResponse con el encabezado PDF adecuado
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="informe_internaciones.pdf"'
+
+    # Crear el objeto PDF usando el HttpResponse como "archivo"
+    p = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    # Título del documento
+    p.setFont("Helvetica-Bold", 16)
+    p.drawCentredString(width / 2, height - 50, "Informe de Internaciones del Último Mes")
+
+    # Encabezados de la tabla
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, height - 100, "Paciente")
+    p.drawString(200, height - 100, "Fecha de Ingreso")
+    p.drawString(350, height - 100, "Fecha de Alta")
+    p.drawString(500, height - 100, "Motivo")
+
+    # Datos de la tabla
+    y = height - 120
+    p.setFont("Helvetica", 10)
+    for internacion in internaciones:
+        p.drawString(50, y, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
+        p.drawString(200, y, str(internacion.fecha_admision.strftime("%d/%m/%Y %H:%M")))
+        p.drawString(350, y, internacion.fecha_alta.strftime("%d/%m/%Y %H:%M") if internacion.fecha_alta else "-")
+        p.drawString(500, y, internacion.nota_ingreso)
+        y -= 20
+
+        if y < 50:  # Salto de página si no hay espacio
+            p.showPage()
+            y = height - 50
+
+    # Finalizar el PDF
+    p.save()
+    return response
+
+
+
+@login_required
+def generar_informe_internacion(request, internacion_id):
+    # Obtener la internación y sus seguimientos
+    internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
+    seguimientos = Seguimiento.objects.filter(idinternacion=internacion).order_by('fecha')
+
+    # Crear el objeto HttpResponse con el encabezado PDF adecuado
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="informe_internacion_{internacion.idinternacion}.pdf"'
+
+    # Crear el objeto PDF usando el HttpResponse como "archivo"
+    p = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    # Título del documento
+    p.setFont("Helvetica-Bold", 16)
+    p.drawCentredString(width / 2, height - 50, f"Informe de Internación - Paciente: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
+
+    # Información general de la internación
+    p.setFont("Helvetica", 12)
+    y = height - 100
+    p.drawString(50, y, f"Fecha de Ingreso: {internacion.fecha_admision.strftime('%d/%m/%Y %H:%M')}")
+    y -= 20
+    p.drawString(50, y, f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y %H:%M') if internacion.fecha_alta else 'N/A'}")
+    y -= 20
+    p.drawString(50, y, f"Motivo de Internación: {internacion.nota_ingreso}")
+    y -= 40
+
+    # Detalles del seguimiento
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, "Seguimientos:")
+    y -= 20
+
+    p.setFont("Helvetica", 10)
+    for seguimiento in seguimientos:
+        if y < 100:  # Salto de página si no hay espacio
+            p.showPage()
+            y = height - 50
+            p.setFont("Helvetica", 10)
+
+        p.drawString(50, y, f"- Fecha: {seguimiento.fecha.strftime('%d/%m/%Y %H:%M')}")
+        y -= 15
+        p.drawString(70, y, f"  Observación: {seguimiento.observacion}")
+        y -= 15
+
+        # Medicación
+        p.drawString(70, y, "  Medicación:")
+        y -= 15
+        for medicacion in seguimiento.medicaciones.all():
+            p.drawString(90, y, f"- {medicacion.tipo}: {medicacion.nombre} a las {medicacion.hora_medicacion.strftime('%H:%M')}")
+            y -= 15
+
+        # Signos vitales
+        p.drawString(70, y, "  Signos Vitales:")
+        y -= 15
+        for signo in seguimiento.signos_vitales.all():
+            p.drawString(90, y, f"- Temperatura: {signo.temperatura_corporal}°C, Pulso: {signo.pulso}, Frecuencia Respiratoria: {signo.frecuencia_respiratoria}")
+            y -= 15
+
+        y -= 10  # Espacio entre seguimientos
+
+    # Finalizar el PDF
+    p.save()
+    return response

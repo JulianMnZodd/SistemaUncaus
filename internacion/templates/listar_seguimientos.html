@@ -20,6 +20,9 @@
           <th class="px-4 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
             Acción
           </th>
+          <th class="px-4 py-3 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            Informe
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -39,6 +42,12 @@
               Ver Detalles
             </a>
           </td>
+          <td class="px-4 py-3 border-b border-gray-200 text-sm">
+            <a href="{% url 'generar_informe_internacion' seguimiento.idinternacion.idinternacion %}" 
+            class="text-blue-500 hover:text-blue-700 font-semibold">
+            Descargar Informe de Internación
+          </a>
+          </td>  
         </tr>
         {% endfor %}
       </tbody>

@@ -12,4 +12,6 @@ urlpatterns = [
     path('seguimiento_detalles/<int:seguimiento_id>/', views.seguimiento_detalles, name='seguimiento_detalles'),
     path('generar_consentimiento_pdf/<int:paciente_id>/', views.generar_consentimiento_pdf, name='generar_consentimiento_pdf'),
     path('generar_consentimiento/', views.generar_consentimiento, name='generar_consentimiento'),
+    path('informe-internaciones/', views.generar_informe_internaciones, name='generar_informe_internaciones'),
+    path('informe-internacion/<int:internacion_id>/', views.generar_informe_internacion, name='generar_informe_internacion'),
 ]
