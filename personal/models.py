@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 class PersonaManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -27,7 +26,7 @@ class Persona(AbstractUser):
     # Campos adicionales
     username = None
     email = models.EmailField(unique=True)  # Asegúrate de que el email sea único
-    dni = models.IntegerField(unique=True,validators=[MinValueValidator(1), MaxValueValidator(8)])
+    dni = models.IntegerField(unique=True)
     domicilio = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     genero = models.CharField(max_length=10, choices=[('M', 'Masculino'), ('F', 'Femenino')], blank=True)
