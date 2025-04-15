@@ -6,6 +6,24 @@
     <!-- Header Section -->
     <div class="flex justify-between items-center">
       <h1 class="text-3xl font-bold text-gray-900">Internaciones Activas</h1>
+      <!-- Formulario para Generar Informe -->
+      <form method="POST" action="{% url 'generar_informe_internaciones' %}" class="flex items-center space-x-4">
+        {% csrf_token %}
+        <div>
+          <label for="id_fecha_inicio" class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
+          <input type="date" name="fecha_inicio" id="id_fecha_inicio" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        <div>
+          <label for="id_fecha_fin" class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
+          <input type="date" name="fecha_fin" id="id_fecha_fin" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Generar Informe
+        </button>
+      </form>
     </div>
 
     <!-- Table Container -->
@@ -95,7 +113,6 @@
   </div>
 </div>
 
-<a href="{% url 'generar_informe_internaciones' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-    Descargar informe de internaciones mensuales (PDF)
-</a>
+
+
 {% endblock %}

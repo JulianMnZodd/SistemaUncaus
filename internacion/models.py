@@ -62,6 +62,8 @@ class Seguimiento(models.Model):
     observacion = models.CharField(max_length=200)
     idinternacion = models.ForeignKey(Internacion, models.CASCADE, db_column='idInternacion')  # Field name made lowercase.
     fecha = models.DateTimeField(auto_now_add=True)
+    cama_origen = models.ForeignKey(Cama, on_delete=models.SET_NULL, null=True, blank=True, related_name='seguimientos_origen')
+    cama_destino = models.ForeignKey(Cama, on_delete=models.SET_NULL, null=True, blank=True, related_name='seguimientos_destino')    
     class Meta:
         managed = True
         db_table = 'seguimiento'

@@ -61,6 +61,7 @@ class Cama(models.Model):
     idcama = models.AutoField(db_column='idCama', primary_key=True)  # Field name made lowercase.
     habitacion = models.ForeignKey(Habitacion,on_delete=models.CASCADE, db_column='idHabitacion', related_name='camas')  # Relación inversa.
     estado = models.CharField(max_length=1, choices=ESTADOS, default='L')
+    nro_cama = models.IntegerField(default=0)
     
     def liberar(self):
         self.estado = 'L'
@@ -76,7 +77,7 @@ class Cama(models.Model):
             internacion.save()
 
     def __str__(self):
-        return f"{self.idcama} - {self.habitacion.numero}"
+        return f"{self.nro_cama}"
 
     class Meta:
         managed = True

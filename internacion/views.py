@@ -309,52 +309,73 @@ def generar_consentimiento_pdf(request, paciente_id):
 
 from datetime import timedelta
 
+from django import forms
+
+class InformeInternacionesForm(forms.Form):
+    fecha_inicio = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Fecha de Inicio",
+        required=True
+    )
+    fecha_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Fecha de Fin",
+        required=True
+    )
+
 @login_required
 def generar_informe_internaciones(request):
-    
-    hace_un_mes = timezone.now() - timedelta(days=30)
-    
-    internaciones = Internacion.objects.filter(fecha_admision__gte=hace_un_mes).order_by('-fecha_admision')
+    if request.method == 'POST':
+        form = InformeInternacionesForm(request.POST)
+        if form.is_valid():
+            fecha_inicio = form.cleaned_data['fecha_inicio']
+            fecha_fin = form.cleaned_data['fecha_fin']
 
-    # Crear el objeto HttpResponse con el encabezado PDF adecuado
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="informe_internaciones.pdf"'
+            # Obtener todas las internaciones en el rango de fechas
+            internaciones = Internacion.objects.filter(
+                fecha_admision__gte=fecha_inicio,
+                fecha_admision__lte=fecha_fin
+            ).order_by('-fecha_admision')
 
-    # Crear el objeto PDF usando el HttpResponse como "archivo"
-    p = canvas.Canvas(response, pagesize=letter)
-    width, height = letter
+            # Crear el objeto HttpResponse con el encabezado PDF adecuado
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="informe_internaciones.pdf"'
 
-    # Título del documento
-    p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, height - 50, "Informe de Internaciones del Último Mes")
+            # Crear el objeto PDF usando el HttpResponse como "archivo"
+            p = canvas.Canvas(response, pagesize=letter)
+            width, height = letter
 
-    # Encabezados de la tabla
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(50, height - 100, "Paciente")
-    p.drawString(200, height - 100, "Fecha de Ingreso")
-    p.drawString(350, height - 100, "Fecha de Alta")
-    p.drawString(500, height - 100, "Motivo")
+            # Título del documento
+            p.setFont("Helvetica-Bold", 16)
+            p.drawCentredString(width / 2, height - 50, f"Informe de Internaciones ({fecha_inicio} - {fecha_fin})")
 
-    # Datos de la tabla
-    y = height - 120
-    p.setFont("Helvetica", 10)
-    for internacion in internaciones:
-        p.drawString(50, y, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
-        p.drawString(200, y, str(internacion.fecha_admision.strftime("%d/%m/%Y %H:%M")))
-        p.drawString(350, y, internacion.fecha_alta.strftime("%d/%m/%Y %H:%M") if internacion.fecha_alta else "-")
-        p.drawString(500, y, internacion.nota_ingreso)
-        y -= 20
+            # Encabezados de la tabla
+            p.setFont("Helvetica-Bold", 12)
+            p.drawString(50, height - 100, "Paciente")
+            p.drawString(200, height - 100, "Fecha de Ingreso")
+            p.drawString(350, height - 100, "Fecha de Alta")
+            p.drawString(500, height - 100, "Motivo")
 
-        if y < 50:  # Salto de página si no hay espacio
-            p.showPage()
-            y = height - 50
+            # Datos de la tabla
+            y = height - 120
+            p.setFont("Helvetica", 10)
+            for internacion in internaciones:
+                p.drawString(50, y, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
+                p.drawString(200, y, str(internacion.fecha_admision.strftime("%d/%m/%Y %H:%M")))
+                p.drawString(350, y, internacion.fecha_alta.strftime("%d/%m/%Y %H:%M") if internacion.fecha_alta else "-")
+                p.drawString(500, y, internacion.nota_ingreso)
+                y -= 20
 
-    # Finalizar el PDF
-    p.save()
-    return response
+                if y < 50:  # Salto de página si no hay espacio
+                    p.showPage()
+                    y = height - 50
 
+            # Finalizar el PDF
+            p.save()
+            return response
 
-
+    # Si no es POST, redirigir a listar_internaciones
+    return redirect('listar_internaciones')
 @login_required
 def generar_informe_internacion(request, internacion_id):
     # Obtener la internación y sus seguimientos
@@ -424,17 +445,16 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from .models import Cama, Internacion
 
+from .models import Seguimiento
+
 @login_required
 def derivar_paciente(request):
     if request.method == 'POST':
-        print("Datos recibidos:", request.POST)  # Depuración
         idcama_origen = request.POST.get('idcama_origen')
         idcama_destino = request.POST.get('idcama_destino')
-        print("Cama Origen:", idcama_origen, "Cama Destino:", idcama_destino)  # Depuración
 
         # Verificar que ambos parámetros estén presentes
         if not idcama_origen or not idcama_destino:
-            messages.error(request, "Debe seleccionar una cama de origen y una de destino.")
             return redirect('lista_habitaciones')
 
         # Obtener las camas
@@ -443,14 +463,21 @@ def derivar_paciente(request):
 
         # Verificar que la cama de destino esté libre
         if cama_destino.estado != 'L':
-            messages.error(request, "La cama de destino no está disponible.")
             return redirect('lista_habitaciones')
 
         # Obtener la internación activa del paciente en la cama de origen
         internacion = Internacion.objects.filter(cama=cama_origen, fecha_alta__isnull=True).first()
         if not internacion:
-            messages.error(request, "No hay un paciente activo en la cama de origen.")
             return redirect('lista_habitaciones')
+
+        # Registrar la derivación como un seguimiento
+        Seguimiento.objects.create(
+            idinternacion=internacion,
+            idenfermero=request.user.enfermero,  # Asumiendo que el usuario es un enfermero
+            observacion=f"Derivación de {cama_origen} a {cama_destino}",
+            cama_origen=cama_origen,
+            cama_destino=cama_destino
+        )
 
         # Actualizar la internación para mover al paciente a la cama de destino
         internacion.cama = cama_destino
@@ -463,7 +490,6 @@ def derivar_paciente(request):
         cama_destino.estado = 'O'  # Ocupada la cama de destino
         cama_destino.save()
 
-        messages.success(request, f"El paciente {internacion.idpaciente.nombre} {internacion.idpaciente.apellido} fue derivado correctamente.")
         return redirect('lista_habitaciones')
 
     return redirect('lista_habitaciones')
