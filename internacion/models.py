@@ -55,7 +55,6 @@ class SignosVitales(models.Model):
         managed = True
         db_table = 'signos_vitales'
         
-from django.utils import timezone
 
 class Seguimiento(models.Model):
     idseguimiento = models.AutoField(db_column='idSeguimiento', primary_key=True)  # Field name made lowercase.

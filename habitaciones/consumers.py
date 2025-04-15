@@ -20,10 +20,10 @@ class CamaConsumer(AsyncWebsocketConsumer):
     async def send_cama_update(self, event):
         idcama = event['idcama']
         estado = event['estado']
-        paciente = event['paciente']
+        paciente = event.get('paciente', None)  # Usa .get() para evitar el KeyError si no existe la clave
 
         await self.send(text_data=json.dumps({
             'idcama': idcama,
             'estado': estado,
-            'paciente': paciente,
+            'paciente': paciente,  # Esto será None si no se incluye en el evento
         }))

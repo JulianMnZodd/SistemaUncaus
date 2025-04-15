@@ -1,5 +1,6 @@
 from django import forms
 from .models import Diagnostico, Seguimiento, Medicacion, SignosVitales
+from personal.models import Medico
 from .models import Paciente, Cama
 from django_select2.forms import ModelSelect2Widget
 
@@ -41,22 +42,25 @@ class AsignarCamaForm(forms.Form):
 class DiagnosticoForm(forms.ModelForm):
     class Meta:
         model = Diagnostico
-        fields = ['fecha', 'detalles', 'gravedad', 'tratamiento','idmedico_derivado']
+        fields = ['fecha', 'detalles', 'gravedad', 'tratamiento', 'idmedico_derivado']
         widgets = {
             'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'detalles': forms.Textarea(attrs={'rows': 4}),   
+            'detalles': forms.Textarea(attrs={'rows': 4}),
             'gravedad': forms.TextInput(attrs={'placeholder': 'Ej: Leve'}),
             'tratamiento': forms.Textarea(attrs={'rows': 4}),
-            'idmedico_derivado': forms.Select(attrs={'class': 'form-control'} ),
+            'idmedico_derivado': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
             'fecha': 'Fecha',
             'detalles': 'Detalles',
             'gravedad': 'Gravedad',
             'tratamiento': 'Tratamiento',
-            'idmedico_derivado': 'Médico Derivado(opcional)',
+            'idmedico_derivado': 'Médico Derivado (opcional)',
         }
-        
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['idmedico_derivado'].queryset = Medico.objects.all()
 
 class SeguimientoForm(forms.ModelForm):
     class Meta:

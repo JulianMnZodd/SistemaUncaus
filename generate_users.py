@@ -22,7 +22,6 @@ def crear_medico():
         first_name=fake.first_name(),
         last_name=fake.last_name(),
         email=email,
-        username=email,  # Asegurar que username es único
         dni=randint(20000000, 45000000),
         telefono=fake.phone_number(),
         domicilio=fake.address(),
@@ -39,7 +38,6 @@ def crear_enfermero():
         first_name=fake.first_name(),
         last_name=fake.last_name(),
         email=email,
-        username=email,  # Asegurar que username es único
         dni=randint(20000000, 45000000),
         telefono=fake.phone_number(),
         domicilio=fake.address(),
@@ -56,7 +54,6 @@ def crear_recepcionista():
         first_name=fake.first_name(),
         last_name=fake.last_name(),
         email=email,
-        username=email,  # Asegurar que username es único
         dni=randint(20000000, 45000000),
         telefono=fake.phone_number(),
         domicilio=fake.address(),

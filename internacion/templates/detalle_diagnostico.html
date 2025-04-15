@@ -1,3 +1,4 @@
+<!-- filepath: c:\Users\julia\Documents\sistemuncaus\internacion\templates\detalle_diagnostico.html -->
 {% extends '_base.html' %}
 
 {% block content %}
@@ -42,19 +43,37 @@
         <strong class="block text-sm font-medium text-gray-700">Tratamiento:</strong>
         <p class="mt-1 text-gray-900 whitespace-pre-line">{{ diagnostico.tratamiento }}</p>
       </div>
-    </div>
+
+      <div>
+        <strong class="block text-sm font-medium text-gray-700">Médico Derivado:</strong>
+        <p class="mt-1 text-gray-900">
+          {% if diagnostico.idmedico_derivado %}
+            {{ diagnostico.idmedico_derivado.persona.first_name }} {{ diagnostico.idmedico_derivado.persona.last_name }}
+          {% else %}
+            Ninguno
+          {% endif %}
+        </p>
+      </div>
   </div>
 
- <!-- Botón para volver a la vista anterior -->
-<div class="flex justify-center mt-8">
-  <a href="#" 
-     onclick="event.preventDefault(); window.history.back();" 
-     class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center cursor-pointer">
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-    </svg>
-    Volver
+  <!-- Botones -->
+  <div class="flex justify-between mt-8">
+    <!-- Botón para volver -->
+    <a href="{% url 'listar_internaciones' %}" 
+    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center cursor-pointer">
+   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+   </svg>
+   Volver a Internaciones
   </a>
-</div>
+
+    <!-- Botón para editar diagnóstico -->
+    <a href="{% url 'editar_diagnostico' diagnostico.iddiagnostico %}" 
+       class="px-6 py-3 bg-yellow-500 hover:bg-yellow-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 flex items-center justify-center cursor-pointer">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+      </svg>
+      Editar Diagnóstico
+    </a>
+  </div>
 </div>
 {% endblock content %}

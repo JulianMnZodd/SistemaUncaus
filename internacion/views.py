@@ -111,12 +111,39 @@ def crear_diagnostico(request, internacion_id):
             diagnostico.idpaciente = paciente
             diagnostico.idmedico = medico
             diagnostico.idinternacion = internacion  # Asociar el diagnóstico con la internación actual
+            idmedico_derivado = form.cleaned_data.get('idmedico_derivado')
+            if idmedico_derivado:
+                diagnostico.idmedico_derivado = idmedico_derivado
             diagnostico.save()
             return redirect('detalle_diagnostico', internacion_id=internacion.idinternacion)  # Redirigir al detalle del diagnóstico
     else:
         form = DiagnosticoForm()
 
     return render(request, 'crear_diagnostico.html', {'form': form, 'paciente': paciente})
+
+
+@login_required
+def editar_diagnostico(request, diagnostico_id):
+    # Obtener el diagnóstico a editar
+    diagnostico = get_object_or_404(Diagnostico, pk=diagnostico_id)
+
+    if request.method == 'POST':
+        # Procesar el formulario enviado
+        form = DiagnosticoForm(request.POST, instance=diagnostico)
+        if form.is_valid():
+            print("Formulario válido:", form.cleaned_data)
+            form.save()  # Guardar los cambios directamente
+            return redirect('detalle_diagnostico', internacion_id=diagnostico.idinternacion.idinternacion)
+    else:
+        # Mostrar el formulario con los datos actuales del diagnóstico
+        form = DiagnosticoForm(instance=diagnostico)
+
+    context = {
+        'form': form,
+        'paciente': diagnostico.idpaciente,
+        'diagnostico': diagnostico,
+    }
+    return render(request, 'editar_diagnostico.html', context)
 
 from .models import Diagnostico
 @login_required
@@ -392,3 +419,51 @@ def generar_informe_internacion(request, internacion_id):
     # Finalizar el PDF
     p.save()
     return response
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Cama, Internacion
+
+@login_required
+def derivar_paciente(request):
+    if request.method == 'POST':
+        print("Datos recibidos:", request.POST)  # Depuración
+        idcama_origen = request.POST.get('idcama_origen')
+        idcama_destino = request.POST.get('idcama_destino')
+        print("Cama Origen:", idcama_origen, "Cama Destino:", idcama_destino)  # Depuración
+
+        # Verificar que ambos parámetros estén presentes
+        if not idcama_origen or not idcama_destino:
+            messages.error(request, "Debe seleccionar una cama de origen y una de destino.")
+            return redirect('lista_habitaciones')
+
+        # Obtener las camas
+        cama_origen = get_object_or_404(Cama, idcama=idcama_origen)
+        cama_destino = get_object_or_404(Cama, idcama=idcama_destino)
+
+        # Verificar que la cama de destino esté libre
+        if cama_destino.estado != 'L':
+            messages.error(request, "La cama de destino no está disponible.")
+            return redirect('lista_habitaciones')
+
+        # Obtener la internación activa del paciente en la cama de origen
+        internacion = Internacion.objects.filter(cama=cama_origen, fecha_alta__isnull=True).first()
+        if not internacion:
+            messages.error(request, "No hay un paciente activo en la cama de origen.")
+            return redirect('lista_habitaciones')
+
+        # Actualizar la internación para mover al paciente a la cama de destino
+        internacion.cama = cama_destino
+        internacion.save()
+
+        # Actualizar los estados de las camas
+        cama_origen.estado = 'L'  # Liberar la cama de origen
+        cama_origen.save()
+
+        cama_destino.estado = 'O'  # Ocupada la cama de destino
+        cama_destino.save()
+
+        messages.success(request, f"El paciente {internacion.idpaciente.nombre} {internacion.idpaciente.apellido} fue derivado correctamente.")
+        return redirect('lista_habitaciones')
+
+    return redirect('lista_habitaciones')

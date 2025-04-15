@@ -11,7 +11,7 @@ from habitaciones.models import Sector, Habitacion, Cama  # Ajusta el nombre de 
 
 fake = Faker("es_ES")
 
-TIPOS_SECTOR = ["GEN", "TER", "VIP", "QUI"]
+TIPOS_SECTOR = ["General", "Terapia", "VIP", "Quirófano"]
 TIPOS_HABITACION = ["VIP", "UCI", "FEM", "MIX", "PED", "MAT", "PSI"]
 
 

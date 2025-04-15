@@ -7,10 +7,10 @@ from datetime import timedelta
 class Sector(models.Model):
     
     TIPOS_SECTOR = [
-        ('GEN', 'General'),
-        ('TER', 'Terapia'),
+        ('General', 'General'),
+        ('Terapia', 'Terapia'),
         ('VIP', 'VIP'),
-        ('QUI', 'Quirófano'),
+        ('Quirófano', 'Quirófano'),
     ]
     
     idsector = models.AutoField(db_column='idSector', primary_key=True)  # Field name made lowercase.
