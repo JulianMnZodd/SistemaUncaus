@@ -493,3 +493,38 @@ def derivar_paciente(request):
         return redirect('lista_habitaciones')
 
     return redirect('lista_habitaciones')
+
+
+
+@login_required
+def generar_informe_alta(request, internacion_id):
+    # Obtener la internación
+    internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
+
+    # Crear el objeto HttpResponse con el encabezado PDF adecuado
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="informe_alta_{internacion.idinternacion}.pdf"'
+
+    # Crear el objeto PDF usando el HttpResponse como "archivo"
+    p = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    # Título del documento
+    p.setFont("Helvetica-Bold", 16)
+    p.drawCentredString(width / 2, height - 50, "Informe de Alta")
+
+    # Información del paciente
+    p.setFont("Helvetica", 12)
+    p.drawString(50, height - 100, f"Paciente: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
+    p.drawString(50, height - 120, f"Fecha de Admisión: {internacion.fecha_admision.strftime('%d/%m/%Y')}")
+    p.drawString(50, height - 140, f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y') if internacion.fecha_alta else 'No registrada'}")
+    p.drawString(50, height - 160, f"Motivo de Internación: {internacion.nota_ingreso}")
+
+    # Diagnóstico (si existe)
+    if internacion.diagnostico_set.exists():
+        diagnostico = internacion.diagnostico_set.first()
+        p.drawString(50, height - 180, f"Diagnóstico: {diagnostico.detalles}")
+
+    # Finalizar el PDF
+    p.save()
+    return response

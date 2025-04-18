@@ -111,16 +111,18 @@
                 </span>
                 
                 <!-- Mostrar paciente si existe una internación activa -->
-                {% with internacion=cama.internacion_set.last %}
-                    {% if internacion and not internacion.fecha_alta %}
-                        <p class="text-xs font-medium text-gray-700 truncate mt-1">
-                            {% with paciente=internacion.idpaciente %}
-                                <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}"> {{ paciente.nombre }} {{ paciente.apellido }}</a>
-                            {% endwith %}
-                            
-                        </p>
+                  {% if cama.estado == 'O' %}
+                    {% with internacion=cama.internacion_set.last %}
+                      {% if internacion and not internacion.fecha_alta %}
+                          <p class="text-xs font-medium text-gray-700 truncate mt-1 "id="paciente-{{ cama.idcama }}">
+                              {% with paciente=internacion.idpaciente %} 
+                                  <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}"> {{ paciente.nombre }} {{ paciente.apellido }}</a>
+                              {% endwith %}
+                              
+                          </p>
                     {% endif %}
-                {% endwith %}
+                    {% endwith %}
+                {% endif %}
             </div>
 
               <div class="mt-2 space-y-1 text-center" id="actions-{{ cama.idcama }}">
@@ -228,14 +230,14 @@
     const updateCamaUI = (data) => {
       const camaContainer = document.querySelector(`[data-cama-id="${data.idcama}"]`);
       if (!camaContainer) return;
-
+    
       // Actualizar SVG
       const svg = camaContainer.querySelector('svg');
       if (svg) {
         svg.style.fill = estadoColors[data.estado];
         svg.classList.add('updated');
       }
-
+    
       // Actualizar badge de estado
       const estadoBadge = camaContainer.querySelector('span');
       if (estadoBadge) {
@@ -248,24 +250,19 @@
           data.estado === 'O' ? 'Ocupada' :
           data.estado === 'R' ? 'Reservada' : 'Libre';
       }
-
+    
+      // Eliminar el nombre del paciente si la cama está libre
+      const pacienteElement = camaContainer.querySelector(`#paciente-${data.idcama}`);
+      if (data.estado === 'L' && pacienteElement) {
+        pacienteElement.remove();
+      }
+    
       // Actualizar acciones
       const actionsContainer = camaContainer.querySelector('div[class*="space-y-1"]');
       if (actionsContainer) {
-        newActions = `
-        <p class="text-xs font-medium text-gray-700 truncate mb-2">
-            ${data.paciente_nombre || ''}
-        </p>
-        <form method="POST" action="/liberar_cama/${data.idcama}" id="formLiberar-${data.idcama}">
-            <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
-            <button type="button" 
-                    onclick="confirmarLiberacion('formLiberar-${data.idcama}')"
-                    class="w-full text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-                Liberar
-            </button>
-        </form>`;
-        
+        let newActions = '';
         if (data.estado === 'L') {
+          // Si la cama está libre, mostrar opciones para asignar o reservar
           newActions = `
             <a href="/asignar_cama/${data.idcama}" 
                class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
@@ -281,24 +278,23 @@
                class="w-full text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
                <span class="w-full text-center">Ver Reserva</span>
             </a>`;
-        } else {
+        } else if (data.estado === 'O') {
           newActions = `
-            <p class="text-xs font-medium text-gray-700 truncate mb-2">
-              ${data.paciente.nombre || ''}
+            <p id="paciente-${data.idcama}" class="text-xs font-medium text-gray-700 truncate mb-2">
+              ${data.paciente_nombre || ''}
             </p>
-            <form method="POST" action="/liberar_cama/${data.idcama}">
+            <form method="POST" action="/liberar_cama/${data.idcama}" id="formLiberar-${data.idcama}">
               <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
-              <button type="submit" 
+              <button type="button" 
+                      onclick="confirmarLiberacion('formLiberar-${data.idcama}')"
                       class="w-full text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-                Liberar
+                  Liberar
               </button>
             </form>`;
         }
-        
         actionsContainer.innerHTML = newActions;
       }
     };
-
     // Obtener CSRF Token
     const getCSRFToken = () => {
       return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';

@@ -15,4 +15,6 @@ urlpatterns = [
     path('informe-internaciones/', views.generar_informe_internaciones, name='generar_informe_internaciones'),
     path('informe-internacion/<int:internacion_id>/', views.generar_informe_internacion, name='generar_informe_internacion'),
     path('editar_diagnostico/<int:diagnostico_id>/', views.editar_diagnostico, name='editar_diagnostico'),
-path('derivar_paciente/', views.derivar_paciente, name='derivar_paciente'),]
+    path('derivar_paciente/', views.derivar_paciente, name='derivar_paciente'),
+    path('informe_alta/<int:internacion_id>/', views.generar_informe_alta, name='generar_informe_alta'),
+]

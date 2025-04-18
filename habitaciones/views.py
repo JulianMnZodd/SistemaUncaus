@@ -6,6 +6,7 @@ from .models import Cama, Medico, Reserva
 from internacion.models import Internacion
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
+from internacion.views import generar_informe_alta
 
 @login_required
 def lista_habitaciones(request):
@@ -51,8 +52,13 @@ def lista_habitaciones(request):
 def liberar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     if request.method == 'POST':
+        internacion = cama.internacion_set.last()
+        if internacion:
+            cama.liberar()
+            return redirect('generar_informe_alta', internacion_id=internacion.idinternacion)
+
         cama.liberar()
-        return redirect('lista_habitaciones')  # Redirige a la lista de internaciones o a otra vista relevante
+        return redirect('lista_habitaciones')  # Redirige si no hay internación
     return redirect('lista_habitaciones')
 
 from django.utils import timezone

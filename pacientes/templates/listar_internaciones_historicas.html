@@ -50,6 +50,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ internacion.cama.idcama }}
               </td>
+
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <a href="{% url 'listar_seguimientos' internacion.idinternacion %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full text-white bg-green-600 hover:bg-green-700 transition-colors">
                   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +58,17 @@
                   </svg>
                   Ver Seguimientos
                 </a>
+                {%if internacion.diagnostico_set.exists%}
+                <a href="{% url 'detalle_diagnostico' internacion.idinternacion %}" 
+                       class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM12 14v5m0 0l-3-3m3 3l3-3"/>
+                      </svg>
+                      Ver Diagnóstico
+                    </a>
+                {%endif%}
               </td>
+                    
             </tr>
             {% empty %}
             <tr>
