@@ -111,6 +111,15 @@ DATABASES = {
      }
 }
 
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "*",  # 👈 Agregá tu dominio ngrok actual
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://f972-190-136-145-86.ngrok-free.app",
+]
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',

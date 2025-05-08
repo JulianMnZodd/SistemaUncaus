@@ -23,5 +23,5 @@ class PacienteForm(forms.ModelForm):
             'alergias': forms.Textarea(attrs={'rows': 4}),
             'antecedentes': forms.Textarea(attrs={'rows': 4}),
             'cirugias': forms.Textarea(attrs={'rows': 4}),
-            
+            'estado': forms.Select(choices=[('Vivo', 'Vivo'), ('Difunto', 'Difunto')]),
         }

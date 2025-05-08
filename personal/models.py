@@ -26,7 +26,12 @@ class Persona(AbstractUser):
     # Campos adicionales
     username = None
     email = models.EmailField(unique=True)  # Asegúrate de que el email sea único
-    dni = models.IntegerField(unique=True)
+    dni = models.CharField(max_length=8, unique=True)
+
+    def clean(self):
+        super().clean()
+        if not self.dni.isdigit() or len(self.dni) not in [6, 8]:
+            raise ValueError("El DNI debe ser un número de 6 u 8 dígitos.")
     domicilio = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     genero = models.CharField(max_length=10, choices=[('M', 'Masculino'), ('F', 'Femenino')], blank=True)
