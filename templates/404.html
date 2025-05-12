@@ -1,0 +1,81 @@
+
+{% block content %}
+<div class="error-container">
+    <svg class="astro-illustration" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="80" fill="#F8F9FF" />
+        <circle cx="100" cy="70" r="30" fill="#141C3A" />
+        <path d="M100 100 L100 140" stroke="#141C3A" stroke-width="8" />
+        <path d="M70 120 L130 120" stroke="#141C3A" stroke-width="8" />
+        <path d="M80 80 L60 60" stroke="#141C3A" stroke-width="5" />
+        <path d="M120 80 L140 60" stroke="#141C3A" stroke-width="5" />
+    </svg>
+    
+    <h1 class="error-code">404</h1>
+    <h1>¡Ups! Página perdida en el espacio</h1>
+    <p>La página que estás buscando ha sido movida, eliminada o quizá nunca existió.</p>
+    {% comment %} <a href="{% url '_home' %}" class="cta-button">Regresar al inicio</a> {% endcomment %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #6E07F3;
+        --secondary: #5BE9B9;
+        --dark: #141C3A;
+        --light: #F8F9FF;
+    }
+    
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--light);
+        color: var(--dark);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        padding: 2rem;
+        text-align: center;
+        line-height: 1.6;
+    }
+    
+    .error-container {
+        max-width: 600px;
+        position: relative;
+    }
+    
+    .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        margin: 0;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1;
+    }
+    
+    .astro-illustration {
+        width: 200px;
+        margin-bottom: 2rem;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    @media (max-width: 768px) {
+        .error-code {
+            font-size: 6rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}

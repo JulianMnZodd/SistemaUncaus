@@ -87,6 +87,23 @@
         {% endif %}
       </div>
 
+      <div>
+        <label for="{{ form.pais.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">País</label>
+        {{ form.pais|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        {% if form.pais.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.pais.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Pasaporte -->
+      <div>
+        <label for="{{ form.pasaporte.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Pasaporte</label>
+        {{ form.pasaporte|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        {% if form.pasaporte.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.pasaporte.errors|join:", " }}</p>
+        {% endif %}
+      </div>  
+
       <!-- Domicilio -->
       <div>
         <label for="{{ form.domicilio.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Domicilio</label>

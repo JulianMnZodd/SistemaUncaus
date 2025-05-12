@@ -220,3 +220,14 @@ def eliminar_recepcionista(request, id_recepcionista):
     recepcionista.delete()
     messages.success(request, '¡Recepcionista eliminado exitosamente!')
     return redirect('listar_recepcionistas')
+
+
+
+
+
+
+def custom_page_not_found(request, exception):
+    return render(request, '404.html', status=404)
+
+def custom_permission_denied(request, exception):
+    return render(request, '403.html', status=403)

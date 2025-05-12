@@ -495,36 +495,105 @@ def derivar_paciente(request):
     return redirect('lista_habitaciones')
 
 
+from datetime import datetime
 
 @login_required
 def generar_informe_alta(request, internacion_id):
-    # Obtener la internación
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
-
-    # Crear el objeto HttpResponse con el encabezado PDF adecuado
+    
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="informe_alta_{internacion.idinternacion}.pdf"'
 
-    # Crear el objeto PDF usando el HttpResponse como "archivo"
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
 
-    # Título del documento
+    # Configuración inicial
+    p.setTitle(f"Informe de Alta Médica - {internacion.idpaciente.apellido}")
+    margin = 50
+    y_position = height - margin
+    spacing = 20
+
+    # Encabezado
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, height - 50, "Informe de Alta")
+    p.drawCentredString(width/2, y_position, "INFORME DE ALTA MÉDICA")
+    y_position -= 40
+
+    # Línea decorativa
+    p.line(margin, y_position, width - margin, y_position)
+    y_position -= spacing * 2
 
     # Información del paciente
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(margin, y_position, "DATOS DEL PACIENTE:")
+    y_position -= spacing
+    
     p.setFont("Helvetica", 12)
-    p.drawString(50, height - 100, f"Paciente: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
-    p.drawString(50, height - 120, f"Fecha de Admisión: {internacion.fecha_admision.strftime('%d/%m/%Y')}")
-    p.drawString(50, height - 140, f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y') if internacion.fecha_alta else 'No registrada'}")
-    p.drawString(50, height - 160, f"Motivo de Internación: {internacion.nota_ingreso}")
+    patient_data = [
+        f"Nombre: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}",
+        f"DNI: {internacion.idpaciente.dni}",
+        f"Fecha de Nacimiento: {internacion.idpaciente.fecha_nacimiento.strftime('%d/%m/%Y')}",
+        f"Fecha de Admisión: {internacion.fecha_admision.strftime('%d/%m/%Y %H:%M')}",
+        f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y %H:%M')}" if internacion.fecha_alta else "Fecha de Alta: Pendiente",
+    ]
+    
+    for line in patient_data:
+        p.drawString(margin + 10, y_position, line)
+        y_position -= spacing
 
-    # Diagnóstico (si existe)
-    if internacion.diagnostico_set.exists():
-        diagnostico = internacion.diagnostico_set.first()
-        p.drawString(50, height - 180, f"Diagnóstico: {diagnostico.detalles}")
+    y_position -= spacing
 
-    # Finalizar el PDF
+    # Motivo de internación
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(margin, y_position, "MOTIVO DE INTERNACIÓN:")
+    y_position -= spacing
+    p.setFont("Helvetica", 12)
+    p.drawString(margin + 10, y_position, internacion.nota_ingreso)
+    y_position -= spacing * 2
+
+    # Diagnóstico y tratamiento
+    diagnostico = internacion.diagnostico_set.order_by('-fecha').first()
+    if diagnostico:
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(margin, y_position, "DIAGNÓSTICO PRINCIPAL:")
+        y_position -= spacing
+        p.setFont("Helvetica", 12)
+        diagnostic_data = [
+            f"Fecha: {diagnostico.fecha.strftime('%d/%m/%Y %H:%M')}",
+            f"Detalles: {diagnostico.detalles}",
+            f"Gravedad: {diagnostico.gravedad}",
+            f"Tratamiento: {diagnostico.tratamiento}",
+        ]
+        
+        for line in diagnostic_data:
+            p.drawString(margin + 10, y_position, line)
+            y_position -= spacing
+
+        # Datos del médico
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(margin, y_position, "MÉDICO RESPONSABLE:")
+        y_position -= spacing
+        p.setFont("Helvetica", 12)
+        p.drawString(margin + 10, y_position, f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}")
+        p.drawString(width - 200, y_position, f"Matrícula: {diagnostico.idmedico.matricula}")
+        y_position -= spacing * 2
+
+    # Sección de firmas
+    p.line(margin, y_position, width - margin, y_position)
+    y_position -= spacing * 2
+    
+    # Firma Médico
+    p.drawString(margin + 50, y_position, "_________________________________________")
+    p.drawString(margin + 50, y_position - 20, f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}")
+    p.drawString(margin + 50, y_position - 40, f"Matrícula: {diagnostico.idmedico.matricula}")
+    
+    # Firma Paciente
+    p.drawString(width - 250, y_position, "_________________________________________")
+    p.drawString(width - 250, y_position - 20, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
+    p.drawString(width - 250, y_position - 40, "DNI: " + str(internacion.idpaciente.dni))
+
+    # Pie de página
+    p.setFont("Helvetica-Oblique", 8)
+    p.drawCentredString(width/2, 40, f"Documento generado el {datetime.now().strftime('%d/%m/%Y %H:%M')} - Hospital XYZ")
+
     p.save()
     return response

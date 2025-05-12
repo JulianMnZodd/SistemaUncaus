@@ -1,5 +1,5 @@
 from django.db import models
-
+from django_countries.fields import CountryField
 
 class ObraSocial(models.Model):
     idobra_social = models.AutoField(db_column='idObra_social', primary_key=True)  # Field name made lowercase.
@@ -19,6 +19,8 @@ class Paciente(models.Model):
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
     dni = models.IntegerField(unique=True)
+    pais = CountryField(blank=True, null=True)
+    pasaporte = models.CharField(max_length=50, blank=True, null=True)
     domicilio = models.CharField(max_length=100, blank=True, null=True)
     localidad = models.CharField(max_length=50, blank=True, null=True)
     provincia = models.CharField(max_length=50, blank=True, null=True)

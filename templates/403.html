@@ -1,0 +1,128 @@
+
+{% block content %}
+<div class="error-container">
+    <svg class="shield-illustration" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 20 L20 50 V100 C20 150 100 180 100 180 C100 180 180 150 180 100 V50 Z" 
+              fill="#F8F9FF" stroke="#141C3A" stroke-width="8"/>
+        <circle cx="100" cy="100" r="40" fill="#FF4D4D" />
+        <path d="M80 90 L100 120 L120 80" stroke="white" stroke-width="10" stroke-linecap="round" fill="none" />
+    </svg>
+    
+    <h1 class="error-code">403</h1>
+    <h1>Acceso restringido</h1>
+    <p>No tienes permiso para acceder a este recurso.</p>
+    {% if exception %}
+    <p class="error-detail"><small>{{ exception }}</small></p>
+    {% endif %}
+    
+    {% comment %} <div class="cta-buttons">
+        <a href="{% url 'home' %}" class="cta-button">Regresar al inicio</a>
+        <a href="mailto:{{ CONTACT_EMAIL }}" class="cta-button secondary">Contactar soporte</a>
+    </div> {% endcomment %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #FF4D4D;
+        --secondary: #FF9E4D;
+        --dark: #141C3A;
+        --light: #F8F9FF;
+    }
+    
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--light);
+        color: var(--dark);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        padding: 2rem;
+        text-align: center;
+        line-height: 1.6;
+    }
+    
+    .error-container {
+        max-width: 600px;
+        position: relative;
+    }
+    
+    .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        margin: 0;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1;
+    }
+    
+    .error-detail {
+        background: rgba(0,0,0,0.05);
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .cta-button {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .cta-button.secondary {
+        background: var(--dark);
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
+    }
+    
+    .shield-illustration {
+        width: 200px;
+        margin-bottom: 2rem;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    @media (max-width: 768px) {
+        .error-code {
+            font-size: 6rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
