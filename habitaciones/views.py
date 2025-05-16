@@ -1,4 +1,3 @@
-from django.http import HttpResponse, JsonResponse
 from django.db import models
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Habitacion,Cama,Sector
@@ -6,7 +5,18 @@ from .models import Cama, Medico, Reserva
 from internacion.models import Internacion
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
-from internacion.views import generar_informe_alta
+import matplotlib.pyplot as plt
+import io
+import base64
+from django.shortcuts import render
+from datetime import timedelta
+from django.db.models import Count, Q, F, ExpressionWrapper, fields, Avg
+from django.db.models.functions import TruncDay
+from django.utils import timezone
+import json
+from datetime import timedelta
+
+
 
 @login_required
 def lista_habitaciones(request):
@@ -61,6 +71,14 @@ def liberar_cama(request, idcama):
         return redirect('lista_habitaciones')  # Redirige si no hay internación
     return redirect('lista_habitaciones')
 
+@login_required
+def liberar_cama_reservada(request, idcama):
+    cama = get_object_or_404(Cama, idcama=idcama)
+    if request.method == 'POST':
+        cama.liberar()  # Solo libera la cama sin generar el informe
+        return redirect('lista_habitaciones')  # Redirige a la lista de habitaciones
+    return redirect('lista_habitaciones')
+
 from django.utils import timezone
 from datetime import timedelta
 
@@ -106,85 +124,141 @@ def liberar_camas_expiradas():
         reserva.delete()
         
         
-        
-import matplotlib.pyplot as plt
-import io
-import base64
-from django.shortcuts import render
-from .models import Sector
-from internacion.models import Internacion
-from datetime import datetime, timedelta
 
-@login_required
-def generar_grafico_porcentaje_internados():
-    # Obtener los datos de internaciones por sector
-    sectores = Sector.objects.all()
-    data = []
-    labels = []
-
-    for sector in sectores:
-        total_camas = sector.habitaciones.aggregate(total_camas=models.Count('camas'))['total_camas']
-        camas_ocupadas = sector.habitaciones.filter(camas__estado='O').count()
-        porcentaje_ocupacion = (camas_ocupadas / total_camas) * 100 if total_camas > 0 else 0
-        data.append(porcentaje_ocupacion)
-        labels.append(sector.tipo)
-
-    # Crear el gráfico
-    fig, ax = plt.subplots()
-    ax.pie(data, labels=labels, autopct='%1.1f%%', startangle=90)
-    ax.axis('equal')  # Para asegurar que el gráfico sea un círculo
-
-    # Guardar el gráfico en un buffer
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png = buffer.getvalue()
-    buffer.close()
-
-    # Codificar la imagen en base64
-    graphic = base64.b64encode(image_png)
-    graphic = graphic.decode('utf-8')
-
-    return graphic
-
-@login_required
-def reporte_grafico_porcentaje_internados(request):
-    graphic = generar_grafico_porcentaje_internados()
-    context = {
-        'graphic': graphic,
-    }
-    return render(request, 'reporte_grafico_porcentaje_internados.html', context)
-
-
-
-from django.db.models import Count, Q, F, ExpressionWrapper, fields, Avg
-from django.db.models.functions import TruncDay
+from django.core.cache import cache
+from django.db import models
+from django.db.models import Avg, Count, Q, F, ExpressionWrapper, DurationField
 from django.utils import timezone
-import json
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpRequest, HttpResponse
 from datetime import timedelta
+import json
+import base64
+import io
+import matplotlib
+matplotlib.use('Agg')  # Configuración para evitar problemas con hilos
+import matplotlib.pyplot as plt
+from typing import Dict, Any, List, Optional
+import random
 
-def estadisticas_camas(request):
-    now = timezone.now()
-    
-    # Obtener parámetro de días (default: 7)
+# Constantes para mejor mantenibilidad
+MAX_DAYS_TREND = 365
+DEFAULT_DAYS_TREND = 7
+CACHE_TIMEOUT = 60 * 15  # 15 minutos
+
+@login_required
+def generar_grafico_porcentaje_internados() -> Optional[str]:
+    """
+    Genera un gráfico de porcentaje de ocupación por sector
+    Retorna una imagen codificada en base64 o None en caso de error
+    """
     try:
-        days = int(request.GET.get('days', 7))
-    except (ValueError, TypeError):
-        days = 7
+        sectores = Sector.objects.prefetch_related('habitaciones__camas').all()
+        
+        data = []
+        labels = []
+        colores = []
+
+        for sector in sectores:
+            total_camas = sector.total_camas()
+            if total_camas == 0:
+                continue  # Saltar sectores sin camas
+                
+            camas_ocupadas = sector.camas_ocupadas()
+            porcentaje = (camas_ocupadas / total_camas) * 100
+            
+            data.append(porcentaje)
+            labels.append(sector.tipo)
+            colores.append(sector.color_grafico or '#%06x' % random.randint(0, 0xFFFFFF))
+
+        if not data:
+            return None
+
+        # Configuración del gráfico
+        plt.figure(figsize=(10, 7))
+        plt.pie(
+            data,
+            labels=labels,
+            colors=colores,
+            autopct=lambda p: f'{p:.1f}%' if p > 0 else '',
+            startangle=90,
+            wedgeprops={'edgecolor': 'white', 'linewidth': 0.5}
+        )
+        plt.title('Ocupación por Sector', pad=20)
+        plt.tight_layout()
+
+        # Generar imagen
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100)
+        plt.close()
+        
+        return base64.b64encode(buffer.getvalue()).decode('utf-8')
+        
+    except Exception as e:
+        # Loggear error aquí
+        return None
+
+@method_decorator(cache_page(CACHE_TIMEOUT), name='dispatch')
+@login_required
+def reporte_grafico_porcentaje_internados(request: HttpRequest) -> HttpResponse:
+    """Vista para mostrar el reporte gráfico de ocupación con caché"""
+    graphic = cache.get_or_set(
+        'grafico_ocupacion', 
+        generar_grafico_porcentaje_internados, 
+        CACHE_TIMEOUT
+    )
     
-    # Limitar máximo a 365 días
-    days = min(days, 365)
-    
-    # Filtro dinámico para tendencia
+    return render(request, 'reportes/ocupacion.html', {
+        'graphic': graphic,
+        'error': not graphic
+    })
+
+@login_required
+def estadisticas_camas(request: HttpRequest) -> HttpResponse:
+    """Vista de estadísticas de camas con parámetros configurables"""
+    def get_days_param() -> int:
+        """Obtiene y valida el parámetro de días desde la URL"""
+        try:
+            days = int(request.GET.get('days', DEFAULT_DAYS_TREND))
+            return max(1, min(days, MAX_DAYS_TREND))
+        except (ValueError, TypeError):
+            return DEFAULT_DAYS_TREND
+
+    def calcular_duracion_promedio() -> str:
+        """Calcula y formatea la duración promedio de internaciones"""
+        promedio = Internacion.objects.exclude(
+            fecha_alta__isnull=True
+        ).annotate(
+            duracion=ExpressionWrapper(
+                F('fecha_alta') - F('fecha_admision'),
+                output_field=DurationField()
+            )
+        ).aggregate(
+            avg_duracion=Avg('duracion')
+        )['avg_duracion'] or timedelta(0)
+
+        total_seconds = promedio.total_seconds()
+        days, remainder = divmod(total_seconds, 86400)
+        hours, remainder = divmod(remainder, 3600)
+        minutes = remainder // 60
+        
+        return f"{int(days)}d {int(hours)}h {int(minutes)}m"
+
+    # Parámetros y contexto inicial
+    days = get_days_param()
+    now = timezone.now()
     start_date = now - timedelta(days=days)
     
-    # Datos básicos de ocupación
-    total_camas = Cama.objects.count()
-    camas_ocupadas = Cama.objects.filter(estado='O').count()
-    camas_reservadas = Cama.objects.filter(estado='R').count()
-    camas_disponibles = total_camas - (camas_ocupadas + camas_reservadas)
+    # Datos básicos
+    camas_stats = Cama.objects.aggregate(
+    total=models.Count('idcama'),  # Usar el nombre correcto del campo
+    ocupadas=models.Count('idcama', filter=Q(estado='O')),
+    reservadas=models.Count('idcama', filter=Q(estado='R'))
+)
     
-    # Tendencia dinámica según días seleccionados
+    # Tendencia temporal optimizada
     tendencia_data = (
         Internacion.objects
         .filter(fecha_admision__gte=start_date)
@@ -194,51 +268,32 @@ def estadisticas_camas(request):
         .order_by('fecha')
     )
     
-    # Distribución por sector
+    # Datos para gráficos
     distribucion_sector = (
         Sector.objects
+        .prefetch_related('habitaciones__camas')
         .annotate(
             total_camas=Count('habitaciones__camas'),
             ocupadas=Count('habitaciones__camas', filter=Q(habitaciones__camas__estado='O')),
             reservadas=Count('habitaciones__camas', filter=Q(habitaciones__camas__estado='R'))
         )
-        .values('tipo', 'total_camas', 'ocupadas', 'reservadas')
     )
-    
-    # Tiempo promedio de ocupación
-    internaciones = Internacion.objects.annotate(
-        duracion=ExpressionWrapper(
-            F('fecha_alta') - F('fecha_admision'),
-            output_field=fields.DurationField()
-        )
-    ).exclude(duracion__isnull=True)
-    
-    duracion_promedio = internaciones.aggregate(
-        avg_duracion=Avg('duracion')
-    )['avg_duracion'] or timedelta(0)
 
     context = {
-        # Datos básicos
-        'total_camas': total_camas,
-        'camas_ocupadas': camas_ocupadas,
-        'camas_reservadas': camas_reservadas,
-        'camas_disponibles': camas_disponibles,
-        
-        # Tendencia
-        'tendencia_labels': json.dumps([item['fecha'].strftime('%Y-%m-%d') for item in tendencia_data]),
-        'tendencia_data': json.dumps([item['total'] for item in tendencia_data]),
-        'selected_days': days,  # Nuevo parámetro para el template
-        
-        # Distribución por sector
-        'distribucion_labels': json.dumps([item['tipo'] for item in distribucion_sector]),
-        'distribucion_total': json.dumps([item['total_camas'] for item in distribucion_sector]),
-        'distribucion_ocupadas': json.dumps([item['ocupadas'] for item in distribucion_sector]),
-        'distribucion_reservadas': json.dumps([item['reservadas'] for item in distribucion_sector]),
-        
-        # Tiempos
-        'duracion_promedio': f"{duracion_promedio.days}d {duracion_promedio.seconds//3600}h",
-        
-        # Reservas activas
-        'reservas_activas': Reserva.objects.filter(fecha_expiracion__gte=now).count()
+        'total_camas': camas_stats['total'],
+        'camas_ocupadas': camas_stats['ocupadas'],
+        'camas_reservadas': camas_stats['reservadas'],
+        'camas_disponibles': camas_stats['total'] - (camas_stats['ocupadas'] + camas_stats['reservadas']),
+        'tendencia_labels': json.dumps([d['fecha'].strftime('%d %b') for d in tendencia_data]),
+        'tendencia_data': json.dumps([d['total'] for d in tendencia_data]),
+        'selected_days': days,
+        'distribucion_labels': json.dumps([s.tipo for s in distribucion_sector]),
+        'distribucion_total': json.dumps([s.total_camas for s in distribucion_sector]),
+        'distribucion_ocupadas': json.dumps([s.ocupadas for s in distribucion_sector]),
+        'distribucion_reservadas': json.dumps([s.reservadas for s in distribucion_sector]),
+        'duracion_promedio': calcular_duracion_promedio(),
+        'reservas_activas': Reserva.objects.filter(fecha_expiracion__gte=now).count(),
+        'days_options': [7, 30, 90]  # Correctamente colocado al final
     }
+    
     return render(request, 'estadisticas.html', context)

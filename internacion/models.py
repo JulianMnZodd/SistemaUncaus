@@ -2,6 +2,7 @@ from django.db import models
 from personal.models import Enfermero,Medico
 from pacientes.models import Paciente
 from habitaciones.models import Cama
+from django.utils import timezone
 
 # Create your models here.
 
@@ -11,7 +12,7 @@ class Diagnostico(models.Model):
     idmedico = models.ForeignKey(Medico, models.PROTECT, db_column='idMedico')  # Field name made lowercase.
     idpaciente = models.ForeignKey(Paciente, models.PROTECT, db_column='idPaciente')
     idinternacion = models.ForeignKey('Internacion', models.CASCADE, db_column='idInternacion', blank=True, null=True)  # Field name made lowercase.
-    fecha = models.DateTimeField(null=True, blank=True,default=None)
+    fecha = models.DateTimeField(null=True, blank=True,default=timezone.now)
     idmedico_derivado= models.ForeignKey(Medico, models.PROTECT, db_column='idMedico_derivado', blank=True, null=True,related_name='diagnostico_como_derivado')  # Field name made lowercase.
     detalles = models.CharField(max_length=256,null=True, blank=True)
     gravedad = models.CharField(max_length=256,null=True, blank=True)

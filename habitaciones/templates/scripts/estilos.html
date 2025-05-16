@@ -1,0 +1,286 @@
+<style>
+  :root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --accent: #4895ef;
+    --dark: #1b263b;
+    --light: #f8f9fa;
+    --success: #4cc9f0;
+    --warning: #f8961e;
+    --danger: #f72585;
+    --info: #560bad;
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Efecto vidrio moderno */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  }
+
+  /* Neumorfismo suave */
+  .neumorphic {
+    border-radius: 1rem;
+    background: #f0f9ff;
+    box-shadow:  8px 8px 16px #d9e7f5,
+                -8px -8px 16px #ffffff;
+    transition: all 0.3s ease;
+  }
+
+  .neumorphic:hover {
+    box-shadow:  4px 4px 8px #d9e7f5,
+                -4px -4px 8px #ffffff;
+  }
+
+  /* Animaciones personalizadas */
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-fadeInRight {
+    animation: fadeInRight 0.6s ease-out forwards;
+  }
+  
+  /* Retraso escalonado para elementos */
+  [data-index] {
+    animation-delay: calc(attr(data-index) * 0.1s);
+  }
+  
+  /* Bordes modernos */
+  .rounded-xl {
+    border-radius: 1rem;
+  }
+  .rounded-2xl {
+    border-radius: 1.5rem;
+  }
+  .rounded-3xl {
+    border-radius: 2rem;
+  }
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  /* Efectos hover 2025 */
+  .btn-hover {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: translateY(0);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+  }
+  
+  .btn-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-hover:hover::before {
+    left: 100%;
+  }
+  
+  /* Efecto para tarjetas */
+  .card-hover {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(1);
+  }
+  
+  .card-hover:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Efecto de carga moderno */
+  @keyframes pulse {
+    0% { opacity: 0.6; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.6; transform: scale(0.98); }
+  }
+  
+  .loading-element {
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+  
+  /* Estilos para contenedores modernos */
+  .seguimientos-container {
+    background-color: rgba(248, 250, 252, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.3);
+  }
+  
+  .seguimientos-header {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    color: #0369a1;
+    border-bottom: 2px solid rgba(186, 230, 253, 0.5);
+  }
+  
+  .seguimientos-footer {
+    background-color: rgba(240, 249, 255, 0.85);
+    border-top: 2px solid rgba(224, 242, 254, 0.5);
+  }
+  
+  /* Estilo para filas de camas */
+  .seguimientos-row {
+    background-color: rgba(248, 250, 252, 0.7);
+    transition: all 0.3s ease;
+  }
+  
+  .seguimientos-row:hover {
+    background-color: rgba(224, 242, 254, 0.7) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Tarjetas de camas modernas */
+  .bed-card {
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+  }
+  
+  .bed-card svg {
+    width: 4rem;
+    height: 4rem;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  }
+  
+  /* Icono de usuario estandarizado */
+  .bed-card .user-icon {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0; /* Evita que se reduzca */
+    margin-right: 4px;
+  }
+
+  .bed-card:hover svg {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.15));
+  }
+  
+  /* Badges modernos */
+  .status-badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Efecto de cursor personalizado */
+  .cursor-follower {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    transition: transform 0.1s ease;
+  }
+  
+  /* Scroll personalizado */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.5);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+  
+  /* Efecto de gradiente animado */
+  .gradient-bg {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+  
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .compact-bed-card {
+    padding: 0.5rem; /* Reducir el padding */
+  }
+  
+  .compact-bed-card svg {
+    width: 3rem; /* Reducir tamaño del icono de cama */
+    height: 3rem;
+  }
+  
+  .compact-user-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.25rem;
+  }
+  
+  .compact-status-badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .compact-actions {
+    margin-top: 0.5rem;
+  }
+  
+  .compact-actions a, 
+  .compact-actions button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .compact-actions svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.25rem;
+  }
+  
+  .compact-patient-info {
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+  }
+</style>

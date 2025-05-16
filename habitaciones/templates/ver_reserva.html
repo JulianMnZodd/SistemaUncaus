@@ -1,19 +1,198 @@
 {% extends '_base.html' %}
 
 {% block content %}
-<h2 class="text-xl font-bold mb-4">Reserva de Cama ID: {{ cama.idcama }}</h2>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header con icono y título -->
+  <div class="flex items-center gap-4 mb-8">
+    <div class="p-3 bg-blue-100 rounded-lg">
+      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+      </svg>
+    </div>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Gestión de Cama</h1>
+      <p class="text-sm text-gray-500 mt-1">ID: {{ cama.idcama }} | {{ cama.get_estado_display }}</p>
+    </div>
+  </div>
 
-<p><strong>Médico:</strong> {{ reserva.medico.persona.first_name }} {{ reserva.medico.apellido }}</p>
-<p><strong>Fecha de Reserva:</strong> {{ reserva.fecha_reserva }}</p>
-<p><strong>Fecha de Expiración:</strong> {{ reserva.fecha_expiracion }}</p>
+  <!-- Tarjeta principal -->
+  <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+    <!-- Sección de información -->
+    <div class="p-6 sm:p-8 border-b border-gray-100">
+      <h2 class="text-xl font-semibold text-gray-800 mb-6">Detalles de la Reserva</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Columna 1 -->
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Médico Responsable</h3>
+            <div class="flex items-center mt-1">
+              <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <span class="text-blue-600 font-medium">{{ reserva.medico.persona.first_name|first }}{{ reserva.medico.apellido|first }}</span>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900">{{ reserva.medico.persona.first_name }} {{ reserva.medico.apellido }}</p>
+                <p class="text-xs text-gray-500">Matrícula: {{ reserva.medico.matricula }}</p>
+              </div>
+            </div>
+          </div>
 
+          <div>
+            <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</h3>
+            {% if reserva.paciente %}
+            <div class="flex items-center mt-1">
+              <div class="flex-shrink-0 h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center">
+                <span class="text-purple-600 font-medium">{{ reserva.paciente.persona.first_name|first }}{{ reserva.paciente.apellido|first }}</span>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900">{{ reserva.paciente.persona.first_name }} {{ reserva.paciente.apellido }}</p>
+                <p class="text-xs text-gray-500">DNI: {{ reserva.paciente.persona.dni }}</p>
+              </div>
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500 mt-1 italic">No asignado</p>
+            {% endif %}
+          </div>
+        </div>
 
-<form method="POST" action="{% url 'liberar_cama' cama.idcama %}">
-    {% csrf_token %}
-    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4">Liberar Cama</button>
-  </form>
-  
-  <a href="{% url 'asignar_cama' cama.idcama %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Asignar Cama</a>
-  
-  <a href="{% url 'lista_habitaciones' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Volver a Habitaciones</a>
-{% endblock content %}
+        <!-- Columna 2 -->
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Fechas</h3>
+            <div class="mt-2 space-y-2">
+              <div class="flex items-center">
+                <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="ml-2 text-sm text-gray-900"><strong>Reserva:</strong> {{ reserva.fecha_reserva|date:"d/m/Y H:i" }}</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="ml-2 text-sm text-gray-900"><strong>Expira:</strong> {{ reserva.fecha_expiracion|date:"d/m/Y H:i" }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Habitación</h3>
+            <div class="mt-1 flex items-center">
+              <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+              </svg>
+              <span class="ml-2 text-sm text-gray-900">{{ cama.habitacion}} ({{ cama.habitacion.idsector.tipo }})</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de acciones -->
+    <div class="bg-gray-50 px-6 py-5 sm:px-8">
+      <div class="flex flex-wrap gap-4 justify-between">
+        <!-- Grupo de acciones principales -->
+        <div class="flex flex-wrap gap-3">
+          <!-- Botón para liberar cama -->
+          <form method="POST" action="{% url 'liberar_cama_reservada' cama.idcama %}" class="flex-shrink-0">
+            {% csrf_token %}
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150">
+              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              Liberar Cama
+            </button>
+          </form>
+
+          <!-- Botón para asignar cama -->
+          <a href="{% url 'asignar_cama' cama.idcama %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+            </svg>
+            Asignar Paciente
+          </a>
+        </div>
+
+        <!-- Botón secundario -->
+        <div>
+          <a href="{% url 'lista_habitaciones' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Volver a Habitaciones
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección adicional de información -->
+  <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Tarjeta de estado -->
+    <div class="bg-white shadow rounded-lg p-6 border border-gray-100">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Estado Actual</h3>
+      <div class="flex items-center">
+        <span class="flex-shrink-0 relative inline-flex items-center justify-center h-12 w-12 rounded-full bg-{% if cama.estado == 'D' %}green-100 text-green-800{% elif cama.estado == 'O' %}red-100 text-red-800{% else %}yellow-100 text-yellow-800{% endif %}">
+          {% if cama.estado == 'D' %}
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          {% elif cama.estado == 'O' %}
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          {% else %}
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          {% endif %}
+        </span>
+        <div class="ml-4">
+          <h4 class="text-sm font-medium text-gray-500">Estado de la Cama</h4>
+          <p class="text-lg font-semibold text-gray-900">{{ cama.get_estado_display }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta de tiempo restante -->
+    <div class="bg-white shadow rounded-lg p-6 border border-gray-100">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Tiempo Restante</h3>
+      <div class="flex items-center">
+        <span class="flex-shrink-0 relative inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-800">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </span>
+        <div class="ml-4">
+         <h4 class="text-sm font-medium text-gray-500">Expira en</h4>
+          <p class="text-lg font-semibold text-gray-900">
+            {% now "Y-m-d H:i:s" as current_time %}
+            {% if reserva.fecha_expiracion|date:"Y-m-d H:i:s" > current_time %}
+              {{ reserva.fecha_expiracion|timeuntil }}
+            {% else %}
+              Expirada
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Puedes añadir interactividad aquí si es necesario
+document.addEventListener('DOMContentLoaded', function() {
+  // Ejemplo: Confirmación antes de liberar cama
+  const liberarForm = document.querySelector('form[action*="liberar_cama"]');
+  if (liberarForm) {
+    liberarForm.addEventListener('submit', function(e) {
+      if (!confirm('¿Está seguro que desea liberar esta cama?')) {
+        e.preventDefault();
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

@@ -91,7 +91,6 @@ class Reserva(models.Model):
     cama = models.ForeignKey(Cama, on_delete=models.CASCADE, related_name='reservas')
     medico = models.ForeignKey(Medico, on_delete=models.CASCADE, related_name='reservas')
     fecha_reserva = models.DateTimeField(auto_now_add=True)
-    fecha_expiracion = models.DateTimeField(default=timezone.now() + timedelta(days=2))  # Expira en 7 días por defecto
     fecha_expiracion = models.DateTimeField(default=default_expiracion)
 
     

@@ -1,0 +1,108 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartOptions = {
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+            legend: { position: 'top', labels: { color: '#6B7280', font: { size: 14 } } },
+            tooltip: {
+                backgroundColor: '#1F2937',
+                titleColor: '#F9FAFB',
+                bodyColor: '#F9FAFB',
+                borderColor: '#374151',
+                borderWidth: 1,
+                callbacks: {
+                    title: (context) => `Fecha: ${context[0].label}`,
+                    label: (context) => `${context.dataset.label}: ${context.raw}`
+                }
+            }
+        }
+    };
+
+    // Gráfico de distribución
+    if (document.getElementById('sectorChart')) {
+        const sectorCtx = document.getElementById('sectorChart').getContext('2d');
+        new Chart(sectorCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ distribucion_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Disponibles',
+                        data: calculateDisponibles(),
+                        backgroundColor: '#60A5FA',
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Reservadas',
+                        data: {{ distribucion_reservadas|safe }},
+                        backgroundColor: '#FBBF24',
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Ocupadas',
+                        data: {{ distribucion_ocupadas|safe }},
+                        backgroundColor: '#EF4444',
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { 
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: { color: '#6B7280', font: { size: 12 } }
+                    },
+                    y: { 
+                        stacked: true,
+                        ticks: { color: '#6B7280', stepSize: 1, precision: 0 },
+                        grid: { color: '#E5E7EB' }
+                    }
+                }
+            }
+        });
+    }
+
+    // Gráfico de tendencia
+    if (document.getElementById('tendenciaChart')) {
+        const tendenciaCtx = document.getElementById('tendenciaChart').getContext('2d');
+        new Chart(tendenciaCtx, {
+            type: 'line',
+            data: {
+                labels: {{ tendencia_labels|safe }},
+                datasets: [{
+                    label: 'Ingresos diarios',
+                    data: {{ tendencia_data|safe }},
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#6B7280' } },
+                    y: { ticks: { color: '#6B7280', stepSize: 1 }, grid: { color: '#E5E7EB' } }
+                }
+            }
+        });
+    }
+
+    function calculateDisponibles() {
+        return {{ distribucion_total|safe }}.map((total, i) => 
+            total - {{ distribucion_ocupadas|safe }}[i] - {{ distribucion_reservadas|safe }}[i]
+        );
+    }
+
+    // Manejo de carga de gráficos
+    window.addEventListener('resize', function() {
+        Chart.getInstances().forEach(chart => chart.resize());
+    });
+});
+</script>

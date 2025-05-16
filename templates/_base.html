@@ -2,6 +2,7 @@
 
 {% load compress %} {% load static %}
 
+
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -9,7 +10,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BedWise</title>
     <link rel="icon" href="{% static 'logo.ico' %}" type="image/x-icon" />
-
+<!-- Tailwind CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Flowbite CSS via CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.css" rel="stylesheet" />
     {% compress css %}
     <link rel="stylesheet" href="{% static 'src/output.css' %}" />
     {% endcompress %}
@@ -123,6 +128,10 @@
         </div>
       </div>
     </nav>
+
+    {% if messages %}
+    {% include '_messages.html' %}
+    {% endif %}
 
     <aside
       id="logo-sidebar"

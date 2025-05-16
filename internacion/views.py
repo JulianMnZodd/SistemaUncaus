@@ -307,7 +307,6 @@ def generar_consentimiento_pdf(request, paciente_id):
     return response
 
 
-from datetime import timedelta
 
 from django import forms
 
@@ -331,11 +330,20 @@ def generar_informe_internaciones(request):
             fecha_inicio = form.cleaned_data['fecha_inicio']
             fecha_fin = form.cleaned_data['fecha_fin']
 
+            # Validar que fecha_inicio no sea posterior a fecha_fin
+            if fecha_inicio > fecha_fin:
+                messages.error(request, "La fecha de inicio no puede ser posterior a la fecha de fin.")
+                return redirect('listar_internaciones')
+
             # Obtener todas las internaciones en el rango de fechas
             internaciones = Internacion.objects.filter(
                 fecha_admision__gte=fecha_inicio,
                 fecha_admision__lte=fecha_fin
             ).order_by('-fecha_admision')
+
+            if not internaciones:
+                messages.warning(request, "No se encontraron internaciones en el rango de fechas seleccionado.")
+                return redirect('listar_internaciones')
 
             # Crear el objeto HttpResponse con el encabezado PDF adecuado
             response = HttpResponse(content_type='application/pdf')
@@ -362,13 +370,19 @@ def generar_informe_internaciones(request):
             for internacion in internaciones:
                 p.drawString(50, y, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
                 p.drawString(200, y, str(internacion.fecha_admision.strftime("%d/%m/%Y %H:%M")))
-                p.drawString(350, y, internacion.fecha_alta.strftime("%d/%m/%Y %H:%M") if internacion.fecha_alta else "-")
+                p.drawString(350, y, internacion.fecha_alta.strftime("%d/%m/%Y %H:%M") if internacion.fecha_alta else "En curso")
                 p.drawString(500, y, internacion.nota_ingreso)
                 y -= 20
 
                 if y < 50:  # Salto de página si no hay espacio
                     p.showPage()
-                    y = height - 50
+                    # Repetir encabezados en la nueva página
+                    p.setFont("Helvetica-Bold", 12)
+                    p.drawString(50, height - 100, "Paciente")
+                    p.drawString(200, height - 100, "Fecha de Ingreso")
+                    p.drawString(350, height - 100, "Fecha de Alta")
+                    p.drawString(500, height - 100, "Motivo")
+                    y = height - 120
 
             # Finalizar el PDF
             p.save()
@@ -376,6 +390,7 @@ def generar_informe_internaciones(request):
 
     # Si no es POST, redirigir a listar_internaciones
     return redirect('listar_internaciones')
+
 @login_required
 def generar_informe_internacion(request, internacion_id):
     # Obtener la internación y sus seguimientos
@@ -582,14 +597,15 @@ def generar_informe_alta(request, internacion_id):
     y_position -= spacing * 2
     
     # Firma Médico
-    p.drawString(margin + 50, y_position, "_________________________________________")
-    p.drawString(margin + 50, y_position - 20, f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}")
-    p.drawString(margin + 50, y_position - 40, f"Matrícula: {diagnostico.idmedico.matricula}")
-    
-    # Firma Paciente
-    p.drawString(width - 250, y_position, "_________________________________________")
-    p.drawString(width - 250, y_position - 20, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
-    p.drawString(width - 250, y_position - 40, "DNI: " + str(internacion.idpaciente.dni))
+    if diagnostico:
+        p.drawString(margin + 50, y_position, "_________________________________________")
+        p.drawString(margin + 50, y_position - 20, f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}")
+        p.drawString(margin + 50, y_position - 40, f"Matrícula: {diagnostico.idmedico.matricula}")
+        
+        # Firma Paciente
+        p.drawString(width - 250, y_position, "_________________________________________")
+        p.drawString(width - 250, y_position - 20, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
+        p.drawString(width - 250, y_position - 40, "DNI: " + str(internacion.idpaciente.dni))
 
     # Pie de página
     p.setFont("Helvetica-Oblique", 8)

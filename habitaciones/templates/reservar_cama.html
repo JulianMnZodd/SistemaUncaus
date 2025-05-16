@@ -1,23 +1,133 @@
-<!-- filepath: /C:/Users/julia/Documents/sistemuncaus/templates/internacion/reservar_cama.html -->
 {% extends '_base.html' %}
 
 {% block content %}
-<h2 class="text-xl font-bold mb-4">Reservar Cama ID: {{ cama.idcama }}</h2>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header con icono y título -->
+  <div class="flex items-center gap-4 mb-8">
+    <div class="p-3 bg-blue-100 rounded-lg">
+      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+      </svg>
+    </div>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Reservar Cama</h1>
+      <p class="text-sm text-gray-500 mt-1">Número: {{ cama.nro_cama }} | Habitación: {{ cama.habitacion.nombre }}</p>
+    </div>
+  </div>
 
-<form method="post">
-  {% csrf_token %}
-  <label for="medico_id" class="block text-sm font-medium text-gray-700">Seleccionar Médico</label>
-  <select name="medico_id" id="medico_id" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-    {% for medico in medicos %}
-    <option value="{{ medico.persona_id }}">{{ medico.persona.first_name }} {{ medico.persona.last_name }}</option>
-    {% endfor %}
-  </select>
-  
-  <label for="dias_expiracion" class="block text-sm font-medium text-gray-700 mt-4">Días hasta la expiración</label>
-  <input type="number" name="dias_expiracion" id="dias_expiracion" value="7" min="1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-  
-  <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Reservar</button>
-  <a href="{% url 'lista_habitaciones' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Cancelar</a>
-</form>
+  <!-- Tarjeta del formulario -->
+  <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+    <form method="post" class="space-y-6 p-6 sm:p-8">
+      {% csrf_token %}
+      
+      <!-- Sección de selección de médico -->
+      <div class="space-y-2">
+        <h3 class="text-lg font-medium text-gray-900">Médico Responsable</h3>
+        <p class="text-sm text-gray-500">Seleccione el médico que realizará la reserva</p>
+        
+        <div class="mt-4">
+          <label for="medico_id" class="sr-only">Seleccionar Médico</label>
+          <select name="medico_id" id="medico_id" required
+                  class="block w-full pl-3 pr-10 py-3 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg shadow-sm">
+            {% for medico in medicos %}
+            <option value="{{ medico.persona_id }}">{{ medico.persona.first_name }} {{ medico.persona.last_name }} - {{ medico.especialidad }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
 
+      <!-- Sección de duración de reserva -->
+      <div class="space-y-2">
+        <h3 class="text-lg font-medium text-gray-900">Duración de la Reserva</h3>
+        <p class="text-sm text-gray-500">Establezca el período de validez de la reserva</p>
+        
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Días hasta expiración -->
+          <div>
+            <label for="dias_expiracion" class="block text-sm font-medium text-gray-700 mb-1">Días de validez</label>
+            <div class="relative rounded-md shadow-sm">
+              <input type="number" name="dias_expiracion" id="dias_expiracion" 
+                     value="7" min="1" max="30"
+                     class="block w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">días</span>
+              </div>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Máximo 30 días</p>
+          </div>
+          
+          <!-- Fecha estimada de expiración (calculada con JS) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha estimada de expiración</label>
+            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p id="fecha-expiracion" class="text-sm font-medium text-gray-900">Calculando...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de botones -->
+      <div class="flex flex-wrap gap-4 justify-between pt-6 border-t border-gray-200">
+        <!-- Botón de cancelar -->
+        <a href="{% url 'lista_habitaciones' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150">
+          <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Cancelar
+        </a>
+        
+        <!-- Botón de reservar -->
+        <button type="submit" 
+                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+          <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Confirmar Reserva
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Calcular fecha de expiración automáticamente
+  const diasInput = document.getElementById('dias_expiracion');
+  const fechaExpiracion = document.getElementById('fecha-expiracion');
+  
+  function calcularFechaExpiracion() {
+    const dias = parseInt(diasInput.value) || 7;
+    const hoy = new Date();
+    hoy.setDate(hoy.getDate() + dias);
+    
+    const options = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    
+    fechaExpiracion.textContent = hoy.toLocaleDateString('es-ES', options);
+  }
+  
+  // Calcular al cargar y cuando cambia el valor
+  calcularFechaExpiracion();
+  diasInput.addEventListener('input', calcularFechaExpiracion);
+  
+  // Validación del formulario
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function(e) {
+    if(parseInt(diasInput.value) < 1 || parseInt(diasInput.value) > 30) {
+      e.preventDefault();
+      alert('Por favor ingrese un valor entre 1 y 30 días');
+      diasInput.focus();
+    }
+  });
+});
+</script>
+{% endblock %}
 {% endblock content %}

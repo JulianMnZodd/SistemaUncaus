@@ -8,21 +8,6 @@
   <form method="post" class="bg-white shadow-md rounded-lg p-6">
     {% csrf_token %}
 
-    <!-- Campo Fecha -->
-    <div class="mb-4">
-      <label for="{{ form.fecha.id_for_label }}" class="block text-sm font-medium text-gray-700">
-        {{ form.fecha.label }}
-      </label>
-      <input
-        type="datetime-local"
-        name="{{ form.fecha.name }}"
-        id="{{ form.fecha.id_for_label }}"
-        value="{{ form.fecha.value|date:'Y-m-d\TH:i' }}"
-        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      >
-    </div>
-
     <!-- Campo Detalles -->
     <div class="mb-4">
       <label for="{{ form.detalles.id_for_label }}" class="block text-sm font-medium text-gray-700">

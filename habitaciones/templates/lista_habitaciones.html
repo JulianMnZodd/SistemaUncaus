@@ -2,301 +2,753 @@
 {% load static %}
 {% block content %}
 
-<!-- Formulario de Filtros Colapsable -->
-<div class="bg-white rounded-lg shadow-md mb-8 dark:bg-gray-800">
-  <!-- Encabezado colapsable -->
-  <button type="button" 
-          class="flex items-center justify-between w-full p-5 font-medium text-left text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-t-lg"
-          data-accordion-target="#filters-accordion" 
-          aria-expanded="true" 
-          aria-controls="filters-accordion">
-      <div class="flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-          </svg>
-          <span class="text-lg font-semibold">Filtrar Camas</span>
-      </div>
-      <svg data-accordion-icon class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
-  </button>
-  
-  <!-- Contenido colapsable -->
-  <div id="filters-accordion" class="hidden">
-      <div class="p-5 border-t border-gray-200 dark:border-gray-700">
-          <form method="get" class="space-y-6">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <!-- Filtro por Sectores -->
-                  <div>
-                      <label class="block mb-3 text-sm font-medium text-gray-900 dark:text-white">
-                          <span class="flex items-center">
-                              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                              </svg>
-                              Sectores
-                          </span>
-                      </label>
-                      
-                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {% for sector in all_sectors %}
-                          <div class="flex items-center">
-                              <input id="sector-{{ sector.idsector }}" type="checkbox" name="sector" value="{{ sector.idsector }}"
-                                     {% if sector.id in selected_sectors %}checked{% endif %}
-                                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                              <label for="sector-{{ sector.idsector }}" 
-                                     class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                                  {{ sector.tipo }}
-                                  {% if sector.count %}<span class="text-xs text-gray-500 ml-1">({{ sector.count }})</span>{% endif %}
-                              </label>
-                          </div>
-                          {% endfor %}
-                      </div>
-                  </div>
-                  
-                  <!-- Filtro por Estado -->
-                  <div>
-                      <label class="block mb-3 text-sm font-medium text-gray-900 dark:text-white">
-                          <span class="flex items-center">
-                              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                              Estado
-                          </span>
-                      </label>
-                      
-                      <div class="space-y-3">
-                          <div class="flex items-center">
-                              <input id="available-beds" type="checkbox" name="available_beds" 
-                                     {% if available_beds %}checked{% endif %}
-                                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                              <label for="available-beds" 
-                                     class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                                  Mostrar solo camas disponibles
-                              </label>
-                          </div>
-                          
-                          <!-- Filtro adicional por estado específico -->
-                          <div>
-                              <label for="bed-status" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Estado específico:</label>
-                              <select id="bed-status" name="bed_status" 
-                                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                  <option value="">Todos los estados</option>
-                                  <option value="L" {% if bed_status == 'L' %}selected{% endif %}>Libre</option>
-                                  <option value="O" {% if bed_status == 'O' %}selected{% endif %}>Ocupada</option>
-                                  <option value="R" {% if bed_status == 'R' %}selected{% endif %}>Reservada</option>
-                              </select>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              
-              <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <button type="submit" 
-                          class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex items-center justify-center">
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                      </svg>
-                      Aplicar Filtros
-                  </button>
-                  
-                  <a href="?" 
-                     class="px-5 py-2.5 text-sm font-medium text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:border-gray-700 dark:focus:ring-gray-800 flex items-center justify-center">
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                      </svg>
-                      Limpiar Filtros
-                  </a>
-              </div>
-          </form>
-      </div>
-  </div>
-</div>
+<!-- Incluir Animate.css y Hover.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
 
-<!-- Script para el acordeón (si no estás usando el JS completo de Flowbite) -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const accordionButtons = document.querySelectorAll('[data-accordion-target]');
-  
-  accordionButtons.forEach(button => {
-      button.addEventListener('click', function() {
-          const targetId = this.getAttribute('data-accordion-target');
-          const target = document.querySelector(targetId);
-          const icon = this.querySelector('[data-accordion-icon]');
-          
-          // Alternar visibilidad
-          target.classList.toggle('hidden');
-          
-          // Rotar el icono
-          const isExpanded = target.classList.contains('hidden');
-          icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
-          
-          // Actualizar atributo ARIA
-          this.setAttribute('aria-expanded', !isExpanded);
-      });
-  });
-});
-</script>
+<!-- Glassmorphism y Neumorphism combinados -->
+<style>
+  :root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --accent: #4895ef;
+    --dark: #1b263b;
+    --light: #f8f9fa;
+    --success: #4cc9f0;
+    --warning: #f8961e;
+    --danger: #f72585;
+    --info: #560bad;
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
 
-<!-- Resto del contenido... -->
-<div class="space-y-8">
-  {% for sector in sectores %}
-  <div>
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Sector: {{ sector.tipo }}</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-      {% for habitacion in sector.habitaciones.all %}
-      {% if habitacion.camas.all %} 
-      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="p-4 border-b-2 border-gray-100">
-          <h2 class="text-xl font-bold text-gray-700">Habitación #{{ habitacion.numero }}</h2>
+  /* Efecto vidrio moderno */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  }
+
+  /* Neumorfismo suave */
+  .neumorphic {
+    border-radius: 1rem;
+    background: #f0f9ff;
+    box-shadow:  8px 8px 16px #d9e7f5,
+                -8px -8px 16px #ffffff;
+    transition: all 0.3s ease;
+  }
+
+  .neumorphic:hover {
+    box-shadow:  4px 4px 8px #d9e7f5,
+                -4px -4px 8px #ffffff;
+  }
+
+  /* Animaciones personalizadas */
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-fadeInRight {
+    animation: fadeInRight 0.6s ease-out forwards;
+  }
+  
+  /* Retraso escalonado para elementos */
+  [data-index] {
+    animation-delay: calc(attr(data-index) * 0.1s);
+  }
+  
+  /* Bordes modernos */
+  .rounded-xl {
+    border-radius: 1rem;
+  }
+  .rounded-2xl {
+    border-radius: 1.5rem;
+  }
+  .rounded-3xl {
+    border-radius: 2rem;
+  }
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  /* Efectos hover 2025 */
+  .btn-hover {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: translateY(0);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+  }
+  
+  .btn-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-hover:hover::before {
+    left: 100%;
+  }
+  
+  /* Efecto para tarjetas */
+  .card-hover {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(1);
+  }
+  
+  .card-hover:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Efecto de carga moderno */
+  @keyframes pulse {
+    0% { opacity: 0.6; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.6; transform: scale(0.98); }
+  }
+  
+  .loading-element {
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+  
+  /* Estilos para contenedores modernos */
+  .seguimientos-container {
+    background-color: rgba(248, 250, 252, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.3);
+  }
+  
+  .seguimientos-header {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    color: #0369a1;
+    border-bottom: 2px solid rgba(186, 230, 253, 0.5);
+  }
+  
+  .seguimientos-footer {
+    background-color: rgba(240, 249, 255, 0.85);
+    border-top: 2px solid rgba(224, 242, 254, 0.5);
+  }
+  
+  /* Estilo para filas de camas */
+  .seguimientos-row {
+    background-color: rgba(248, 250, 252, 0.7);
+    transition: all 0.3s ease;
+  }
+  
+  .seguimientos-row:hover {
+    background-color: rgba(224, 242, 254, 0.7) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Tarjetas de camas modernas */
+  .bed-card {
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+  }
+  
+  .bed-card svg {
+    width: 4rem;
+    height: 4rem;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  }
+  
+  /* Icono de usuario estandarizado */
+  .bed-card .user-icon {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0; /* Evita que se reduzca */
+    margin-right: 4px;
+  }
+
+  .bed-card:hover svg {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.15));
+  }
+  
+  /* Badges modernos */
+  .status-badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Efecto de cursor personalizado */
+  .cursor-follower {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    transition: transform 0.1s ease;
+  }
+  
+  /* Scroll personalizado */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.5);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+  
+  /* Efecto de gradiente animado */
+  .gradient-bg {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+  
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .compact-bed-card {
+    padding: 0.5rem; /* Reducir el padding */
+  }
+  
+  .compact-bed-card svg {
+    width: 3rem; /* Reducir tamaño del icono de cama */
+    height: 3rem;
+  }
+  
+  .compact-user-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.25rem;
+  }
+  
+  .compact-status-badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .compact-actions {
+    margin-top: 0.5rem;
+  }
+  
+  .compact-actions a, 
+  .compact-actions button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .compact-actions svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.25rem;
+  }
+  
+  .compact-patient-info {
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+  }
+</style>
+
+<!-- Cursor personalizado -->
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<div class="container mx-auto px-4 py-12 max-w-7xl">
+  <!-- Formulario de Filtros Colapsable - Diseño Moderno -->
+  <div class="glass-card rounded-3xl overflow-hidden animate__animated animate__fadeInDown card-hover">
+    <!-- Encabezado colapsable mejorado -->
+    <button type="button" 
+            class="flex items-center justify-between w-full p-6 font-medium text-left seguimientos-header rounded-t-3xl transition-all duration-300"
+            data-accordion-target="#filters-accordion" 
+            aria-expanded="true" 
+            aria-controls="filters-accordion">
+        <div class="flex items-center space-x-3">
+            <div class="p-2 bg-white bg-opacity-30 rounded-full">
+                <svg class="w-6 h-6 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+            </div>
+            <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-blue-600">Filtrar Camas</span>
         </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2">
-          {% for cama in habitacion.camas.all %}
-          <div class="relative flex flex-col items-center p-3 border rounded-lg transition-all duration-200 hover:shadow-md"
-               data-cama-id="{{ cama.idcama }}">
-            <div class="relative w-full">
-              <svg
-                id="cama-{{ cama.idcama }}"
-                class="w-24 h-24 mx-auto transform hover:scale-105 transition-colors duration-300"
-                fill="{% if cama.estado == 'O' %}#FF0000{% elif cama.estado == 'R' %}#FFD700{% else %}#00FF00{% endif %}"
-                viewBox="0 0 511.998 511.998"
-              >
-              <g>
-                <g>
-                  <path
-                    d="M235.561,335.822c-15.536,0-28.138-12.183-28.746-27.641c-0.253-6.419-0.302-12.887-0.119-19.576h-81.239
-                c3.829-4.03,6.193-9.464,6.193-15.461c0-12.409-10.059-22.468-22.468-22.468h-0.313c15.053-3.356,26.432-16.645,26.728-32.747
-                c0.347-18.884-14.682-34.475-33.567-34.821c-18.884-0.347-34.475,14.682-34.821,33.566c-0.303,16.526,11.168,30.529,26.694,34.002
-                H52.657V136.21c0-6.283-5.093-11.376-11.376-11.376H11.376C5.093,124.834,0,129.927,0,136.21l0.199,219.577
-                c0,7.755,6.288,14.043,14.043,14.043h24.474v8.229c0,5.028,4.076,9.104,9.104,9.104h45.669c5.028,0,9.104-4.076,9.104-9.104
-                v-8.229H408.25v8.229c0,5.028,4.076,9.104,9.104,9.104h45.669c5.028,0,9.104-4.076,9.104-9.104v-8.229h21.509
-                c7.755,0,14.043-6.288,14.043-14.043v-20.156C458.447,335.663,252.037,335.822,235.561,335.822z"
-                  />
-                </g>
-              </g>
-              <g>
-                <g>
-                  <path
-                    d="M320.098,214.364c-0.001-0.001-0.002-0.003-0.003-0.004c-4.804-7.754-15.006-10.108-22.711-5.337
-                c-0.001,0-0.002,0.001-0.003,0.002l-48.526,30.055l-57.053-26.148l26.78,4.723c4.175-12.724,8.895-23.192,13.237-31.378
-                l-62.089-1.14c-12.892-0.236-23.294,10.163-23.523,22.674l-0.756,41.192c-0.231,12.712,10.003,23.292,22.677,23.524l39.412,0.723
-                c0.212-2.548,0.457-5.052,0.732-7.511l-28.126-21.845c0.247,0.114,63.004,28.875,63.004,28.875
-                c4.798,2.198,10.74,2.012,15.561-0.974l56.047-34.714C322.536,232.265,324.881,222.086,320.098,214.364z"
-                  />
-                </g>
-              </g>
-              <g>
-                <g>
-                  <path
-                    d="M463.476,208.226c-62.726-18.113-164.001-31.505-201.971-30.431c0,0-12.598,14.513-22.559,43.451l6.706,1.182
-                l43.387-26.873c14.998-9.289,34.99-4.931,44.525,10.466c9.365,15.118,4.772,35.091-10.466,44.526l-56.047,34.714
-                c-13.218,8.188-27.946,4.425-33.623,0.017l-5.883-4.569c-0.503,8.387-0.643,17.255-0.272,26.666
-                c0.175,4.45,3.831,7.971,8.285,7.971H497.76c4.068,0,7.537-2.95,8.189-6.965l5.294-32.56
-                C516.415,244.021,494.427,217.163,463.476,208.226z"
-                  />
-                </g>
-              </g>
-              </svg>
-              
-              <div class="mt-2 text-center">
-                <span id="estado-{{ cama.idcama }}" class="text-xs px-2 py-1 rounded-full 
-                    {% if cama.estado == 'O' %}bg-red-100 text-red-800
-                    {% elif cama.estado == 'R' %}bg-yellow-100 text-yellow-800
-                    {% else %}bg-green-100 text-green-800{% endif %}">
-                    {{ cama.get_estado_display }}
-                </span>
+        <svg data-accordion-icon class="w-5 h-5 transition-transform duration-300 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </button>
+    
+    <!-- Contenido colapsable modernizado -->
+    <div id="filters-accordion" class="hidden">
+        <div class="p-6 seguimientos-footer space-y-6">
+            <form method="get" class="space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Filtro por Sectores - Diseño mejorado -->
+                    <div class="neumorphic p-5 rounded-2xl">
+                        <label class="block mb-4 text-sm font-semibold text-gray-700">
+                            <span class="flex items-center space-x-2">
+                                <div class="p-1.5 bg-blue-100 rounded-lg">
+                                    <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                                <span class="text-gray-700">Sectores</span>
+                            </span>
+                        </label>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for sector in all_sectors %}
+                            <div class="flex items-center animate__animated animate__fadeIn" data-index="{{ forloop.counter0 }}">
+                                <input id="sector-{{ sector.idsector }}" type="checkbox" name="sector" value="{{ sector.idsector }}"
+                                       {% if sector.id in selected_sectors %}checked{% endif %}
+                                       class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2">
+                                <label for="sector-{{ sector.idsector }}" 
+                                       class="ml-3 text-sm font-medium text-gray-700 cursor-pointer hover:text-blue-600 transition-colors flex items-center">
+                                    <span>{{ sector.tipo }}</span>
+                                    {% if sector.count %}<span class="text-xs text-gray-500 ml-2 px-1.5 py-0.5 bg-gray-100 rounded-full">{{ sector.count }}</span>{% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Filtro por Estado - Diseño mejorado -->
+                    <div class="neumorphic p-5 rounded-2xl">
+                        <label class="block mb-4 text-sm font-semibold text-gray-700">
+                            <span class="flex items-center space-x-2">
+                                <div class="p-1.5 bg-blue-100 rounded-lg">
+                                    <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <span class="text-gray-700">Estado</span>
+                            </span>
+                        </label>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center animate__animated animate__fadeIn">
+                                <input id="available-beds" type="checkbox" name="available_beds" 
+                                       {% if available_beds %}checked{% endif %}
+                                       class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2">
+                                <label for="available-beds" 
+                                       class="ml-3 text-sm font-medium text-gray-700 cursor-pointer hover:text-blue-600 transition-colors">
+                                    Mostrar solo camas disponibles
+                                </label>
+                            </div>
+                            
+                            <!-- Filtro adicional por estado específico - Diseño moderno -->
+                            <div>
+                                <label for="bed-status" class="block mb-2 text-sm font-semibold text-gray-700">Estado específico:</label>
+                                <div class="relative">
+                                    <select id="bed-status" name="bed_status" 
+                                            class="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8 cursor-pointer hover:border-blue-300 transition">
+                                        <option value="">Todos los estados</option>
+                                        <option value="L" {% if bed_status == 'L' %}selected{% endif %}>Libre</option>
+                                        <option value="O" {% if bed_status == 'O' %}selected{% endif %}>Ocupada</option>
+                                        <option value="R" {% if bed_status == 'R' %}selected{% endif %}>Reservada</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <!-- Mostrar paciente si existe una internación activa -->
+                <!-- Botones modernos con efecto 3D -->
+                <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
+                    <button type="submit" 
+                            class="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl btn-hover flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        <span>Aplicar Filtros</span>
+                    </button>
+                    
+                    <a href="?" 
+                       class="px-6 py-3 text-sm font-semibold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-50 border border-gray-200 rounded-xl btn-hover flex items-center justify-center space-x-2 shadow hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Limpiar Filtros</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+  </div>
+
+  <!-- Script para el acordeón mejorado -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const accordionButtons = document.querySelectorAll('[data-accordion-target]');
+      
+      accordionButtons.forEach(button => {
+          button.addEventListener('click', function() {
+              const targetId = this.getAttribute('data-accordion-target');
+              const target = document.querySelector(targetId);
+              const icon = this.querySelector('[data-accordion-icon]');
+              
+              // Animación suave
+              if (target.classList.contains('hidden')) {
+                  target.classList.remove('hidden');
+                  target.style.maxHeight = '0';
+                  target.style.overflow = 'hidden';
+                  setTimeout(() => {
+                      target.style.maxHeight = target.scrollHeight + 'px';
+                      setTimeout(() => {
+                          target.style.maxHeight = 'none';
+                      }, 300);
+                  }, 10);
+              } else {
+                  target.style.maxHeight = target.scrollHeight + 'px';
+                  setTimeout(() => {
+                      target.style.maxHeight = '0';
+                      setTimeout(() => {
+                          target.classList.add('hidden');
+                          target.style.maxHeight = '';
+                      }, 300);
+                  }, 10);
+              }
+              
+              // Rotar icono
+              icon.style.transform = target.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+              this.setAttribute('aria-expanded', !target.classList.contains('hidden'));
+          });
+      });
+    });
+  </script>
+
+  <!-- Contenido principal con diseño moderno -->
+  <div class="space-y-10 mt-12">
+    {% for sector in sectores %}
+    <div class="animate__animated animate__fadeInUp" data-index="{{ forloop.counter0 }}">
+      <!-- Encabezado de sector mejorado -->
+      <div class="flex items-center mb-6 space-x-4">
+        <div class="p-2 bg-blue-100 rounded-lg">
+          <svg class="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500">Sector: {{ sector.tipo }}</h2>
+      </div>
+      
+      <!-- Grid de habitaciones moderno -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for habitacion in sector.habitaciones.all %}
+        {% if habitacion.camas.all %} 
+        <div class="glass-card rounded-3xl shadow-lg overflow-hidden card-hover animate__animated animate__fadeInUp" data-index="{{ forloop.counter0 }}">
+          <!-- Encabezado de habitación con gradiente -->
+          <div class="p-4 bg-gradient-to-r from-blue-600 to-green-500">
+            <h2 class="text-lg font-bold text-white">Habitación #{{ habitacion.numero }}</h2>
+          </div>
+          
+          <!-- Grid de camas mejorado -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
+            {% for cama in habitacion.camas.all %}
+            <div class="bed-card compact-bed-card relative flex flex-col items-center seguimientos-row rounded-xl transition-all duration-300 animate__animated animate__fadeInRight" 
+                 data-cama-id="{{ cama.idcama }}" data-index="{{ forloop.counter0 }}">
+              <div class="relative w-full flex flex-col items-center p-3">
+                <!-- SVG con efecto 3D -->
+                <div class="relative">
+                  <svg
+                    id="cama-{{ cama.idcama }}"
+                    class="mx-auto transform hover:scale-105 transition-all duration-300 hvr-float"
+                    fill="{% if cama.estado == 'O' %}#FF0000{% elif cama.estado == 'R' %}#FFFF00{% else %}#00FF00{% endif %}"
+                    viewBox="0 0 511.998 511.998"
+                  >
+                    <g>
+                      <path
+                        d="M235.561,335.822c-15.536,0-28.138-12.183-28.746-27.641c-0.253-6.419-0.302-12.887-0.119-19.576h-81.239
+                        c3.829-4.03,6.193-9.464,6.193-15.461c0-12.409-10.059-22.468-22.468-22.468h-0.313c15.053-3.356,26.432-16.645,26.728-32.747
+                        c0.347-18.884-14.682-34.475-33.567-34.821c-18.884-0.347-34.475,14.682-34.821,33.566c-0.303,16.526,11.168,30.529,26.694,34.002
+                        H52.657V136.21c0-6.283-5.093-11.376-11.376-11.376H11.376C5.093,124.834,0,129.927,0,136.21l0.199,219.577
+                        c0,7.755,6.288,14.043,14.043,14.043h24.474v8.229c0,5.028,4.076,9.104,9.104,9.104h45.669c5.028,0,9.104-4.076,9.104-9.104
+                        v-8.229H408.25v8.229c0,5.028,4.076,9.104,9.104,9.104h45.669c5.028,0,9.104-4.076,9.104-9.104v-8.229h21.509
+                        c7.755,0,14.043-6.288,14.043-14.043v-20.156C458.447,335.663,252.037,335.822,235.561,335.822z"
+                      />
+                    </g>
+                    <g>
+                      <path
+                        d="M320.098,214.364c-0.001-0.001-0.002-0.003-0.003-0.004c-4.804-7.754-15.006-10.108-22.711-5.337
+                        c-0.001,0-0.002,0.001-0.003,0.002l-48.526,30.055l-57.053-26.148l26.78,4.723c4.175-12.724,8.895-23.192,13.237-31.378
+                        l-62.089-1.14c-12.892-0.236-23.294,10.163-23.523,22.674l-0.756,41.192c-0.231,12.712,10.003,23.292,22.677,23.524l39.412,0.723
+                        c0.212-2.548,0.457-5.052,0.732-7.511l-28.126-21.845c0.247,0.114,63.004,28.875,63.004,28.875
+                        c4.798,2.198,10.74,2.012,15.561-0.974l56.047-34.714C322.536,232.265,324.881,222.086,320.098,214.364z"
+                      />
+                    </g>
+                    <g>
+                      <path
+                        d="M463.476,208.226c-62.726-18.113-164.001-31.505-201.971-30.431c0,0-12.598,14.513-22.559,43.451l6.706,1.182
+                        l43.387-26.873c14.998-9.289,34.99-4.931,44.525,10.466c9.365,15.118,4.772,35.091-10.466,44.526l-56.047,34.714
+                        c-13.218,8.188-27.946,4.425-33.623,0.017l-5.883-4.569c-0.503,8.387-0.643,17.255-0.272,26.666
+                        c0.175,4.45,3.831,7.971,8.285,7.971H497.76c4.068,0,7.537-2.95,8.189-6.965l5.294-32.56
+                        C516.415,244.021,494.427,217.163,463.476,208.226z"
+                      />
+                    </g>
+                  </svg>
+                  <!-- Efecto de brillo al hacer hover -->
+                  <div class="absolute inset-0 bg-white opacity-0 hover:opacity-10 rounded-full transition-opacity duration-300 pointer-events-none"></div>
+                </div>
+                
+                <!-- Badge de estado mejorado -->
+                <div class="mt-2 text-center space-y-1 w-full">
+                  <span id="estado-{{ cama.idcama }}" class="compact-status-badge inline-flex items-center px-3 py-1 rounded-full font-semibold text-xs
+                      {% if cama.estado == 'O' %}bg-red-100 text-red-800
+                      {% elif cama.estado == 'R' %}bg-yellow-100 text-yellow-800
+                      {% else %}bg-green-100 text-green-800{% endif %}">
+                      <span class="w-1.5 h-1.5 rounded-full mr-1
+                          {% if cama.estado == 'O' %}bg-red-500
+                          {% elif cama.estado == 'R' %}bg-yellow-500
+                          {% else %}bg-green-500{% endif %}"></span>
+                      {{ cama.get_estado_display }}
+                  </span>
+                  
+                  <!-- Mostrar paciente si existe una internación activa -->
                   {% if cama.estado == 'O' %}
                     {% with internacion=cama.internacion_set.last %}
                       {% if internacion and not internacion.fecha_alta %}
-                          <p class="text-xs font-medium text-gray-700 truncate mt-1 "id="paciente-{{ cama.idcama }}">
+                        <div class=" compact-patient-info w-full">
+                          <p class="font-medium text-gray-700" id="paciente-{{ cama.idcama }}">
                               {% with paciente=internacion.idpaciente %} 
-                                  <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}"> {{ paciente.nombre }} {{ paciente.apellido }}</a>
+                                  <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}" 
+                                    class="hover:text-blue-600 transition-colors flex items-center justify-center">
+                                    <svg class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span class="truncate">{{ paciente.nombre }} {{ paciente.apellido }}</span>
+                                  </a>
                               {% endwith %}
-                              
                           </p>
-                    {% endif %}
+                        </div>
+                      {% endif %}
                     {% endwith %}
-                {% endif %}
-            </div>
-
-              <div class="mt-2 space-y-1 text-center" id="actions-{{ cama.idcama }}">
-                {% if cama.estado == 'L' %}
-                  <a href="{% url 'asignar_cama' cama.idcama %}" 
-                     class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-                     <span class="w-full text-center">Asignar</span>
-                  </a>
-                  <a href="{% url 'reservar_cama' cama.idcama %}" 
-                     class="w-full text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-                     <span class="w-full text-center">Reservar</span>
-                  </a>
-                {% elif cama.estado == 'R' %}
-                  <a href="{% url 'ver_reserva' cama.idcama %}" 
-                     class="w-full text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-                     <span class="w-full text-center">Ver Reserva</span>
-                  </a>
-                {% else %}
-                {% if request.user.enfermero or request.user.medico %}
-                  <form class="inline" method="POST" action="{% url 'liberar_cama' cama.idcama %}" id="formLiberar-{{ cama.idcama }}">
-                    {% csrf_token %}
-                    <button type="button" 
-                                                onclick="confirmarLiberacion('formLiberar-{{ cama.idcama }}')"
-                                                class="w-full text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all"
-                                                title="Liberar cama">
-                                            Liberar
-                                        </button>
-                  </form>
-                  
-                  
-                    <a href="#" 
-                    onclick="mostrarDerivacionModal({{ cama.idcama }})"
-                    class="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-                    <span class="w-full text-center">Derivar</span>
-                    </a>
                   {% endif %}
-                {% endif %}
+                </div>
+
+                <!-- Acciones modernas con efecto 3D -->
+                <div class="compact-actions mt-2 space-y-1 w-full" id="actions-{{ cama.idcama }}">
+                  {% if cama.estado == 'L' %}
+                    <a href="{% url 'asignar_cama' cama.idcama %}" 
+                       class="w-full text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                        <svg class="compact-actions-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                       <span>Asignar</span>
+                    </a>
+                    <a href="{% url 'reservar_cama' cama.idcama %}" 
+                       class="w-full text-white bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                        <svg class="compact-actions-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                       <span>Reservar</span>
+                    </a>
+                  {% elif cama.estado == 'R' %}
+                    <a href="{% url 'ver_reserva' cama.idcama %}" 
+                       class="w-full text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                       <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                       </svg>
+                       <span>Ver Reserva</span>
+                    </a>
+                  {% else %}
+                    {% if request.user.enfermero or request.user.medico %}
+                      <form class="inline w-full" method="POST" action="{% url 'liberar_cama' cama.idcama %}" id="formLiberar-{{ cama.idcama }}">
+                        {% csrf_token %}
+                        <button type="button" 
+                                onclick="confirmarLiberacion('formLiberar-{{ cama.idcama }}')"
+                                class="w-full text-white bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            <span>Liberar</span>
+                        </button>
+                      </form>
+                      <a href="#" 
+                         onclick="mostrarDerivacionModal({{ cama.idcama }})"
+                         class="w-full text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                         </svg>
+                         <span>Derivar</span>
+                      </a>
+                    {% endif %}
+                  {% endif %}
+                </div>
               </div>
             </div>
+            {% endfor %}
           </div>
-          
-          {% endfor %}
         </div>
+        {% endif %}
+        {% endfor %}
       </div>
-      {% endif %}
-      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Modal de Confirmación Liberar - Diseño moderno -->
+  <div id="liberarModal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full flex items-center justify-center bg-black bg-opacity-50">
+    <div class="relative p-4 w-full max-w-md">
+        <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
+            <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Confirmar Liberación
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-modal-toggle="liberarModal">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 text-center">
+                <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center bg-red-100 rounded-full">
+                    <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">¿Está seguro que desea liberar esta cama?</h3>
+                <div class="flex justify-center space-x-4">
+                    <button id="confirmLiberar" type="button" class="text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+                        Sí, liberar
+                    </button>
+                    <button type="button" class="text-gray-500 bg-gradient-to-r from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 shadow hover:shadow-md transition-all duration-300" data-modal-toggle="liberarModal">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
   </div>
-  {% endfor %}
-</div>
 
-<!-- Modal de Confirmación Liberar -->
-<div id="liberarModal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full">
-  <div class="relative p-4 w-full max-w-md h-full md:h-auto">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-          <div class="flex justify-end p-2">
-              <button title="Close modal" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="liberarModal">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-              </button>
-          </div>
-          <div class="p-6 text-center">
-              <svg class="mx-auto mb-4 w-14 h-14 text-gray-400 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">¿Está seguro que desea liberar esta cama?</h3>
-              <button id="confirmLiberar" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">
-                  Sí, liberar
-              </button>
-              <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600" data-modal-toggle="liberarModal">
-                  Cancelar
-              </button>
-          </div>
+  <!-- Modal de Derivación - Diseño moderno -->
+  <div id="derivarModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div class="glass-card rounded-3xl shadow-xl p-6 w-full max-w-md relative transform transition-all duration-300 scale-95 opacity-0" id="derivarModalContent">
+      <button onclick="cerrarDerivacionModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-800">Seleccionar Cama de Destino</h2>
+        <p class="text-sm text-gray-600 mt-1">Seleccione la cama a la que desea derivar al paciente</p>
       </div>
+      <form method="POST" action="{% url 'derivar_paciente' %}" id="derivarForm" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="idcama_origen" id="idcama_origen" value="">
+        <div>
+          <label for="idcama_destino" class="block text-sm font-medium text-gray-700 mb-1">Cama de Destino:</label>
+          <div class="relative">
+            <select name="idcama_destino" id="idcama_destino" class="appearance-none w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 pr-8 cursor-pointer transition">
+              {% for sector in sectores %}
+                <optgroup label="Sector: {{ sector.tipo }}" class="text-gray-700">
+                  {% for habitacion in sector.habitaciones.all %}
+                    {% for cama in habitacion.camas.all %}
+                      {% if cama.estado == 'L' %}
+                        <option value="{{ cama.idcama }}" class="text-gray-700">Habitación {{ habitacion.numero }} - Cama {{ cama.idcama }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="flex space-x-3 pt-2">
+          <button type="submit" class="flex-1 text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+            Derivar
+          </button>
+          <button type="button" onclick="cerrarDerivacionModal()" class="flex-1 text-gray-700 bg-gradient-to-r from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 shadow hover:shadow-md transition-all duration-300">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
-<script>
-  // Inicialización del modal
-  document.addEventListener('DOMContentLoaded', function() {
-      const liberarModal = new Modal(document.getElementById('liberarModal'));
+  <!-- Scripts mejorados -->
+  <script>
+    // Efecto de cursor personalizado
+    document.addEventListener('DOMContentLoaded', function() {
+      const cursorFollower = document.getElementById('cursorFollower');
+      
+      document.addEventListener('mousemove', (e) => {
+        cursorFollower.style.left = e.clientX + 'px';
+        cursorFollower.style.top = e.clientY + 'px';
+      });
+      
+      // Efecto al pasar sobre elementos interactivos
+      const interactiveElements = document.querySelectorAll('a, button, input, select, .card-hover, .btn-hover');
+      interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          cursorFollower.style.transform = 'translate(-50%, -50%) scale(2)';
+          cursorFollower.style.opacity = '0.2';
+          cursorFollower.style.background = 'var(--accent)';
+        });
+        
+        el.addEventListener('mouseleave', () => {
+          cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
+          cursorFollower.style.opacity = '0.1';
+          cursorFollower.style.background = 'var(--primary)';
+        });
+      });
+      
+      // Inicializar modal de liberación
+      const liberarModal = new Modal(document.getElementById('liberarModal'), {
+        backdrop: 'dynamic',
+        backdropClasses: 'bg-gray-900 bg-opacity-50 fixed inset-0 z-40'
+      });
+      
       let currentForm = null;
   
       window.confirmarLiberacion = (formId) => {
@@ -310,161 +762,242 @@ document.addEventListener('DOMContentLoaded', function() {
               liberarModal.hide();
           }
       });
-  });
-</script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/camas/');
-    
-    // Mapa de colores persistente
-    const estadoColors = {
-      'O': '#FF0000',
-      'R': '#FFD700',
-      'L': '#00FF00'
-    };
+      // Animación al hacer hover en botones
+      document.querySelectorAll('.btn-hover').forEach(element => {
+        element.addEventListener('mouseenter', () => {
+          element.classList.add('animate__animated', 'animate__pulse');
+        });
+        
+        element.addEventListener('animationend', () => {
+          element.classList.remove('animate__animated', 'animate__pulse');
+        });
+      });
+      
+      // Efecto de scroll con Intersection Observer (más moderno)
+      const animateOnScroll = function() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.1
+        });
+        
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+          observer.observe(el);
+        });
+      };
+      
+      animateOnScroll();
+      
+      // Mostrar modal de derivación con animación
+      window.mostrarDerivacionModal = (idCamaOrigen) => {
+        const modal = document.getElementById('derivarModal');
+        const modalContent = document.getElementById('derivarModalContent');
+        const inputOrigen = document.getElementById('idcama_origen');
+        
+        inputOrigen.value = idCamaOrigen;
+        modal.classList.remove('hidden');
+        
+        setTimeout(() => {
+          modalContent.classList.remove('scale-95', 'opacity-0');
+          modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+      }
 
-    // Actualizar interfaz de usuario
-    const updateCamaUI = (data) => {
-      const camaContainer = document.querySelector(`[data-cama-id="${data.idcama}"]`);
-      if (!camaContainer) return;
-    
-      // Actualizar SVG
-      const svg = camaContainer.querySelector('svg');
-      if (svg) {
-        svg.style.fill = estadoColors[data.estado];
-        svg.classList.add('updated');
+      window.cerrarDerivacionModal = () => {
+        const modal = document.getElementById('derivarModal');
+        const modalContent = document.getElementById('derivarModalContent');
+        
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+          modal.classList.add('hidden');
+        }, 300);
       }
-    
-      // Actualizar badge de estado
-      const estadoBadge = camaContainer.querySelector('span');
-      if (estadoBadge) {
-        estadoBadge.className = `text-xs px-2 py-1 rounded-full ${
-          data.estado === 'O' ? 'bg-red-100 text-red-800' :
-          data.estado === 'R' ? 'bg-yellow-100 text-yellow-800' :
-          'bg-green-100 text-green-800'
-        }`;
-        estadoBadge.textContent = 
-          data.estado === 'O' ? 'Ocupada' :
-          data.estado === 'R' ? 'Reservada' : 'Libre';
-      }
-    
-      // Eliminar el nombre del paciente si la cama está libre
-      const pacienteElement = camaContainer.querySelector(`#paciente-${data.idcama}`);
-      if (data.estado === 'L' && pacienteElement) {
-        pacienteElement.remove();
-      }
-    
-      // Actualizar acciones
-      const actionsContainer = camaContainer.querySelector('div[class*="space-y-1"]');
-      if (actionsContainer) {
-        let newActions = '';
-        if (data.estado === 'L') {
-          // Si la cama está libre, mostrar opciones para asignar o reservar
-          newActions = `
-            <a href="/asignar_cama/${data.idcama}" 
-               class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-               <span class="w-full text-center">Asignar</span>
-            </a>
-            <a href="/reservar_cama/${data.idcama}" 
-               class="w-full text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-               <span class="w-full text-center">Reservar</span>
-            </a>`;
-        } else if (data.estado === 'R') {
-          newActions = `
-            <a href="/ver_reserva/${data.idcama}" 
-               class="w-full text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-               <span class="w-full text-center">Ver Reserva</span>
-            </a>`;
-        } else if (data.estado === 'O') {
-          newActions = `
-            <p id="paciente-${data.idcama}" class="text-xs font-medium text-gray-700 truncate mb-2">
-              ${data.paciente_nombre || ''}
-            </p>
-            <form method="POST" action="/liberar_cama/${data.idcama}" id="formLiberar-${data.idcama}">
-              <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
-              <button type="button" 
-                      onclick="confirmarLiberacion('formLiberar-${data.idcama}')"
-                      class="w-full text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all">
-                  Liberar
-              </button>
-            </form>`;
+    });
+  </script>
+
+  <!-- WebSocket mejorado con reconexión automática -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      let socket;
+      const connectWebSocket = () => {
+        socket = new WebSocket('ws://' + window.location.host + '/ws/camas/');
+        
+        socket.onopen = () => {
+          console.log('WebSocket connection established');
+          // Enviar un ping cada 30 segundos para mantener la conexión activa
+          setInterval(() => {
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send(JSON.stringify({ type: 'ping' }));
+            }
+          }, 30000);
+        };
+        
+        socket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('Actualizando cama:', data);
+            updateCamaUI(data);
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+          }
+        };
+        
+        socket.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          // Intentar reconectar después de 5 segundos
+          setTimeout(connectWebSocket, 5000);
+        };
+        
+        socket.onclose = () => {
+          console.log('WebSocket connection closed');
+          // Intentar reconectar después de 5 segundos
+          setTimeout(connectWebSocket, 5000);
+        };
+      };
+      
+      connectWebSocket();
+      
+      const estadoColors = {
+        'O': '#FF0000', // Rojo puro para Ocupada
+        'R': '#FFFF00', // Amarillo puro para Reservada
+        'L': '#00FF00'  // Verde puro para Libre
+      };
+
+      const updateCamaUI = (data) => {
+        const camaContainer = document.querySelector(`[data-cama-id="${data.idcama}"]`);
+        if (!camaContainer) return;
+      
+        // Animación de cambio de estado
+        camaContainer.classList.add('animate__animated', 'animate__pulse');
+        setTimeout(() => {
+          camaContainer.classList.remove('animate__animated', 'animate__pulse');
+        }, 1000);
+      
+        const svg = camaContainer.querySelector('svg');
+        if (svg) {
+          svg.style.fill = estadoColors[data.estado];
+          svg.classList.add('updated');
         }
-        actionsContainer.innerHTML = newActions;
-      }
-    };
-    // Obtener CSRF Token
-    const getCSRFToken = () => {
-      return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-    };
+      
+        const estadoBadge = camaContainer.querySelector('span');
+        if (estadoBadge) {
+          estadoBadge.className = `status-badge inline-flex items-center px-3 py-1 rounded-full font-semibold text-xs ${
+            data.estado === 'O' ? 'bg-red-100 text-red-800' :
+            data.estado === 'R' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-green-100 text-green-800'
+          }`;
+          estadoBadge.innerHTML = `
+            <span class="w-2 h-2 rounded-full mr-1.5 ${
+              data.estado === 'O' ? 'bg-red-500' :
+              data.estado === 'R' ? 'bg-yellow-500' :
+              'bg-green-500'
+            }"></span>
+            ${data.estado === 'O' ? 'Ocupada' : data.estado === 'R' ? 'Reservada' : 'Libre'}
+          `;
+        }
+      
+        const pacienteElement = camaContainer.querySelector(`#paciente-${data.idcama}`);
+        if (data.estado === 'L' && pacienteElement) {
+          pacienteElement.remove();
+        } else if (data.estado === 'O' && data.paciente_nombre) {
+          if (!pacienteElement) {
+            const pacienteDiv = document.createElement('div');
+            pacienteDiv.className = 'mt-2 w-full';
+            pacienteDiv.innerHTML = `
+              <p id="paciente-${data.idcama}" class="text-xs font-medium text-gray-700 truncate">
+                <a href="/detalle_paciente/${data.paciente_id}" 
+                   class="hover:text-blue-600 transition-colors flex items-center justify-center space-x-1">
+                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                   </svg>
+                   <span>${data.paciente_nombre}</span>
+                </a>
+              </p>
+            `;
+            const estadoContainer = camaContainer.querySelector('.text-center.space-y-2');
+            if (estadoContainer) {
+              estadoContainer.appendChild(pacienteDiv);
+            }
+          } else {
+            pacienteElement.innerHTML = `
+              <a href="/detalle_paciente/${data.paciente_id}" 
+                 class="hover:text-blue-600 transition-colors flex items-center justify-center space-x-1">
+                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                 </svg>
+                 <span>${data.paciente_nombre}</span>
+              </a>
+            `;
+          }
+        }
+      
+        const actionsContainer = camaContainer.querySelector('div[class*="space-y-2"]:last-child');
+        if (actionsContainer) {
+          let newActions = '';
+          if (data.estado === 'L') {
+            newActions = `
+              <a href="/asignar_cama/${data.idcama}" 
+                 class="w-full text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                 </svg>
+                 <span>Asignar</span>
+              </a>
+              <a href="/reservar_cama/${data.idcama}" 
+                 class="w-full text-white bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                 </svg>
+                 <span>Reservar</span>
+              </a>`;
+          } else if (data.estado === 'R') {
+            newActions = `
+              <a href="/ver_reserva/${data.idcama}" 
+                 class="w-full text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                 </svg>
+                 <span>Ver Reserva</span>
+              </a>`;
+          } else if (data.estado === 'O') {
+            newActions = `
+              <form class="inline w-full" method="POST" action="/liberar_cama/${data.idcama}" id="formLiberar-${data.idcama}">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
+                <button type="button" 
+                        onclick="confirmarLiberacion('formLiberar-${data.idcama}')"
+                        class="w-full text-white bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span>Liberar</span>
+                </button>
+              </form>
+              <a href="#" 
+                 onclick="mostrarDerivacionModal(${data.idcama})"
+                 class="w-full text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                 </svg>
+                 <span>Derivar</span>
+              </a>`;
+          }
+          actionsContainer.innerHTML = newActions;
+        }
+      };
 
-    socket.onmessage = function(event) {
-      try {
-        const data = JSON.parse(event.data);
-        console.log('Actualizando cama:', data);
-        updateCamaUI(data);
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    };
-
-    socket.onerror = (error) => console.error('WebSocket error:', error);
-    socket.onclose = () => console.log('WebSocket connection closed');
-
-    // Reconexión automática
-    const keepAlive = () => {
-      const timeout = 30000;
-      if (socket.readyState === WebSocket.CLOSED) {
-        socket = new WebSocket(socket.url);
-      }
-      setTimeout(keepAlive, timeout);
-    };
-    keepAlive();
-  });
-</script>
-
-<div id="derivarModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-  <div class="bg-white rounded-lg shadow-lg p-6 w-96 relative">
-    <button onclick="cerrarDerivacionModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-    <h2 class="text-lg font-bold mb-4 text-gray-800">Seleccionar Cama de Destino</h2>
-    <form method="POST" action="{% url 'derivar_paciente' %}" id="derivarForm">
-      {% csrf_token %}
-      <input type="hidden" name="idcama_origen" id="idcama_origen" value=""> <!-- Cama de origen -->
-      <label for="idcama_destino" class="block text-sm font-medium text-gray-700">Cama de Destino:</label>
-      <select name="idcama_destino" id="idcama_destino" class="w-full mt-2 mb-4 border rounded-lg p-2">
-        {% for sector in sectores %}
-          <optgroup label="Sector: {{ sector.tipo }}">
-            {% for habitacion in sector.habitaciones.all %}
-              {% for cama in habitacion.camas.all %}
-                {% if cama.estado == 'L' %}
-                  <option value="{{ cama.idcama }}">Habitación {{ habitacion.numero }} - Cama {{ cama.idcama }}</option>
-                {% endif %}
-              {% endfor %}
-            {% endfor %}
-          </optgroup>
-        {% endfor %}
-      </select>
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Derivar</button>
-    </form>
-    <button onclick="cerrarDerivacionModal()" class="w-full mt-2 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700">Cancelar</button>
-  </div>
+      const getCSRFToken = () => {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+      };
+    });
+  </script>
 </div>
-
-<script>
-  function mostrarDerivacionModal(idCamaOrigen) {
-    const modal = document.getElementById('derivarModal');
-    const inputOrigen = document.getElementById('idcama_origen');
-    inputOrigen.value = idCamaOrigen; // Establecer la cama de origen
-    modal.classList.remove('hidden');
-  }
-
-  function cerrarDerivacionModal() {
-    const modal = document.getElementById('derivarModal');
-    modal.classList.add('hidden');
-  }
-</script>
 {% endblock content %}
