@@ -2,18 +2,146 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-  <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Registro de Paciente</h1>
 
-  <form method="post" class="space-y-6">
+<!-- Incluir Animate.css y Hover.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
+
+<!-- Aplicar el mismo sistema de diseño del primer HTML -->
+<style>
+  :root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --accent: #4895ef;
+    --dark: #1b263b;
+    --light: #f8f9fa;
+    --success: #4cc9f0;
+    --warning: #f8961e;
+    --danger: #f72585;
+    --info: #560bad;
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Efecto vidrio moderno */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+  }
+
+  /* Neumorfismo suave */
+  .neumorphic {
+    border-radius: 0.75rem;
+    background: #f0f9ff;
+    box-shadow:  4px 4px 8px #d9e7f5,
+                -4px -4px 8px #ffffff;
+    transition: all 0.2s ease;
+  }
+
+  .neumorphic:hover {
+    box-shadow:  2px 2px 4px #d9e7f5,
+                -2px -2px 4px #ffffff;
+  }
+
+  /* Estilos para formularios */
+  .modern-form {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+  }
+
+  .form-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(224, 242, 254, 0.5);
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.2);
+    background: white;
+  }
+
+  /* Estilos para botones */
+  .action-btn {
+    transition: all 0.2s ease;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Cursor personalizado */
+  .cursor-follower {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    transition: transform 0.1s ease;
+  }
+
+  /* Estilos personalizados para el formulario de registro */
+  .health-section {
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .health-title {
+    color: var(--secondary);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(63, 55, 201, 0.1);
+    padding-bottom: 0.5rem;
+  }
+
+  .checkbox-label {
+    color: var(--dark);
+    transition: all 0.2s ease;
+  }
+
+  .checkbox-container:hover .checkbox-label {
+    color: var(--primary);
+  }
+</style>
+
+<!-- Cursor personalizado -->
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<div class="container mx-auto px-3 py-8 max-w-4xl animate__animated animate__fadeIn">
+  <!-- Encabezado -->
+  <div class="bg-gradient-to-r from-blue-500 to-green-600 p-6 rounded-2xl shadow-lg mb-8 animate__animated animate__fadeInDown animate__fast">
+    <h1 class="text-3xl font-bold text-white tracking-tight text-center">Registro de Paciente</h1>
+  </div>
+
+  <!-- Formulario -->
+  <form method="post" class="modern-form p-6 neumorphic">
     {% csrf_token %}
 
     <!-- Sección de Datos Personales -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Nombre -->
       <div>
-        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Nombre</label>
-        {{ form.nombre|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Nombre</label>
+        {{ form.nombre|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.nombre.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.nombre.errors|join:", " }}</p>
         {% endif %}
@@ -21,8 +149,8 @@
 
       <!-- Apellido -->
       <div>
-        <label for="{{ form.apellido.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Apellido</label>
-        {{ form.apellido|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.apellido.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Apellido</label>
+        {{ form.apellido|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.apellido.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.apellido.errors|join:", " }}</p>
         {% endif %}
@@ -30,17 +158,17 @@
 
       <!-- DNI -->
       <div>
-        <label for="{{ form.dni.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">DNI</label>
-        {{ form.dni|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.dni.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">DNI</label>
+        {{ form.dni|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.dni.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.dni.errors|join:", " }}</p>
         {% endif %}
       </div>
 
+      <!-- Email -->
       <div>
-        <label for="{{ form.email.id_for_label }}" class="block text
-        -sm font-medium text-gray-600 mb-2">Email</label>
-        {{ form.email|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Email</label>
+        {{ form.email|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.email.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.email.errors|join:", " }}</p>
         {% endif %}
@@ -48,8 +176,8 @@
 
       <!-- Fecha de Nacimiento -->
       <div>
-        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Fecha de Nacimiento</label>
-        {{ form.fecha_nacimiento|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Fecha de Nacimiento</label>
+        {{ form.fecha_nacimiento|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.fecha_nacimiento.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.fecha_nacimiento.errors|join:", " }}</p>
         {% endif %}
@@ -57,8 +185,8 @@
 
       <!-- Género -->
       <div>
-        <label for="{{ form.genero.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Género</label>
-        {{ form.genero|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.genero.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Género</label>
+        {{ form.genero|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.genero.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.genero.errors|join:", " }}</p>
         {% endif %}
@@ -66,16 +194,17 @@
 
       <!-- Teléfono -->
       <div>
-        <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Teléfono</label>
-        {{ form.telefono|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Teléfono</label>
+        {{ form.telefono|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.telefono.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.telefono.errors|join:", " }}</p>
         {% endif %}
       </div>
 
+      <!-- País -->
       <div>
-        <label for="{{ form.pais.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">País</label>
-        {{ form.pais|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.pais.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">País</label>
+        {{ form.pais|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.pais.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.pais.errors|join:", " }}</p>
         {% endif %}
@@ -83,8 +212,8 @@
 
       <!-- Pasaporte -->
       <div>
-        <label for="{{ form.pasaporte.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Pasaporte</label>
-        {{ form.pasaporte|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.pasaporte.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Pasaporte</label>
+        {{ form.pasaporte|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.pasaporte.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.pasaporte.errors|join:", " }}</p>
         {% endif %}
@@ -92,8 +221,8 @@
 
       <!-- Domicilio -->
       <div>
-        <label for="{{ form.domicilio.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Domicilio</label>
-        {{ form.domicilio|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.domicilio.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Domicilio</label>
+        {{ form.domicilio|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.domicilio.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.domicilio.errors|join:", " }}</p>
         {% endif %}
@@ -101,8 +230,8 @@
 
       <!-- Localidad -->
       <div>
-        <label for="{{ form.localidad.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Localidad</label>
-        {{ form.localidad|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.localidad.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Localidad</label>
+        {{ form.localidad|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.localidad.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.localidad.errors|join:", " }}</p>
         {% endif %}
@@ -110,8 +239,8 @@
 
       <!-- Provincia -->
       <div>
-        <label for="{{ form.provincia.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Provincia</label>
-        {{ form.provincia|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.provincia.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Provincia</label>
+        {{ form.provincia|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.provincia.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.provincia.errors|join:", " }}</p>
         {% endif %}
@@ -119,65 +248,104 @@
 
       <!-- Obra Social -->
       <div>
-        <label for="{{ form.obra_social.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Obra Social</label>
-        {{ form.obra_social|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        <label for="{{ form.obra_social.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Obra Social</label>
+        {{ form.obra_social|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         {% if form.obra_social.errors %}
         <p class="mt-2 text-sm text-red-600">{{ form.obra_social.errors|join:", " }}</p>
         {% endif %}
       </div>
     </div>
-    <div>
-      <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Estado</label>
-      {{ form.estado|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+
+    <!-- Estado -->
+    <div class="mt-6">
+      <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Estado</label>
+      {{ form.estado|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
       {% if form.estado.errors %}
       <p class="mt-2 text-sm text-red-600">{{ form.estado.errors|join:", " }}</p>
       {% endif %}
     </div>
+
     <!-- Sección de Salud -->
-    <div class="space-y-6">
-      <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Datos de Salud</h2>
+    <div class="health-section mt-8">
+      <h2 class="health-title text-xl font-semibold mb-6">Datos de Salud</h2>
 
       <!-- Checkboxes -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="flex items-center">
-          {{ form.diabetes|add_class:"w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" }}
-          <label for="{{ form.diabetes.id_for_label }}" class="ml-2 text-sm text-gray-600">Diabetes</label>
+        <div class="checkbox-container flex items-center">
+          {{ form.diabetes|add_class:"w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" }}
+          <label for="{{ form.diabetes.id_for_label }}" class="checkbox-label ml-2 text-sm">Diabetes</label>
         </div>
-        <div class="flex items-center">
-          {{ form.hipertension|add_class:"w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" }}
-          <label for="{{ form.hipertension.id_for_label }}" class="ml-2 text-sm text-gray-600">Hipertensión</label>
+        <div class="checkbox-container flex items-center">
+          {{ form.hipertension|add_class:"w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" }}
+          <label for="{{ form.hipertension.id_for_label }}" class="checkbox-label ml-2 text-sm">Hipertensión</label>
         </div>
-        <div class="flex items-center">
-          {{ form.fumador|add_class:"w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" }}
-          <label for="{{ form.fumador.id_for_label }}" class="ml-2 text-sm text-gray-600">Fumador</label>
+        <div class="checkbox-container flex items-center">
+          {{ form.fumador|add_class:"w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" }}
+          <label for="{{ form.fumador.id_for_label }}" class="checkbox-label ml-2 text-sm">Fumador</label>
         </div>
       </div>
 
       <!-- Textareas -->
-      <div class="space-y-4">
+      <div class="space-y-4 mt-6">
         <div>
-          <label for="{{ form.alergias.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Alergias</label>
-          {{ form.alergias|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+          <label for="{{ form.alergias.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Alergias</label>
+          {{ form.alergias|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         </div>
         <div>
-          <label for="{{ form.antecedentes.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Antecedentes</label>
-          {{ form.antecedentes|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+          <label for="{{ form.antecedentes.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Antecedentes</label>
+          {{ form.antecedentes|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         </div>
         <div>
-          <label for="{{ form.cirugias.id_for_label }}" class="block text-sm font-medium text-gray-600 mb-2">Cirugías</label>
-          {{ form.cirugias|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+          <label for="{{ form.cirugias.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Cirugías</label>
+          {{ form.cirugias|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
         </div>
       </div>
     </div>
+
     <!-- Botón de envío -->
-    <div class="flex justify-center mt-8">
-      <button type="submit" class="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="flex justify-center mt-8 space-x-4">
+      <button type="submit" class="action-btn bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 px-6 py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
         Registrar Paciente
       </button>
+      <a href="#" class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 px-6 py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Cancelar
+      </a>
     </div>
   </form>
 </div>
+
+<script>
+  // Efecto de cursor personalizado
+  document.addEventListener('DOMContentLoaded', function() {
+    const cursorFollower = document.getElementById('cursorFollower');
+    
+    document.addEventListener('mousemove', (e) => {
+      cursorFollower.style.left = e.clientX + 'px';
+      cursorFollower.style.top = e.clientY + 'px';
+    });
+    
+    // Efecto al pasar sobre elementos interactivos
+    const interactiveElements = document.querySelectorAll('a, button, input, textarea, select, .action-btn');
+    interactiveElements.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        cursorFollower.style.opacity = '0.2';
+        cursorFollower.style.background = 'var(--accent)';
+      });
+      
+      el.addEventListener('mouseleave', () => {
+        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
+        cursorFollower.style.opacity = '0.1';
+        cursorFollower.style.background = 'var(--primary)';
+      });
+    });
+  });
+</script>
+
 {% endblock %}
