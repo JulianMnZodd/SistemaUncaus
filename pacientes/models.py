@@ -18,9 +18,9 @@ class Paciente(models.Model):
     idpaciente = models.AutoField(db_column='idPaciente', primary_key=True)  # Clave primaria
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
-    dni = models.IntegerField(unique=True)
+    dni = models.IntegerField(unique=True, blank=True, null=True)    
     pais = CountryField(blank=True, null=True)
-    pasaporte = models.CharField(max_length=50, blank=True, null=True)
+    pasaporte = models.CharField(max_length=50, unique=True, blank=True, null=True)    
     domicilio = models.CharField(max_length=100, blank=True, null=True)
     localidad = models.CharField(max_length=50, blank=True, null=True)
     provincia = models.CharField(max_length=50, blank=True, null=True)

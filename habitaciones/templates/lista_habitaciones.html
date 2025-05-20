@@ -2,10 +2,6 @@
 {% load static %}
 {% block content %}
 
-<!-- Incluir Animate.css y Hover.css -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
-
 <!-- Glassmorphism y Neumorphism combinados -->
 <style>
   :root {
@@ -767,12 +763,35 @@
           liberarModal.show();
       }
   
-      document.getElementById('confirmLiberar').addEventListener('click', () => {
-          if(currentForm) {
-              currentForm.submit();
-              liberarModal.hide();
-          }
-      });
+      document.getElementById('confirmLiberar').addEventListener('click', async () => {
+    if(currentForm) {
+        try {
+            // Enviar el formulario normalmente
+            currentForm.submit();
+            
+            // Esperar un momento para que el servidor procese la liberación
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Recargar solo la sección de camas afectada
+            const camaId = currentForm.action.split('/').pop();
+            const camaContainer = document.querySelector(`[data-cama-id="${camaId}"]`).closest('.grid');
+            const response = await fetch(window.location.href);
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const newCamaContainer = doc.querySelector(`[data-cama-id="${camaId}"]`).closest('.grid');
+            camaContainer.innerHTML = newCamaContainer.innerHTML;
+            
+        } catch (error) {
+            console.error('Error:', error);
+            // Si hay error, recargar toda la página
+            window.location.reload();
+        } finally {
+            const liberarModal = document.getElementById('liberarModal');
+            liberarModal.classList.add('hidden');
+        }
+    }
+});
 
       // Animación al hacer hover en botones
       document.querySelectorAll('.btn-hover').forEach(element => {

@@ -470,42 +470,55 @@ def derivar_paciente(request):
 
         # Verificar que ambos parámetros estén presentes
         if not idcama_origen or not idcama_destino:
+            messages.error(request, 'Debe seleccionar ambas camas (origen y destino)')
             return redirect('lista_habitaciones')
 
         # Obtener las camas
-        cama_origen = get_object_or_404(Cama, idcama=idcama_origen)
-        cama_destino = get_object_or_404(Cama, idcama=idcama_destino)
+        try:
+            cama_origen = get_object_or_404(Cama, idcama=idcama_origen)
+            cama_destino = get_object_or_404(Cama, idcama=idcama_destino)
+        except:
+            messages.error(request, 'No se encontraron las camas especificadas')
+            return redirect('lista_habitaciones')
 
         # Verificar que la cama de destino esté libre
         if cama_destino.estado != 'L':
+            messages.error(request, 'La cama de destino no está disponible')
             return redirect('lista_habitaciones')
 
         # Obtener la internación activa del paciente en la cama de origen
         internacion = Internacion.objects.filter(cama=cama_origen, fecha_alta__isnull=True).first()
         if not internacion:
+            messages.error(request, 'No se encontró paciente en la cama de origen')
             return redirect('lista_habitaciones')
 
-        # Registrar la derivación como un seguimiento
-        Seguimiento.objects.create(
-            idinternacion=internacion,
-            idenfermero=request.user.enfermero,  # Asumiendo que el usuario es un enfermero
-            observacion=f"Derivación de {cama_origen} a {cama_destino}",
-            cama_origen=cama_origen,
-            cama_destino=cama_destino
-        )
+        try:
+            # Registrar la derivación como un seguimiento
+            Seguimiento.objects.create(
+                idinternacion=internacion,
+                idenfermero=request.user.enfermero,  # Asumiendo que el usuario es un enfermero
+                observacion=f"Derivación de {cama_origen} a {cama_destino}",
+                cama_origen=cama_origen,
+                cama_destino=cama_destino
+            )
 
-        # Actualizar la internación para mover al paciente a la cama de destino
-        internacion.cama = cama_destino
-        internacion.save()
+            # Actualizar la internación para mover al paciente a la cama de destino
+            internacion.cama = cama_destino
+            internacion.save()
 
-        # Actualizar los estados de las camas
-        cama_origen.estado = 'L'  # Liberar la cama de origen
-        cama_origen.save()
+            # Actualizar los estados de las camas
+            cama_origen.estado = 'L'  # Liberar la cama de origen
+            cama_origen.save()
 
-        cama_destino.estado = 'O'  # Ocupada la cama de destino
-        cama_destino.save()
+            cama_destino.estado = 'O'  # Ocupada la cama de destino
+            cama_destino.save()
 
-        return redirect('lista_habitaciones')
+            messages.success(request, 'Derivación realizada exitosamente')
+            return redirect('lista_habitaciones')
+
+        except Exception as e:
+            messages.error(request, f'Ocurrió un error al procesar la derivación: {str(e)}')
+            return redirect('lista_habitaciones')
 
     return redirect('lista_habitaciones')
 

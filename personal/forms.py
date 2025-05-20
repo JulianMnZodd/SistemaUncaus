@@ -1,6 +1,9 @@
 from django import forms
 from .models import Persona, Medico,Recepcionista,Enfermero
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
+from django.core.exceptions import ValidationError
+from datetime import date
+import re
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(label="Correo electrónico", widget=forms.EmailInput(attrs={'class': 'form-control'}))
@@ -35,6 +38,57 @@ class CustomUserCreationForm(UserCreationForm):
             'username': forms.EmailInput(attrs={'class': 'form-control'}),
         }
         
+    def clean_dni(self):
+        dni = self.cleaned_data.get('dni')
+        if dni:
+            if dni < 1_000_000:  # DNI argentino mínimo 1.000.000
+                raise ValidationError("El DNI debe tener al menos 7 dígitos")
+            if dni > 99_999_999:  # DNI argentino máximo 99.999.999
+                raise ValidationError("El DNI no puede tener más de 8 dígitos")
+        return dni
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        
+        if not telefono:  # Si el campo es opcional
+            return telefono
+            
+        # Limpiar el número: eliminar espacios, guiones, paréntesis, etc.
+        telefono_limpio = re.sub(r'[+\-\s\(\)]', '', telefono)
+        
+        # Validar que solo contenga números y posiblemente un + al inicio
+        if not re.match(r'^\+?\d+$', telefono_limpio):
+            raise ValidationError("El teléfono solo puede contener números y un signo + al inicio")
+        
+        # Validar longitud mínima y máxima (ajusta según tu país)
+        if len(telefono_limpio) < 8 or len(telefono_limpio) > 15:
+            raise ValidationError("El número debe tener entre 8 y 15 dígitos (incluyendo código de país)")
+        
+        # Formatear opcionalmente el número antes de guardar
+        # Ejemplo: convertir "3624123456" a "3624-123456"
+        if len(telefono_limpio) == 10 and not telefono_limpio.startswith('+'):
+            telefono_limpio = f"{telefono_limpio[:4]}-{telefono_limpio[4:]}"
+            
+        return telefono_limpio
+
+    def clean_fecha_nacimiento(self):
+        fecha = self.cleaned_data.get('fecha_nacimiento')
+        if fecha:
+            hoy = date.today()
+            edad = hoy.year - fecha.year - ((hoy.month, hoy.day) < (fecha.month, fecha.day))
+            
+            if edad < 18:
+                raise ValidationError("Debe ser mayor de 18 años")
+            if edad > 120:
+                raise ValidationError("Edad no válida")
+        return fecha
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and Persona.objects.filter(email=email).exists():
+            raise ValidationError("Este email ya está registrado")
+        return email    
+        
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = Persona
@@ -50,12 +104,33 @@ class MedicoForm(forms.ModelForm):
         model = Medico
         fields = ['especializacion', 'matricula']
         
+    def clean_matricula(self):
+        matricula = self.cleaned_data.get('matricula')
+        if matricula:
+            if not matricula.isdigit():
+                raise ValidationError("La matrícula debe contener solo números")
+            if len(matricula) < 4 or len(matricula) > 8:
+                raise ValidationError("La matrícula debe tener entre 4 y 8 dígitos")
+        return matricula
+        
 class EnfermeroForm(forms.ModelForm):
     class Meta:
         model = Enfermero
         fields = ['matricula']
+    
+    def clean_matricula(self):
+        matricula = self.cleaned_data.get('matricula')
+        if matricula:
+            if not matricula.isdigit():
+                raise ValidationError("La matrícula debe contener solo números")
+            if len(matricula) < 4 or len(matricula) > 8:
+                raise ValidationError("La matrícula debe tener entre 4 y 8 dígitos")
+        return matricula
         
 class RecepcionistaForm(forms.ModelForm):
     class Meta:
         model = Recepcionista
         fields = ['turno']
+        widgets = {
+            'turno': forms.Select(choices=[('mañana', 'Mañana'), ('tarde', 'Tarde'), ('noche', 'Noche')]),
+        }

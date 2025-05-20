@@ -3,9 +3,6 @@
 
 {% block content %}
 
-<!-- Incluir Animate.css y Hover.css -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
 
 <!-- Aplicar el mismo sistema de diseño del primer HTML -->
 <style>
@@ -165,6 +162,14 @@
         {% endif %}
       </div>
 
+      <div>
+        <label for="{{ form.pasaporte.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Pasaporte</label>
+        {{ form.pasaporte|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
+        {% if form.pasaporte.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.pasaporte.errors|join:", " }}</p>
+        {% endif %}
+      </div> 
+
       <!-- Fecha de Nacimiento -->
       <div>
         <label for="{{ form.fecha_nacimiento.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Fecha de Nacimiento</label>
@@ -270,6 +275,9 @@
     <div class="mt-6">
       <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Estado</label>
       {{ form.estado|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
+      {% if form.estado.errors %}
+      <p class="mt-2 text-sm text-red-600">{{ form.estado.errors|join:", " }}</p>
+      {% endif %}
     </div>
 
     <!-- Botón de envío -->
@@ -280,7 +288,7 @@
         </svg>
         Guardar Cambios
       </button>
-      <a href="#" class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600">
+      <a href="#" onclick="event.preventDefault(); window.history.back();"  class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
