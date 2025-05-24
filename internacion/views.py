@@ -6,17 +6,23 @@ from habitaciones.models import Cama, Habitacion
 from .forms import DiagnosticoForm, AsignarCamaForm
 from .models import Paciente, Medico, Enfermero, Internacion
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from personal.decoradores_permisos import medico_or_enfermero_or_staff_required,medico_or_staff_required, recepcionista_or_staff_required, enfermero_or_staff_required
+from personal.decoradores_permisos import (
+    medico_or_enfermero_or_staff_required,
+    medico_or_staff_required,
+    recepcionista_or_staff_required,
+    enfermero_or_staff_required,
+)
+
 
 @login_required
-@recepcionista_or_staff_required(redirect_url='lista_habitaciones')
+@recepcionista_or_staff_required(redirect_url="lista_habitaciones")
 def asignar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     pacientes_list = Paciente.objects.all()  # Obtén todos los pacientes
 
     # Paginación
     paginator = Paginator(pacientes_list, 10)  # 10 pacientes por página
-    page_number = request.GET.get('page')  # Obtén el número de página de la URL
+    page_number = request.GET.get("page")  # Obtén el número de página de la URL
 
     try:
         pacientes = paginator.page(page_number)
@@ -33,9 +39,9 @@ def asignar_cama(request, idcama):
             paciente_id = form.cleaned_data["paciente_id"]
             paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
             nota_ingreso = form.cleaned_data["nota_ingreso"]
-            action = request.POST.get('action')
+            action = request.POST.get("action")
 
-            if action == 'asignar':
+            if action == "asignar":
                 internacion = Internacion.objects.create(
                     idpaciente=paciente,
                     fecha_admision=timezone.now(),
@@ -44,17 +50,21 @@ def asignar_cama(request, idcama):
                 )
                 cama.estado = "O"
                 cama.save()
-                return redirect('lista_habitaciones')
-            elif action == 'generar_pdf':
+                return redirect("lista_habitaciones")
+            elif action == "generar_pdf":
                 return generar_consentimiento_pdf(request, paciente.idpaciente)
     else:
         form = AsignarCamaForm()
 
-    return render(request, 'asignar_cama.html', {
-        'form': form,
-        'cama': cama,
-        'pacientes': pacientes,  # Pasa los pacientes paginados al template
-    })
+    return render(
+        request,
+        "asignar_cama.html",
+        {
+            "form": form,
+            "cama": cama,
+            "pacientes": pacientes,  # Pasa los pacientes paginados al template
+        },
+    )
 
 
 @login_required
@@ -65,9 +75,9 @@ def generar_consentimiento(request):
             paciente = form.cleaned_data["idpaciente"]
             return generar_consentimiento_pdf(request, paciente.id)
     else:
-        return redirect('asignar_cama')
-    
-    
+        return redirect("asignar_cama")
+
+
 @login_required
 def seleccionar_cama(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
@@ -82,7 +92,7 @@ def seleccionar_cama(request, paciente_id):
 
 
 @login_required
-@medico_or_enfermero_or_staff_required(redirect_url='lista_habitaciones')
+@medico_or_enfermero_or_staff_required(redirect_url="lista_habitaciones")
 def listar_internaciones(request):
     internaciones = Internacion.objects.filter(fecha_alta__isnull=True)
     es_medico = hasattr(request.user, "medico")
@@ -99,15 +109,19 @@ def listar_internaciones(request):
 
 
 @login_required
-@medico_or_staff_required(redirect_url='lista_habitaciones')
+@medico_or_staff_required(redirect_url="lista_habitaciones")
 def crear_diagnostico(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     paciente = internacion.idpaciente
-    medico = get_object_or_404(Medico, persona=request.user)  # Usar el campo correcto para obtener el médico logeado
+    medico = get_object_or_404(
+        Medico, persona=request.user
+    )  # Usar el campo correcto para obtener el médico logeado
 
     # Verificar si ya existe un diagnóstico para esta internación
     if Diagnostico.objects.filter(idinternacion=internacion).exists():
-        return redirect('detalle_diagnostico', internacion_id=internacion.idinternacion)  # Redirigir al detalle del diagnóstico si ya existe
+        return redirect(
+            "detalle_diagnostico", internacion_id=internacion.idinternacion
+        )  # Redirigir al detalle del diagnóstico si ya existe
 
     if request.method == "POST":
         form = DiagnosticoForm(request.POST)
@@ -115,50 +129,66 @@ def crear_diagnostico(request, internacion_id):
             diagnostico = form.save(commit=False)
             diagnostico.idpaciente = paciente
             diagnostico.idmedico = medico
-            diagnostico.idinternacion = internacion  # Asociar el diagnóstico con la internación actual
-            idmedico_derivado = form.cleaned_data.get('idmedico_derivado')
+            diagnostico.idinternacion = (
+                internacion  # Asociar el diagnóstico con la internación actual
+            )
+            idmedico_derivado = form.cleaned_data.get("idmedico_derivado")
             if idmedico_derivado:
                 diagnostico.idmedico_derivado = idmedico_derivado
             diagnostico.save()
-            return redirect('detalle_diagnostico', internacion_id=internacion.idinternacion)  # Redirigir al detalle del diagnóstico
+            return redirect(
+                "detalle_diagnostico", internacion_id=internacion.idinternacion
+            )  # Redirigir al detalle del diagnóstico
     else:
         form = DiagnosticoForm()
 
-    return render(request, 'crear_diagnostico.html', {'form': form, 'paciente': paciente})
+    return render(
+        request, "crear_diagnostico.html", {"form": form, "paciente": paciente}
+    )
 
 
 @login_required
-@medico_or_staff_required(redirect_url='lista_habitaciones')
+@medico_or_staff_required(redirect_url="lista_habitaciones")
 def editar_diagnostico(request, diagnostico_id):
     # Obtener el diagnóstico a editar
     diagnostico = get_object_or_404(Diagnostico, pk=diagnostico_id)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         # Procesar el formulario enviado
         form = DiagnosticoForm(request.POST, instance=diagnostico)
         if form.is_valid():
             print("Formulario válido:", form.cleaned_data)
             form.save()  # Guardar los cambios directamente
-            return redirect('detalle_diagnostico', internacion_id=diagnostico.idinternacion.idinternacion)
+            return redirect(
+                "detalle_diagnostico",
+                internacion_id=diagnostico.idinternacion.idinternacion,
+            )
     else:
         # Mostrar el formulario con los datos actuales del diagnóstico
         form = DiagnosticoForm(instance=diagnostico)
 
     context = {
-        'form': form,
-        'paciente': diagnostico.idpaciente,
-        'diagnostico': diagnostico,
+        "form": form,
+        "paciente": diagnostico.idpaciente,
+        "diagnostico": diagnostico,
     }
-    return render(request, 'editar_diagnostico.html', context)
+    return render(request, "editar_diagnostico.html", context)
+
 
 from .models import Diagnostico
 
+
 @login_required
-@medico_or_enfermero_or_staff_required(redirect_url='lista_habitaciones')
+@medico_or_enfermero_or_staff_required(redirect_url="lista_habitaciones")
 def detalle_diagnostico(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     diagnostico = get_object_or_404(Diagnostico, idinternacion=internacion)
-    return render(request, 'detalle_diagnostico.html', {'internacion': internacion, 'diagnostico': diagnostico})
+    return render(
+        request,
+        "detalle_diagnostico.html",
+        {"internacion": internacion, "diagnostico": diagnostico},
+    )
+
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -168,13 +198,13 @@ from .models import Paciente, Enfermero, Seguimiento, Medicacion, SignosVitales
 
 
 @login_required
-@enfermero_or_staff_required(redirect_url='listar_internaciones')
+@enfermero_or_staff_required(redirect_url="listar_internaciones")
 def seguimiento(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     enfermero = Enfermero.objects.filter(persona=request.user).first()
     if not enfermero:
         raise Http404("No se encontró un enfermero asociado al usuario.")
- # Usar el campo correcto para obtener el enfermero logeado
+    # Usar el campo correcto para obtener el enfermero logeado
 
     MedicacionFormSet = inlineformset_factory(
         Seguimiento, Medicacion, form=MedicacionForm, extra=1, can_delete=False
@@ -223,35 +253,49 @@ def seguimiento(request, internacion_id):
         },
     )
 
+
 @login_required
-@medico_or_enfermero_or_staff_required(redirect_url='listar_internaciones')
+@medico_or_enfermero_or_staff_required(redirect_url="listar_internaciones")
 def listar_seguimientos(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     seguimientos = Seguimiento.objects.filter(idinternacion=internacion)
-    return render(request, 'listar_seguimientos.html', {
-        'internacion': internacion,
-        'seguimientos': seguimientos,
-    })
-    
+    return render(
+        request,
+        "listar_seguimientos.html",
+        {
+            "internacion": internacion,
+            "seguimientos": seguimientos,
+        },
+    )
+
+
 @login_required
-@medico_or_enfermero_or_staff_required(redirect_url='listar_internaciones')
+@medico_or_enfermero_or_staff_required(redirect_url="listar_internaciones")
 def seguimiento_detalles(request, seguimiento_id):
     seguimiento = get_object_or_404(Seguimiento, idseguimiento=seguimiento_id)
-    return render(request, 'seguimiento_detalles.html', {
-        'seguimiento': seguimiento,
-    })
-    
+    return render(
+        request,
+        "seguimiento_detalles.html",
+        {
+            "seguimiento": seguimiento,
+        },
+    )
+
+
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
+
 @login_required
 def generar_consentimiento_pdf(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
-    
+
     # Crear el objeto HttpResponse con el encabezado PDF adecuado.
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="consentimiento_{paciente.idpaciente}.pdf"'
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="consentimiento_{paciente.idpaciente}.pdf"'
+    )
 
     # Crear el objeto PDF usando el HttpResponse como "archivo".
     p = canvas.Canvas(response, pagesize=letter)
@@ -259,11 +303,15 @@ def generar_consentimiento_pdf(request, paciente_id):
 
     # Título del documento (centrado)
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width/2, height - 50, "ACTA DE CONSENTIMIENTO INFORMADO PARA INTERNACIÓN")
+    p.drawCentredString(
+        width / 2, height - 50, "ACTA DE CONSENTIMIENTO INFORMADO PARA INTERNACIÓN"
+    )
 
     # Datos del paciente o representante
     p.setFont("Helvetica", 12)
-    p.drawString(50, height - 80, f"Nombre del Paciente: {paciente.nombre} {paciente.apellido}")
+    p.drawString(
+        50, height - 80, f"Nombre del Paciente: {paciente.nombre} {paciente.apellido}"
+    )
     p.drawString(50, height - 100, f"Fecha de Nacimiento: {paciente.fecha_nacimiento}")
     p.drawString(50, height - 120, f"Dirección: {paciente.domicilio}")
     p.drawString(50, height - 140, f"Teléfono: {paciente.telefono}")
@@ -287,7 +335,7 @@ def generar_consentimiento_pdf(request, paciente_id):
         "  - Riesgos, complicaciones y beneficios asociados.",
         "  - Alternativas de tratamiento y posibilidad de realizar consultas adicionales.",
         "He tenido la oportunidad de formular preguntas, las cuales han sido contestadas",
-        "a mi entera satisfacción."
+        "a mi entera satisfacción.",
     ]
     for line in exposicion:
         text.textLine(line)
@@ -300,7 +348,7 @@ def generar_consentimiento_pdf(request, paciente_id):
         "Doy mi consentimiento libre y voluntario para la internación y la realización",
         "de los procedimientos y tratamientos que el personal médico estime necesarios,",
         "exonerando de responsabilidad al personal del establecimiento, siempre que",
-        "se actúe conforme a la normatividad vigente y al debido proceder profesional."
+        "se actúe conforme a la normatividad vigente y al debido proceder profesional.",
     ]
     for line in consentimiento:
         text.textLine(line)
@@ -319,48 +367,56 @@ def generar_consentimiento_pdf(request, paciente_id):
     return response
 
 
-
 from django import forms
+
 
 class InformeInternacionesForm(forms.Form):
     fecha_inicio = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        widget=forms.DateInput(attrs={"type": "date"}),
         label="Fecha de Inicio",
-        required=True
+        required=True,
     )
     fecha_fin = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        widget=forms.DateInput(attrs={"type": "date"}),
         label="Fecha de Fin",
-        required=True
+        required=True,
     )
 
+
 @login_required
-@medico_or_enfermero_or_staff_required(redirect_url='listar_internaciones')
+@medico_or_enfermero_or_staff_required(redirect_url="listar_internaciones")
 def generar_informe_internaciones(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = InformeInternacionesForm(request.POST)
         if form.is_valid():
-            fecha_inicio = form.cleaned_data['fecha_inicio']
-            fecha_fin = form.cleaned_data['fecha_fin']
+            fecha_inicio = form.cleaned_data["fecha_inicio"]
+            fecha_fin = form.cleaned_data["fecha_fin"]
 
             # Validar que fecha_inicio no sea posterior a fecha_fin
             if fecha_inicio > fecha_fin:
-                messages.error(request, "La fecha de inicio no puede ser posterior a la fecha de fin.")
-                return redirect('listar_internaciones')
+                messages.error(
+                    request,
+                    "La fecha de inicio no puede ser posterior a la fecha de fin.",
+                )
+                return redirect("listar_internaciones")
 
             # Obtener todas las internaciones en el rango de fechas
             internaciones = Internacion.objects.filter(
-                fecha_admision__gte=fecha_inicio,
-                fecha_admision__lte=fecha_fin
-            ).order_by('-fecha_admision')
+                fecha_admision__gte=fecha_inicio, fecha_admision__lte=fecha_fin
+            ).order_by("-fecha_admision")
 
             if not internaciones:
-                messages.warning(request, "No se encontraron internaciones en el rango de fechas seleccionado.")
-                return redirect('listar_internaciones')
+                messages.warning(
+                    request,
+                    "No se encontraron internaciones en el rango de fechas seleccionado.",
+                )
+                return redirect("listar_internaciones")
 
             # Crear el objeto HttpResponse con el encabezado PDF adecuado
-            response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="informe_internaciones.pdf"'
+            response = HttpResponse(content_type="application/pdf")
+            response["Content-Disposition"] = (
+                'attachment; filename="informe_internaciones.pdf"'
+            )
 
             # Crear el objeto PDF usando el HttpResponse como "archivo"
             p = canvas.Canvas(response, pagesize=letter)
@@ -368,7 +424,11 @@ def generar_informe_internaciones(request):
 
             # Título del documento
             p.setFont("Helvetica-Bold", 16)
-            p.drawCentredString(width / 2, height - 50, f"Informe de Internaciones ({fecha_inicio} - {fecha_fin})")
+            p.drawCentredString(
+                width / 2,
+                height - 50,
+                f"Informe de Internaciones ({fecha_inicio} - {fecha_fin})",
+            )
 
             # Encabezados de la tabla
             p.setFont("Helvetica-Bold", 12)
@@ -381,9 +441,23 @@ def generar_informe_internaciones(request):
             y = height - 120
             p.setFont("Helvetica", 10)
             for internacion in internaciones:
-                p.drawString(50, y, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
-                p.drawString(200, y, str(internacion.fecha_admision.strftime("%d/%m/%Y %H:%M")))
-                p.drawString(350, y, internacion.fecha_alta.strftime("%d/%m/%Y %H:%M") if internacion.fecha_alta else "En curso")
+                p.drawString(
+                    50,
+                    y,
+                    f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}",
+                )
+                p.drawString(
+                    200, y, str(internacion.fecha_admision.strftime("%d/%m/%Y %H:%M"))
+                )
+                p.drawString(
+                    350,
+                    y,
+                    (
+                        internacion.fecha_alta.strftime("%d/%m/%Y %H:%M")
+                        if internacion.fecha_alta
+                        else "En curso"
+                    ),
+                )
                 p.drawString(500, y, internacion.nota_ingreso)
                 y -= 20
 
@@ -402,17 +476,22 @@ def generar_informe_internaciones(request):
             return response
 
     # Si no es POST, redirigir a listar_internaciones
-    return redirect('listar_internaciones')
+    return redirect("listar_internaciones")
+
 
 @login_required
 def generar_informe_internacion(request, internacion_id):
     # Obtener la internación y sus seguimientos
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
-    seguimientos = Seguimiento.objects.filter(idinternacion=internacion).order_by('fecha')
+    seguimientos = Seguimiento.objects.filter(idinternacion=internacion).order_by(
+        "fecha"
+    )
 
     # Crear el objeto HttpResponse con el encabezado PDF adecuado
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="informe_internacion_{internacion.idinternacion}.pdf"'
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="informe_internacion_{internacion.idinternacion}.pdf"'
+    )
 
     # Crear el objeto PDF usando el HttpResponse como "archivo"
     p = canvas.Canvas(response, pagesize=letter)
@@ -420,14 +499,26 @@ def generar_informe_internacion(request, internacion_id):
 
     # Título del documento
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, height - 50, f"Informe de Internación - Paciente: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
+    p.drawCentredString(
+        width / 2,
+        height - 50,
+        f"Informe de Internación - Paciente: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}",
+    )
 
     # Información general de la internación
     p.setFont("Helvetica", 12)
     y = height - 100
-    p.drawString(50, y, f"Fecha de Ingreso: {internacion.fecha_admision.strftime('%d/%m/%Y %H:%M')}")
+    p.drawString(
+        50,
+        y,
+        f"Fecha de Ingreso: {internacion.fecha_admision.strftime('%d/%m/%Y %H:%M')}",
+    )
     y -= 20
-    p.drawString(50, y, f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y %H:%M') if internacion.fecha_alta else 'N/A'}")
+    p.drawString(
+        50,
+        y,
+        f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y %H:%M') if internacion.fecha_alta else 'N/A'}",
+    )
     y -= 20
     p.drawString(50, y, f"Motivo de Internación: {internacion.nota_ingreso}")
     y -= 40
@@ -453,14 +544,22 @@ def generar_informe_internacion(request, internacion_id):
         p.drawString(70, y, "  Medicación:")
         y -= 15
         for medicacion in seguimiento.medicaciones.all():
-            p.drawString(90, y, f"- {medicacion.tipo}: {medicacion.nombre} a las {medicacion.hora_medicacion.strftime('%H:%M')}")
+            p.drawString(
+                90,
+                y,
+                f"- {medicacion.tipo}: {medicacion.nombre} a las {medicacion.hora_medicacion.strftime('%H:%M')}",
+            )
             y -= 15
 
         # Signos vitales
         p.drawString(70, y, "  Signos Vitales:")
         y -= 15
         for signo in seguimiento.signos_vitales.all():
-            p.drawString(90, y, f"- Temperatura: {signo.temperatura_corporal}°C, Pulso: {signo.pulso}, Frecuencia Respiratoria: {signo.frecuencia_respiratoria}")
+            p.drawString(
+                90,
+                y,
+                f"- Temperatura: {signo.temperatura_corporal}°C, Pulso: {signo.pulso}, Frecuencia Respiratoria: {signo.frecuencia_respiratoria}",
+            )
             y -= 15
 
         y -= 10  # Espacio entre seguimientos
@@ -469,42 +568,46 @@ def generar_informe_internacion(request, internacion_id):
     p.save()
     return response
 
+
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from .models import Cama, Internacion
 
 from .models import Seguimiento
 
+
 @login_required
-@enfermero_or_staff_required(redirect_url='lista_habitaciones')
+@enfermero_or_staff_required(redirect_url="lista_habitaciones")
 def derivar_paciente(request):
-    if request.method == 'POST':
-        idcama_origen = request.POST.get('idcama_origen')
-        idcama_destino = request.POST.get('idcama_destino')
+    if request.method == "POST":
+        idcama_origen = request.POST.get("idcama_origen")
+        idcama_destino = request.POST.get("idcama_destino")
 
         # Verificar que ambos parámetros estén presentes
         if not idcama_origen or not idcama_destino:
-            messages.error(request, 'Debe seleccionar ambas camas (origen y destino)')
-            return redirect('lista_habitaciones')
+            messages.error(request, "Debe seleccionar ambas camas (origen y destino)")
+            return redirect("lista_habitaciones")
 
         # Obtener las camas
         try:
             cama_origen = get_object_or_404(Cama, idcama=idcama_origen)
             cama_destino = get_object_or_404(Cama, idcama=idcama_destino)
         except:
-            messages.error(request, 'No se encontraron las camas especificadas')
-            return redirect('lista_habitaciones')
+            messages.error(request, "No se encontraron las camas especificadas")
+            return redirect("lista_habitaciones")
 
         # Verificar que la cama de destino esté libre
-        if cama_destino.estado != 'L':
-            messages.error(request, 'La cama de destino no está disponible')
-            return redirect('lista_habitaciones')
+        if cama_destino.estado != "L":
+            messages.error(request, "La cama de destino no está disponible")
+            return redirect("lista_habitaciones")
 
         # Obtener la internación activa del paciente en la cama de origen
-        internacion = Internacion.objects.filter(cama=cama_origen, fecha_alta__isnull=True).first()
+        internacion = Internacion.objects.filter(
+            cama=cama_origen, fecha_alta__isnull=True
+        ).first()
         if not internacion:
-            messages.error(request, 'No se encontró paciente en la cama de origen')
-            return redirect('lista_habitaciones')
+            messages.error(request, "No se encontró paciente en la cama de origen")
+            return redirect("lista_habitaciones")
 
         try:
             # Registrar la derivación como un seguimiento
@@ -514,40 +617,45 @@ def derivar_paciente(request):
             Seguimiento.objects.create(
                 idinternacion=internacion,
                 idenfermero=enfermero,
-                observacion=f"Derivación de {cama_origen} a {cama_destino}",
+                observacion=f"Derivación de sector: {cama_origen.habitacion.idsector}, habitacion: {cama_origen.habitacion}, cama: {cama_origen} a sector: {cama_destino.habitacion.idsector}, habitacion: {cama_destino.habitacion}, cama: {cama_destino}",
                 cama_origen=cama_origen,
-                cama_destino=cama_destino,  
-)
+                cama_destino=cama_destino,
+            )
 
             # Actualizar la internación para mover al paciente a la cama de destino
             internacion.cama = cama_destino
             internacion.save()
 
             # Actualizar los estados de las camas
-            cama_origen.estado = 'L'  # Liberar la cama de origen
+            cama_origen.estado = "L"  # Liberar la cama de origen
             cama_origen.save()
 
-            cama_destino.estado = 'O'  # Ocupada la cama de destino
+            cama_destino.estado = "O"  # Ocupada la cama de destino
             cama_destino.save()
 
-            messages.success(request, 'Derivación realizada exitosamente')
-            return redirect('lista_habitaciones')
+            messages.success(request, "Derivación realizada exitosamente")
+            return redirect("lista_habitaciones")
 
         except Exception as e:
-            messages.error(request, f'Ocurrió un error al procesar la derivación: {str(e)}')
-            return redirect('lista_habitaciones')
+            messages.error(
+                request, f"Ocurrió un error al procesar la derivación: {str(e)}"
+            )
+            return redirect("lista_habitaciones")
 
-    return redirect('lista_habitaciones')
+    return redirect("lista_habitaciones")
 
 
 from datetime import datetime
 
+
 @login_required
 def generar_informe_alta(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
-    
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="informe_alta_{internacion.idinternacion}.pdf"'
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="informe_alta_{internacion.idinternacion}.pdf"'
+    )
 
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
@@ -560,7 +668,7 @@ def generar_informe_alta(request, internacion_id):
 
     # Encabezado
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width/2, y_position, "INFORME DE ALTA MÉDICA")
+    p.drawCentredString(width / 2, y_position, "INFORME DE ALTA MÉDICA")
     y_position -= 40
 
     # Línea decorativa
@@ -571,16 +679,20 @@ def generar_informe_alta(request, internacion_id):
     p.setFont("Helvetica-Bold", 12)
     p.drawString(margin, y_position, "DATOS DEL PACIENTE:")
     y_position -= spacing
-    
+
     p.setFont("Helvetica", 12)
     patient_data = [
         f"Nombre: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}",
         f"DNI: {internacion.idpaciente.dni}",
         f"Fecha de Nacimiento: {internacion.idpaciente.fecha_nacimiento.strftime('%d/%m/%Y')}",
         f"Fecha de Admisión: {internacion.fecha_admision.strftime('%d/%m/%Y %H:%M')}",
-        f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y %H:%M')}" if internacion.fecha_alta else "Fecha de Alta: Pendiente",
+        (
+            f"Fecha de Alta: {internacion.fecha_alta.strftime('%d/%m/%Y %H:%M')}"
+            if internacion.fecha_alta
+            else "Fecha de Alta: Pendiente"
+        ),
     ]
-    
+
     for line in patient_data:
         p.drawString(margin + 10, y_position, line)
         y_position -= spacing
@@ -596,7 +708,7 @@ def generar_informe_alta(request, internacion_id):
     y_position -= spacing * 2
 
     # Diagnóstico y tratamiento
-    diagnostico = internacion.diagnostico_set.order_by('-fecha').first()
+    diagnostico = internacion.diagnostico_set.order_by("-fecha").first()
     if diagnostico:
         p.setFont("Helvetica-Bold", 12)
         p.drawString(margin, y_position, "DIAGNÓSTICO PRINCIPAL:")
@@ -608,7 +720,7 @@ def generar_informe_alta(request, internacion_id):
             f"Gravedad: {diagnostico.gravedad}",
             f"Tratamiento: {diagnostico.tratamiento}",
         ]
-        
+
         for line in diagnostic_data:
             p.drawString(margin + 10, y_position, line)
             y_position -= spacing
@@ -618,28 +730,54 @@ def generar_informe_alta(request, internacion_id):
         p.drawString(margin, y_position, "MÉDICO RESPONSABLE:")
         y_position -= spacing
         p.setFont("Helvetica", 12)
-        p.drawString(margin + 10, y_position, f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}")
-        p.drawString(width - 200, y_position, f"Matrícula: {diagnostico.idmedico.matricula}")
+        p.drawString(
+            margin + 10,
+            y_position,
+            f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}",
+        )
+        p.drawString(
+            width - 200, y_position, f"Matrícula: {diagnostico.idmedico.matricula}"
+        )
         y_position -= spacing * 2
 
     # Sección de firmas
     p.line(margin, y_position, width - margin, y_position)
     y_position -= spacing * 2
-    
+
     # Firma Médico
     if diagnostico:
-        p.drawString(margin + 50, y_position, "_________________________________________")
-        p.drawString(margin + 50, y_position - 20, f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}")
-        p.drawString(margin + 50, y_position - 40, f"Matrícula: {diagnostico.idmedico.matricula}")
-        
+        p.drawString(
+            margin + 50, y_position, "_________________________________________"
+        )
+        p.drawString(
+            margin + 50,
+            y_position - 20,
+            f"Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}",
+        )
+        p.drawString(
+            margin + 50, y_position - 40, f"Matrícula: {diagnostico.idmedico.matricula}"
+        )
+
         # Firma Paciente
-        p.drawString(width - 250, y_position, "_________________________________________")
-        p.drawString(width - 250, y_position - 20, f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}")
-        p.drawString(width - 250, y_position - 40, "DNI: " + str(internacion.idpaciente.dni))
+        p.drawString(
+            width - 250, y_position, "_________________________________________"
+        )
+        p.drawString(
+            width - 250,
+            y_position - 20,
+            f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}",
+        )
+        p.drawString(
+            width - 250, y_position - 40, "DNI: " + str(internacion.idpaciente.dni)
+        )
 
     # Pie de página
     p.setFont("Helvetica-Oblique", 8)
-    p.drawCentredString(width/2, 40, f"Documento generado el {datetime.now().strftime('%d/%m/%Y %H:%M')} - Hospital XYZ")
+    p.drawCentredString(
+        width / 2,
+        40,
+        f"Documento generado el {datetime.now().strftime('%d/%m/%Y %H:%M')} - Hospital XYZ",
+    )
 
     p.save()
     return response

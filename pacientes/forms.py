@@ -7,7 +7,7 @@ import re
 class PacienteForm(forms.ModelForm):
     class Meta:
         model = Paciente
-        fields = ['nombre', 'apellido', 'dni', 'email', 'pais', 'provincia', 'pasaporte', 
+        fields = ['nombre', 'apellido', 'dni', 'email', 'pais', 'provincia', 'pasaporte', 'nro_afiliado',
                  'domicilio', 'localidad', 'telefono', 'fecha_nacimiento', 'genero', 
                  'obra_social', 'diabetes', 'hipertension', 'fumador', 'alergias', 
                  'antecedentes', 'cirugias','estado']
@@ -32,6 +32,7 @@ class PacienteForm(forms.ModelForm):
             'antecedentes': forms.Textarea(attrs={'rows': 4}),
             'cirugias': forms.Textarea(attrs={'rows': 4}),
             'estado': forms.Select(choices=[('Vivo', 'Vivo'), ('Difunto', 'Difunto')]),
+            'nro_afiliado': forms.NumberInput(attrs={'placeholder': 'Ej: 123456'}),
         }
         
         

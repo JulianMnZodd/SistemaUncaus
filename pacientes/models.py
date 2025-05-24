@@ -12,10 +12,7 @@ class ObraSocial(models.Model):
     
     idobra_social = models.AutoField(db_column='idObra_social', primary_key=True)  # Field name made lowercase.
     nombre = models.CharField(max_length=50, unique=True, choices=nombres.items())  # Nombre de la obra social
-    nombre_titular = models.CharField(max_length=50, blank=True, null=True)
-    nro_beneficiario_titular = models.IntegerField(blank=True, null=True)  # Número de beneficiario
-    nro_afiliado = models.IntegerField(blank=True, null=True)  # Número de afiliado
-    
+    telefono = models.CharField(max_length=15, blank=True, null=True)  # Teléfono de contacto
 
     class Meta:
         managed = True

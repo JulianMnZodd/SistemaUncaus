@@ -11,7 +11,7 @@ from django.db.models.functions import TruncDay
 from django.utils import timezone
 import json
 from datetime import timedelta
-from personal.decoradores_permisos import enfermero_or_staff_required, staff_required, recepcionista_or_staff_required
+from personal.decoradores_permisos import enfermero_or_staff_required, recepcionista_or_staff_required, enfermero_or_recepcionista_required_or_staff_required
 from django.core.cache import cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -78,7 +78,7 @@ def liberar_cama(request, idcama):
     return redirect('lista_habitaciones')
 
 @login_required
-@enfermero_or_staff_required(redirect_url='lista_habitaciones')
+@enfermero_or_recepcionista_required_or_staff_required(redirect_url='lista_habitaciones')
 def liberar_cama_reservada(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     if request.method == 'POST':

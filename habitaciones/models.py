@@ -77,7 +77,7 @@ class Cama(models.Model):
             internacion.save()
 
     def __str__(self):
-        return f"N° cama {self.nro_cama }  N° habitacion {self.habitacion.numero}"
+        return f"{self.nro_cama}"
     class Meta:
         managed = True
         db_table = 'cama'
