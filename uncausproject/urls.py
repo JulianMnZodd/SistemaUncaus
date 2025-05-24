@@ -20,6 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 # Importa tus vistas personalizadas
 from  personal.views import custom_page_not_found, custom_permission_denied
+from django.contrib.auth.views import LogoutView
+from personal.views import CustomLoginView
 
 # Asigna los handlers
 handler404 = custom_page_not_found
@@ -27,6 +29,8 @@ handler403 = custom_permission_denied
 
 
 urlpatterns = [
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('admin/', admin.site.urls),
     path('personal/', include('personal.urls')),
     path('',include('habitaciones.urls')),

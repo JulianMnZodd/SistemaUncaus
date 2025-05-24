@@ -2,10 +2,20 @@ from django.db import models
 from django_countries.fields import CountryField
 
 class ObraSocial(models.Model):
+    nombres ={
+        'PAMI': 'PAMI',
+        'OSDE': 'OSDE',
+        'IOMA': 'IOMA',
+        'INSSSEP': 'INSSSEP',
+        'Otra': 'Otra'
+    }
+    
     idobra_social = models.AutoField(db_column='idObra_social', primary_key=True)  # Field name made lowercase.
-    nombre = models.CharField(max_length=100)
-    cuit = models.IntegerField()
-    tipo = models.CharField(max_length=70)
+    nombre = models.CharField(max_length=50, unique=True, choices=nombres.items())  # Nombre de la obra social
+    nombre_titular = models.CharField(max_length=50, blank=True, null=True)
+    nro_beneficiario_titular = models.IntegerField(blank=True, null=True)  # Número de beneficiario
+    nro_afiliado = models.IntegerField(blank=True, null=True)  # Número de afiliado
+    
 
     class Meta:
         managed = True

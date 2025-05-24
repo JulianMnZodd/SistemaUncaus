@@ -6,11 +6,11 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from personal.decoradores_permisos import recepcionista_required, medico_required, enfermero_required, admin_required
+from personal.decoradores_permisos import recepcionista_or_staff_required, medico_or_staff_required, staff_required
 
 
 @login_required
-@recepcionista_required(redirect_url='listar_pacientes')
+@recepcionista_or_staff_required(redirect_url='listar_pacientes')
 def crear_paciente(request):
     if request.method == 'POST':
         form = PacienteForm(request.POST)
@@ -24,6 +24,7 @@ def crear_paciente(request):
 
 
 @login_required
+@recepcionista_or_staff_required(redirect_url='listar_pacientes')
 def editar_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     
@@ -40,7 +41,9 @@ def editar_paciente(request, paciente_id):
     
     return render(request, 'editar_paciente.html', {'form': form})
 
+
 @login_required
+@staff_required(redirect_url='listar_pacientes')
 def eliminar_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     paciente.delete()

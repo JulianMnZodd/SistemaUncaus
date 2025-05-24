@@ -1,13 +1,15 @@
 from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from habitaciones.models import Cama, Habitacion
 from .forms import DiagnosticoForm, AsignarCamaForm
 from .models import Paciente, Medico, Enfermero, Internacion
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from personal.decoradores_permisos import medico_or_enfermero_or_staff_required,medico_or_staff_required, recepcionista_or_staff_required, enfermero_or_staff_required
 
 @login_required
+@recepcionista_or_staff_required(redirect_url='lista_habitaciones')
 def asignar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     pacientes_list = Paciente.objects.all()  # Obtén todos los pacientes
@@ -78,7 +80,9 @@ def seleccionar_cama(request, paciente_id):
         {"habitaciones": habitaciones, "paciente": paciente},
     )
 
+
 @login_required
+@medico_or_enfermero_or_staff_required(redirect_url='lista_habitaciones')
 def listar_internaciones(request):
     internaciones = Internacion.objects.filter(fecha_alta__isnull=True)
     es_medico = hasattr(request.user, "medico")
@@ -95,6 +99,7 @@ def listar_internaciones(request):
 
 
 @login_required
+@medico_or_staff_required(redirect_url='lista_habitaciones')
 def crear_diagnostico(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     paciente = internacion.idpaciente
@@ -123,6 +128,7 @@ def crear_diagnostico(request, internacion_id):
 
 
 @login_required
+@medico_or_staff_required(redirect_url='lista_habitaciones')
 def editar_diagnostico(request, diagnostico_id):
     # Obtener el diagnóstico a editar
     diagnostico = get_object_or_404(Diagnostico, pk=diagnostico_id)
@@ -146,7 +152,9 @@ def editar_diagnostico(request, diagnostico_id):
     return render(request, 'editar_diagnostico.html', context)
 
 from .models import Diagnostico
+
 @login_required
+@medico_or_enfermero_or_staff_required(redirect_url='lista_habitaciones')
 def detalle_diagnostico(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     diagnostico = get_object_or_404(Diagnostico, idinternacion=internacion)
@@ -160,11 +168,13 @@ from .models import Paciente, Enfermero, Seguimiento, Medicacion, SignosVitales
 
 
 @login_required
+@enfermero_or_staff_required(redirect_url='listar_internaciones')
 def seguimiento(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
-    enfermero = get_object_or_404(
-        Enfermero, persona=request.user
-    )  # Usar el campo correcto para obtener el enfermero logeado
+    enfermero = Enfermero.objects.filter(persona=request.user).first()
+    if not enfermero:
+        raise Http404("No se encontró un enfermero asociado al usuario.")
+ # Usar el campo correcto para obtener el enfermero logeado
 
     MedicacionFormSet = inlineformset_factory(
         Seguimiento, Medicacion, form=MedicacionForm, extra=1, can_delete=False
@@ -214,6 +224,7 @@ def seguimiento(request, internacion_id):
     )
 
 @login_required
+@medico_or_enfermero_or_staff_required(redirect_url='listar_internaciones')
 def listar_seguimientos(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
     seguimientos = Seguimiento.objects.filter(idinternacion=internacion)
@@ -223,6 +234,7 @@ def listar_seguimientos(request, internacion_id):
     })
     
 @login_required
+@medico_or_enfermero_or_staff_required(redirect_url='listar_internaciones')
 def seguimiento_detalles(request, seguimiento_id):
     seguimiento = get_object_or_404(Seguimiento, idseguimiento=seguimiento_id)
     return render(request, 'seguimiento_detalles.html', {
@@ -323,6 +335,7 @@ class InformeInternacionesForm(forms.Form):
     )
 
 @login_required
+@medico_or_enfermero_or_staff_required(redirect_url='listar_internaciones')
 def generar_informe_internaciones(request):
     if request.method == 'POST':
         form = InformeInternacionesForm(request.POST)
@@ -463,6 +476,7 @@ from .models import Cama, Internacion
 from .models import Seguimiento
 
 @login_required
+@enfermero_or_staff_required(redirect_url='lista_habitaciones')
 def derivar_paciente(request):
     if request.method == 'POST':
         idcama_origen = request.POST.get('idcama_origen')
@@ -494,13 +508,16 @@ def derivar_paciente(request):
 
         try:
             # Registrar la derivación como un seguimiento
+            enfermero = Enfermero.objects.filter(persona=request.user).first()
+
+            # Registrar la derivación como un seguimiento
             Seguimiento.objects.create(
                 idinternacion=internacion,
-                idenfermero=request.user.enfermero,  # Asumiendo que el usuario es un enfermero
+                idenfermero=enfermero,
                 observacion=f"Derivación de {cama_origen} a {cama_destino}",
                 cama_origen=cama_origen,
-                cama_destino=cama_destino
-            )
+                cama_destino=cama_destino,  
+)
 
             # Actualizar la internación para mover al paciente a la cama de destino
             internacion.cama = cama_destino

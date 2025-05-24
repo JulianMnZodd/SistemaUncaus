@@ -128,6 +128,7 @@
               <span class="ms-3">Inicio</span>
             </a>
           </li>
+          {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
           <li>
             <a
               href="{% url 'listar_internaciones'%}"
@@ -139,6 +140,7 @@
               <span class="flex-1 ms-3 whitespace-nowrap">Internaciones</span>
             </a>
           </li>
+          {% endif %}
           <li>
             <a
               href="{% url 'lista_habitaciones'%}"

@@ -21,32 +21,27 @@ class PersonaManager(BaseUserManager):
             raise ValueError('El superusuario debe tener is_superuser=True.')
 
         return self.create_user(email, password, **extra_fields)
-    
-class Persona(AbstractUser):
-    # Campos adicionales
-    username = None
-    email = models.EmailField(unique=True)  # Asegúrate de que el email sea único
-    dni = models.CharField(max_length=8, unique=True)
 
-    def clean(self):
-        super().clean()
-        if not self.dni.isdigit() or len(self.dni) not in [6, 8]:
-            raise ValueError("El DNI debe ser un número de 6 u 8 dígitos.")
+class Persona(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True)
+    dni = models.IntegerField(unique=True, blank=True, null=True)
     domicilio = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15, blank=True, null=True)
     genero = models.CharField(max_length=10, choices=[('M', 'Masculino'), ('F', 'Femenino')], blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
+
     objects = PersonaManager()
-    # Si prefieres usar el correo electrónico en lugar del username
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'dni']
 
     class Meta:
         db_table = 'persona'
 
+# Ahora una persona puede tener más de un rol
 
 class Medico(models.Model):
-    persona = models.OneToOneField(Persona, on_delete=models.CASCADE, db_column='Persona_idPersona', primary_key=True)  # Field name made lowercase.
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, db_column='Persona_idPersona')
     especializacion = models.CharField(max_length=45)
     matricula = models.CharField(max_length=45)
 
@@ -54,23 +49,18 @@ class Medico(models.Model):
         managed = True
         db_table = 'medico'
 
-class Recepcionista(models.Model):
-    persona = models.OneToOneField(Persona, on_delete=models.CASCADE, db_column='Persona_idPersona', primary_key=True)  # Field name made lowercase.
-    turno = models.CharField(max_length=10, choices=[('M', 'Mañana'), ('T', 'Tarde')], blank=True)
-    class Meta:
-        managed = True
-        db_table = 'recepcionista'
-
 class Enfermero(models.Model):
-    persona = models.OneToOneField(Persona, on_delete=models.CASCADE, db_column='Persona_idPersona', primary_key=True)  # Field name made lowercase.
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, db_column='Persona_idPersona')
     matricula = models.CharField(max_length=45)
 
     class Meta:
         managed = True
         db_table = 'enfermero'
-        
 
+class Recepcionista(models.Model):
+    persona = models.ForeignKey(Persona, on_delete=models.CASCADE, db_column='Persona_idPersona')
+    turno = models.CharField(max_length=10, choices=[('M', 'Mañana'), ('T', 'Tarde')], blank=True)
 
-        
-
-
+    class Meta:
+        managed = True
+        db_table = 'recepcionista'

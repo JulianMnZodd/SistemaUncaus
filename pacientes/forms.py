@@ -14,8 +14,8 @@ class PacienteForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Ej: Juan'}),
             'apellido': forms.TextInput(attrs={'placeholder': 'Ej: Perez'}),
-            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
-            'telefono': forms.NumberInput(attrs={'placeholder': 'Ej: 3624-123456'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+            'telefono': forms.TextInput(attrs={'placeholder': 'Ej: 3624-123456'}),
             'email': forms.EmailInput(attrs={'placeholder': 'Ej: nombre@gmail.com'}),
             'dni': forms.NumberInput(attrs={'placeholder': 'Ej: 12345678'}),
             'genero': forms.Select(choices=[('M', 'Masculino'), ('F', 'Femenino')]),
@@ -74,8 +74,6 @@ class PacienteForm(forms.ModelForm):
         
         # Validar que el paciente tenga al menos 1 año (ajustar según necesidades)
         edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
-        if edad < 1:
-            raise ValidationError("El paciente debe tener al menos 1 año de edad.")
         
         # Validar que no sea demasiado viejo (ej. 120 años)
         if edad > 120:
@@ -106,6 +104,20 @@ class PacienteForm(forms.ModelForm):
             telefono_limpio = f"{telefono_limpio[:4]}-{telefono_limpio[4:]}"
             
         return telefono_limpio
+    
+    def clean_nombre(self):
+        nombre = self.cleaned_data.get('nombre')
+        if nombre:
+            # Validar que solo contenga letras y espacios
+            if not re.match(r'^[a-zA-Z\s]+$', nombre):
+                raise ValidationError("El nombre solo puede contener letras y espacios.")
+            # Validar longitud mínima y máxima
+            if len(nombre) < 2 or len(nombre) > 50:
+                raise ValidationError("El nombre debe tener entre 2 y 50 caracteres.")
+        else:
+            raise ValidationError("El nombre es obligatorio.")
+
+        return nombre
 
     def clean(self):
         cleaned_data = super().clean()
