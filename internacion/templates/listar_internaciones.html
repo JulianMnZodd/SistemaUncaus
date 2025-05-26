@@ -2,10 +2,6 @@
 {% load static %}
 {% block content %}
 
-<!-- Incluir Animate.css y Hover.css -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
-
 <!-- Glassmorphism y Neumorphism combinados -->
 <style>
   :root {
@@ -15,7 +11,6 @@
     --dark: #1b263b;
     --light: #f8f9fa;
     --success: #4cc9f0;
-    --warning: #f8961e;
     --danger: #f72585;
     --info: #560bad;
     --glass: rgba(255, 255, 255, 0.15);
@@ -328,8 +323,8 @@
             </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <div class="flex space-x-1">
-                {% if es_medico %}
-                  {% if internacion.diagnostico_set.exists %}
+        
+                {% if internacion.diagnostico_set.exists %}
                   <a href="{% url 'detalle_diagnostico' internacion.idinternacion %}" 
                      class="action-btn text-white bg-gradient-to-r from-blue-600 to-blue-500">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -337,24 +332,28 @@
                     </svg>
                     Ver Diagnóstico
                   </a>
-                  {% else %}
-                  <a href="{% url 'crear_diagnostico' internacion.idinternacion %}" 
-                     class="action-btn text-white bg-gradient-to-r from-green-600 to-green-500">
+                {% else%}
+                  {% if request.user.is_staff or request.user.medico_set.exists %}
+                    <a href="{% url 'crear_diagnostico' internacion.idinternacion %}" 
+                       class="action-btn text-white bg-gradient-to-r from-green-600 to-green-500">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                      </svg>
+                      Nuevo
+                    </a>
+                  {% endif %}
+                {% endif %}
+        
+                {% if request.user.enfermero_set.exists or request.user.is_staff %}
+                  <a href="{% url 'seguimiento' internacion.idinternacion %}" 
+                     class="action-btn text-white bg-gradient-to-r from-purple-600 to-purple-500">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
-                    Nuevo
+                    Crear nuevo seguimiento
                   </a>
-                  {% endif %}
-                {% elif es_enfermero %}
-                <a href="{% url 'seguimiento' internacion.idinternacion %}" 
-                   class="action-btn text-white bg-gradient-to-r from-purple-600 to-purple-500">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                  </svg>
-                  Seguimiento
-                </a>
                 {% endif %}
+        
                 <a href="{% url 'listar_seguimientos' internacion.idinternacion %}" 
                    class="action-btn text-white bg-gradient-to-r from-yellow-600 to-yellow-500">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -362,10 +361,11 @@
                   </svg>
                   Ver Seguimientos
                 </a>
+        
               </div>
             </td>
           </tr>
-          {% empty %}
+        {% empty %}
           <tr>
             <td colspan="6" class="px-4 py-6 text-center text-gray-500 text-sm">
               <div class="flex flex-col items-center justify-center space-y-1">
@@ -376,7 +376,7 @@
               </div>
             </td>
           </tr>
-          {% endfor %}
+        {% endfor %}        
         </tbody>
       </table>
     </div>

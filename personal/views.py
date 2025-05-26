@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from personal.forms import CustomAuthenticationForm
 from .forms import CustomUserCreationForm, MedicoForm, RecepcionistaForm, EnfermeroForm
 from personal.models import Medico, Enfermero, Recepcionista
-
+from personal.decoradores_permisos import recepcionista_or_staff_required, medico_or_staff_required, staff_required
 class CustomLoginView(LoginView):
     template_name = 'login.html'
     authentication_form = CustomAuthenticationForm
@@ -28,6 +28,7 @@ def registro(request):
 
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def crear_medico(request):
     if request.method == 'POST':
         # Crear ambos formularios
@@ -55,7 +56,8 @@ def crear_medico(request):
         'persona_form': persona_form,
         'medico_form': medico_form,
     })
-    
+
+@staff_required(redirect_url='lista_habitaciones')
 def editar_medico(request, medico_id):
     medico = get_object_or_404(Medico, persona_id=medico_id)
     
@@ -80,6 +82,7 @@ def editar_medico(request, medico_id):
 
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def crear_enfermero(request):
     if request.method == 'POST':
         # Crear ambos formularios
@@ -108,6 +111,7 @@ def crear_enfermero(request):
     
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def editar_enfermero(request, id_enfermero):
     enfermero = get_object_or_404(Enfermero, persona_id=id_enfermero)
     
@@ -132,6 +136,7 @@ def editar_enfermero(request, id_enfermero):
 
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def crear_recepcionista(request):
     if request.method == 'POST':
         # Crear ambos formularios
@@ -160,12 +165,14 @@ def crear_recepcionista(request):
     
     
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def listar_medicos(request):
     medicos = Medico.objects.all()
     return render(request, 'listar_medicos.html', {'medicos': medicos})
 
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def eliminar_medico(request, id_medico):
     medico = get_object_or_404(Medico, persona_id=id_medico)
     medico.delete()
@@ -174,11 +181,13 @@ def eliminar_medico(request, id_medico):
 
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def listar_enfermeros(request):
     enfermeros = Enfermero.objects.all()
     return render(request, 'listar_enfermeros.html', {'enfermeros': enfermeros})
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def eliminar_enfermero(request, id_enfermero):
     enfermero = get_object_or_404(Enfermero, persona_id=id_enfermero)
     enfermero.delete()
@@ -186,12 +195,14 @@ def eliminar_enfermero(request, id_enfermero):
     return redirect('listar_enfermeros')
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def listar_recepcionistas(request):
     recepcionistas = Recepcionista.objects.all()
     return render(request, 'listar_recepcionistas.html', {'recepcionistas': recepcionistas})
 
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def editar_recepcionista(request, recepcionista_id):
     recepcionista = get_object_or_404(Recepcionista, persona_id=recepcionista_id)
     
@@ -215,14 +226,12 @@ def editar_recepcionista(request, recepcionista_id):
     })
 
 @login_required
+@staff_required(redirect_url='lista_habitaciones')
 def eliminar_recepcionista(request, id_recepcionista):
     recepcionista = get_object_or_404(Recepcionista, persona_id=id_recepcionista)
     recepcionista.delete()
     messages.success(request, '¡Recepcionista eliminado exitosamente!')
     return redirect('listar_recepcionistas')
-
-
-
 
 
 

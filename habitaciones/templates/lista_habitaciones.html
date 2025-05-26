@@ -177,13 +177,6 @@
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
   }
   
-  /* Icono de usuario estandarizado */
-  .bed-card .user-icon {
-    width: 8px;
-    height: 8px;
-    flex-shrink: 0; /* Evita que se reduzca */
-    margin-right: 4px;
-  }
 
   .bed-card:hover svg {
     transform: scale(1.05);
@@ -257,11 +250,6 @@
     height: 3rem;
   }
   
-  .compact-user-icon {
-    width: 0.75rem;
-    height: 0.75rem;
-    margin-right: 0.25rem;
-  }
   
   .compact-status-badge {
     font-size: 0.6rem;
@@ -294,10 +282,11 @@
   }
 
   .compact-patient-info p {
-    isplay: flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+  }
 
 </style>
 
@@ -559,12 +548,12 @@
                   {% if cama.estado == 'O' %}
                     {% with internacion=cama.internacion_set.last %}
                       {% if internacion and not internacion.fecha_alta %}
-                        <div class=" compact-patient-info w-full">
+                        <div class=" compact-patient-info">
                           <p class="font-medium text-gray-700" id="paciente-{{ cama.idcama }}">
                               {% with paciente=internacion.idpaciente %} 
                                   <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}" 
                                     class="hover:text-blue-600 transition-colors flex items-center justify-center">
-                                    <svg class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <svg style="width:1.5rem; height: 1.5rem;" class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                     </svg>
                                     <span>{{ paciente.nombre }} {{ paciente.apellido }}</span>
@@ -604,7 +593,7 @@
                        <span>Ver Reserva</span>
                     </a>
                   {% else %}
-                    {% if request.user.enfermero or request.user.medico %}
+                    {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
                       <form class="inline w-full" method="POST" action="{% url 'liberar_cama' cama.idcama %}" id="formLiberar-{{ cama.idcama }}">
                         {% csrf_token %}
                         <button type="button" 
@@ -943,7 +932,7 @@
             pacienteDiv.className = 'mt-2 w-full';
             pacienteDiv.innerHTML = `
               <p id="paciente-${data.idcama}" class="text-xs font-medium text-gray-700 truncate">
-                <a href="/detalle_paciente/${data.paciente_id}" 
+                <a class="compact-user-icon" href="/detalle_paciente/${data.paciente_id}" 
                    class="hover:text-blue-600 transition-colors flex items-center justify-center space-x-1">
                    <svg class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>

@@ -1,20 +1,25 @@
 from django.db import models
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Habitacion,Cama,Sector
-from .models import Cama, Medico, Reserva
+from .models import Habitacion,Cama,Sector,Cama, Medico, Reserva
 from internacion.models import Internacion
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count, Q, F, ExpressionWrapper, fields, Avg, DurationField
 import matplotlib.pyplot as plt
 import io
 import base64
-from django.shortcuts import render
-from datetime import timedelta
-from django.db.models import Count, Q, F, ExpressionWrapper, fields, Avg
 from django.db.models.functions import TruncDay
 from django.utils import timezone
 import json
 from datetime import timedelta
+from personal.decoradores_permisos import enfermero_or_staff_required, recepcionista_or_staff_required, enfermero_or_recepcionista_required_or_staff_required
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.http import HttpRequest, HttpResponse
+import matplotlib
+matplotlib.use('Agg')  # Configuración para evitar problemas con hilos
+from typing import Dict, Any, List, Optional
+import random
 
 
 
@@ -59,6 +64,7 @@ def lista_habitaciones(request):
     return render(request, 'lista_habitaciones.html', context)
 
 @login_required
+@enfermero_or_staff_required(redirect_url='lista_habitaciones')
 def liberar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     if request.method == 'POST':
@@ -72,6 +78,7 @@ def liberar_cama(request, idcama):
     return redirect('lista_habitaciones')
 
 @login_required
+@enfermero_or_recepcionista_required_or_staff_required(redirect_url='lista_habitaciones')
 def liberar_cama_reservada(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     if request.method == 'POST':
@@ -83,6 +90,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 @login_required
+@recepcionista_or_staff_required(redirect_url='lista_habitaciones')
 def reservar_cama(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     medicos = Medico.objects.all()
@@ -104,6 +112,8 @@ def reservar_cama(request, idcama):
     
     return render(request, 'reservar_cama.html', {'cama': cama, 'medicos': medicos})
 
+@login_required
+@recepcionista_or_staff_required(redirect_url='lista_habitaciones')
 def ver_reserva(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     reservas = Reserva.objects.filter(cama=cama).order_by('-fecha_reserva')
@@ -125,23 +135,6 @@ def liberar_camas_expiradas():
         
         
 
-from django.core.cache import cache
-from django.db import models
-from django.db.models import Avg, Count, Q, F, ExpressionWrapper, DurationField
-from django.utils import timezone
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpRequest, HttpResponse
-from datetime import timedelta
-import json
-import base64
-import io
-import matplotlib
-matplotlib.use('Agg')  # Configuración para evitar problemas con hilos
-import matplotlib.pyplot as plt
-from typing import Dict, Any, List, Optional
-import random
 
 # Constantes para mejor mantenibilidad
 MAX_DAYS_TREND = 365

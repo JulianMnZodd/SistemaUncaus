@@ -29,14 +29,26 @@ class CustomUserCreationForm(UserCreationForm):
             
             }
         widgets = {
-            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+            'telefono': forms.TextInput(attrs={'placeholder': 'Ej: 3624-123456'}),
             'dni': forms.NumberInput(attrs={'min': 0}),
-            'telefono': forms.NumberInput(attrs={'min': 0}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'username': forms.EmailInput(attrs={'class': 'form-control'}),
         }
+    
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name')
+        if not first_name.isalpha():
+            raise ValidationError("El nombre solo puede contener letras.")
+        return first_name
+    
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name')
+        if not last_name.isalpha():
+            raise ValidationError("El apellido solo puede contener letras.")
+        return last_name
         
     def clean_dni(self):
         dni = self.cleaned_data.get('dni')
@@ -81,13 +93,7 @@ class CustomUserCreationForm(UserCreationForm):
                 raise ValidationError("Debe ser mayor de 18 años")
             if edad > 120:
                 raise ValidationError("Edad no válida")
-        return fecha
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email and Persona.objects.filter(email=email).exists():
-            raise ValidationError("Este email ya está registrado")
-        return email    
+        return fecha 
         
 class CustomUserChangeForm(UserChangeForm):
     class Meta:

@@ -1,0 +1,72 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 bg-white p-8 rounded shadow">
+  <h2 class="text-2xl font-bold mb-6 text-center">Editar Seguimiento</h2>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2">Observación</h3>
+      {% for field in form %}
+        <div class="mb-4">
+          {{ field.label_tag }}
+          {{ field|add_class:"w-full border border-gray-300 rounded px-3 py-2" }}
+          {% if field.errors %}
+            <div class="text-red-600 text-sm">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2">Medicación</h3>
+      {{ medicacion_formset.management_form }}
+      {% for form in medicacion_formset %}
+        <div class="border rounded p-4 mb-4">
+          {% for field in form %}
+            {% if field.name != "DELETE" %}
+              <div class="mb-4">
+                {{ field.label_tag }}
+                {{ field|add_class:"w-full border border-gray-300 rounded px-3 py-2" }}
+                {% if field.errors %}
+                  <div class="text-red-600 text-sm">{{ field.errors }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2">Signos Vitales</h3>
+      {{ signos_vitales_formset.management_form }}
+      {% for form in signos_vitales_formset %}
+        <div class="border rounded p-4 mb-4">
+          {% for field in form %}
+            {% if field.name != "DELETE" %}
+              <div class="mb-4">
+                {{ field.label_tag }}
+                {{ field|add_class:"w-full border border-gray-300 rounded px-3 py-2" }}
+                {% if field.errors %}
+                  <div class="text-red-600 text-sm">{{ field.errors }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-right">
+      <button type="submit" class="bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700">
+        Guardar Cambios
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

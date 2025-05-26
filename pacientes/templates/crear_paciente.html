@@ -256,6 +256,15 @@
       </div>
     </div>
 
+    <!--Numero de afiliado-->
+      <div >
+        <label for="{{ form.nro_afiliado.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Número de afiliado</label>
+        {{ form.nro_afiliado|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
+        {% if form.nro_afiliado.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.nro_afiliado.errors|join:", " }}</p>
+        {% endif %}
+      </div>  
+
     <!-- Estado -->
     <div class="mt-6">
       <label for="{{ form.estado.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">Estado</label>
