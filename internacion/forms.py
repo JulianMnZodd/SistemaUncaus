@@ -11,6 +11,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import Paciente, Internacion
 
+
 class AsignarCamaForm(forms.Form):
     paciente_id = forms.IntegerField(widget=forms.HiddenInput())  # Campo oculto para el ID del paciente
     nota_ingreso = forms.CharField(
@@ -76,7 +77,10 @@ class MedicacionForm(forms.ModelForm):
         model = Medicacion
         fields = ["tipo", "nombre", "hora_medicacion"]
         widgets = {
-            "hora_medicacion": forms.TimeInput(attrs={"type": "time"}),
+            "hora_medicacion": forms.TimeInput(attrs={
+            "type": "time",
+            "class": "w-full p-2 border rounded",
+        })
         }
 
 
@@ -85,9 +89,47 @@ class SignosVitalesForm(forms.ModelForm):
         model = SignosVitales
         fields = ["temperatura_corporal", "pulso", "frecuencia_respiratoria"]
         widgets = {
-            "temperatura_corporal": forms.NumberInput(attrs={"step": 0.1}),
-            "pulso": forms.NumberInput(attrs={"step": 1}),
-            "frecuencia_respiratoria": forms.NumberInput(attrs={"step": 1}),
+           "temperatura_corporal": forms.NumberInput(attrs={
+            "step": 0.1,
+            "class": "w-full p-2 border rounded",
+            "placeholder": "Ej. 36.5",
+            "min": "30",
+            "max": "45",
+        }),
+        "pulso": forms.NumberInput(attrs={
+            "step": 1,
+            "class": "w-full p-2 border rounded",
+            "placeholder": "Ej. 75",
+            "min": "30",
+            "max": "200",
+        }),
+        "frecuencia_respiratoria": forms.NumberInput(attrs={
+            "step": 1,
+            "class": "w-full p-2 border rounded",
+            "placeholder": "Ej. 16",
+            "min": "5",
+            "max": "60",
+        }),
+
         }
+    
+    def clean_temperatura_corporal(self):
+        temp = self.cleaned_data["temperatura_corporal"]
+        if temp < 30 or temp > 45:
+            raise forms.ValidationError("Temperatura corporal fuera de rango válido (30°C - 45°C).")
+        return temp
+
+    def clean_pulso(self):
+        pulso = self.cleaned_data["pulso"]
+        if pulso < 30 or pulso > 200:
+            raise forms.ValidationError("Pulso fuera de rango válido (30 - 200 lpm).")
+        return pulso
+
+    def clean_frecuencia_respiratoria(self):
+        frec = self.cleaned_data["frecuencia_respiratoria"]
+        if frec < 5 or frec > 60:
+            raise forms.ValidationError("Frecuencia respiratoria fuera de rango válido (5 - 60 rpm).")
+        return frec    
+        
 
 

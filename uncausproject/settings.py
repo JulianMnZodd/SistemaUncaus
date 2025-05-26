@@ -40,13 +40,20 @@ LOGOUT_REDIRECT_URL = '/login/'  # Redirige al login después de cerrar sesión
 LOGIN_URL = 'login'  # Vista de login para decoradores como @login_required
 
 ###############################################################
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # carga el archivo .env
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
+EMAIL_HOST = os.getenv("SMTP_HOST")
+EMAIL_PORT = int(os.getenv("SMTP_PORT"))  # convertí a entero
+EMAIL_HOST_USER = os.getenv("SMTP_USER")
+EMAIL_HOST_PASSWORD = os.getenv("SMTP_PASSWORD")
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'bedwise.ayuda@gmail.com'
-EMAIL_HOST_PASSWORD = 'hutu mtll fzes jtov'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_USE_SSL = False
+
+
 
 # Application definition
 

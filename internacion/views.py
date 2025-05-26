@@ -253,7 +253,40 @@ def seguimiento(request, internacion_id):
         },
     )
 
+@login_required
+@enfermero_or_staff_required(redirect_url="listar_internaciones")
+def editar_seguimiento(request, seguimiento_id):
+    seguimiento = get_object_or_404(Seguimiento, pk=seguimiento_id)
 
+    MedicacionFormSet = inlineformset_factory(
+        Seguimiento, Medicacion, form=MedicacionForm, extra=0, can_delete=False
+    )
+    SignosVitalesFormSet = inlineformset_factory(
+        Seguimiento, SignosVitales, form=SignosVitalesForm, extra=0, can_delete=False
+    )
+
+    if request.method == "POST":
+        form = SeguimientoForm(request.POST, instance=seguimiento)
+        medicacion_formset = MedicacionFormSet(request.POST, instance=seguimiento)
+        signos_vitales_formset = SignosVitalesFormSet(request.POST, instance=seguimiento)
+
+        if form.is_valid() and medicacion_formset.is_valid() and signos_vitales_formset.is_valid():
+            form.save()
+            medicacion_formset.save()
+            signos_vitales_formset.save()
+            return redirect('listar_internaciones')
+    else:
+        form = SeguimientoForm(instance=seguimiento)
+        medicacion_formset = MedicacionFormSet(instance=seguimiento)
+        signos_vitales_formset = SignosVitalesFormSet(instance=seguimiento)
+
+    return render(request, 'editar_seguimiento.html', {
+        'form': form,
+        'medicacion_formset': medicacion_formset,
+        'signos_vitales_formset': signos_vitales_formset,
+    })
+
+    
 @login_required
 @medico_or_enfermero_or_staff_required(redirect_url="listar_internaciones")
 def listar_seguimientos(request, internacion_id):

@@ -4,7 +4,7 @@
     <div class="notification flex items-center text-white text-sm px-5 py-3 rounded-lg shadow-xl mb-3 min-w-[250px]
         {% if message.tags == 'error' %}bg-red-600
         {% elif message.tags == 'success' %}bg-green-600
-        {% elif message.tags == 'warning' %}bg-amber-500
+        {% elif message.tags == 'warning' %}bg-yellow-500
         {% else %}bg-gray-800{% endif %}"
         x-data="{ show: true }"
         x-show="show"
