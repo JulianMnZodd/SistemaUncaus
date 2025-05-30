@@ -14,23 +14,19 @@ from personal.decoradores_permisos import (
 )
 
 
+from django.db import transaction
+
 @login_required
 @recepcionista_or_staff_required(redirect_url="lista_habitaciones")
 def asignar_cama(request, idcama):
-    cama = get_object_or_404(Cama, idcama=idcama)
-    pacientes_list = Paciente.objects.all()  # Obtén todos los pacientes
-
-    # Paginación
-    paginator = Paginator(pacientes_list, 10)  # 10 pacientes por página
-    page_number = request.GET.get("page")  # Obtén el número de página de la URL
-
+    pacientes_list = Paciente.objects.all()
+    paginator = Paginator(pacientes_list, 10)
+    page_number = request.GET.get("page")
     try:
         pacientes = paginator.page(page_number)
     except PageNotAnInteger:
-        # Si el parámetro 'page' no es un número, muestra la primera página
         pacientes = paginator.page(1)
     except EmptyPage:
-        # Si la página está fuera de rango (por ejemplo, 9999), muestra la última página
         pacientes = paginator.page(paginator.num_pages)
 
     if request.method == "POST":
@@ -41,31 +37,39 @@ def asignar_cama(request, idcama):
             nota_ingreso = form.cleaned_data["nota_ingreso"]
             action = request.POST.get("action")
 
-            if action == "asignar":
-                internacion = Internacion.objects.create(
-                    idpaciente=paciente,
-                    fecha_admision=timezone.now(),
-                    cama=cama,
-                    nota_ingreso=nota_ingreso,
-                )
-                cama.estado = "O"
-                cama.save()
-                return redirect("lista_habitaciones")
-            elif action == "generar_pdf":
-                return generar_consentimiento_pdf(request, paciente.idpaciente)
+            with transaction.atomic():
+                # Bloquea la cama hasta que termine la transacción
+                cama = Cama.objects.select_for_update().get(idcama=idcama)
+                if cama.estado != "L":
+                    messages.error(request, "La cama ya no está disponible.")
+                    return redirect("lista_habitaciones")
+
+                if action == "asignar":
+                    Internacion.objects.create(
+                        idpaciente=paciente,
+                        fecha_admision=timezone.now(),
+                        cama=cama,
+                        nota_ingreso=nota_ingreso,
+                    )
+                    cama.estado = "O"
+                    cama.save()
+                    messages.success(request, "Cama asignada correctamente.")
+                    return redirect("lista_habitaciones")
+                elif action == "generar_pdf":
+                    return generar_consentimiento_pdf(request, paciente.idpaciente)
     else:
         form = AsignarCamaForm()
 
+    cama = get_object_or_404(Cama, idcama=idcama)  # Para GET, sin lock
     return render(
         request,
         "asignar_cama.html",
         {
             "form": form,
             "cama": cama,
-            "pacientes": pacientes,  # Pasa los pacientes paginados al template
+            "pacientes": pacientes,
         },
     )
-
 
 @login_required
 def generar_consentimiento(request):

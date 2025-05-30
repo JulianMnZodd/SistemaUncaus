@@ -11,12 +11,13 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Cama)
 def cama_post_save(sender, instance, **kwargs):
     channel_layer = get_channel_layer()
-    # Obtener el paciente asociado a la cama, si existe
-    paciente = None
-    if instance.estado == 'O':  # Solo si la cama está ocupada
+    paciente_nombre = ""
+    paciente_apellido = ""
+    if instance.estado == 'O':
         internacion = Internacion.objects.filter(cama=instance, fecha_alta__isnull=True).last()
         if internacion:
-            paciente = f"{internacion.idpaciente.nombre} {internacion.idpaciente.apellido}"
+            paciente_nombre = internacion.idpaciente.nombre
+            paciente_apellido = internacion.idpaciente.apellido
 
     async_to_sync(channel_layer.group_send)(
         "camas_group",
@@ -24,6 +25,7 @@ def cama_post_save(sender, instance, **kwargs):
             "type": "send_cama_update",
             "idcama": instance.idcama,
             "estado": instance.estado,
-            "paciente": paciente,  # Incluye el paciente en el evento
+            "paciente_nombre": paciente_nombre,
+            "paciente_apellido": paciente_apellido,
         }
     )

@@ -114,22 +114,43 @@ class SignosVitalesForm(forms.ModelForm):
         }
     
     def clean_temperatura_corporal(self):
-        temp = self.cleaned_data["temperatura_corporal"]
+        temp_str = self.cleaned_data["temperatura_corporal"]
+        
+        try:
+            temp = float(temp_str)
+        except (ValueError, TypeError):
+            raise forms.ValidationError("Ingrese un valor numérico válido para la temperatura corporal.")
+        
         if temp < 30 or temp > 45:
             raise forms.ValidationError("Temperatura corporal fuera de rango válido (30°C - 45°C).")
+        
         return temp
 
+
     def clean_pulso(self):
-        pulso = self.cleaned_data["pulso"]
+        pulso_str = self.cleaned_data["pulso"]
+        
+        try:
+            pulso = int(pulso_str)
+        except (ValueError, TypeError):
+            raise forms.ValidationError("Ingrese un valor numérico válido para el pulso.")
+        
         if pulso < 30 or pulso > 200:
             raise forms.ValidationError("Pulso fuera de rango válido (30 - 200 lpm).")
+        
         return pulso
 
     def clean_frecuencia_respiratoria(self):
-        frec = self.cleaned_data["frecuencia_respiratoria"]
+        frec_str = self.cleaned_data["frecuencia_respiratoria"]
+        
+        try:
+            frec = int(frec_str)
+        except (ValueError, TypeError):
+            raise forms.ValidationError("Ingrese un valor numérico válido para la frecuencia respiratoria.")
+        
         if frec < 5 or frec > 60:
             raise forms.ValidationError("Frecuencia respiratoria fuera de rango válido (5 - 60 rpm).")
-        return frec    
         
+        return frec
 
 

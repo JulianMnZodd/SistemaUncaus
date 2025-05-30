@@ -1,11 +1,13 @@
 {% load compress %}
 {% load static %}
-<html lang="es">
-  <head>
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BedWise</title>
+    <title>BedWise - Gestión Hospitalaria</title>
+    <meta name="description" content="Sistema de gestión de camas y habitaciones hospitalarias">
     <link rel="icon" href="{% static 'logo.ico' %}" type="image/x-icon" />
     
     <!-- Tailwind CSS via CDN -->
@@ -14,207 +16,285 @@
     <!-- Flowbite CSS (versión más reciente) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.1/flowbite.min.css" rel="stylesheet" />
     
-    <!-- Incluir Animate.css y Hover.css -->
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
-
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom styles -->
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #10b981;
+            --dark-color: #1f2937;
+            --light-color: #f9fafb;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .sidebar-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-item:hover .sidebar-icon {
+            transform: translateX(3px);
+        }
+        
+        .nav-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
+        .sidebar-bg {
+            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .user-avatar {
+            transition: all 0.3s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+    </style>
     {{ select2_css }}
-  </head>
+</head>
 
-  <body class="bg-green-50">
+<body class="min-h-screen bg-gray-50">
     {{ select2_js }}
-    <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-      <div class="px-3 py-3 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center justify-start rtl:justify-end">
-            <button
-              data-drawer-target="logo-sidebar"
-              data-drawer-toggle="logo-sidebar"
-              aria-controls="logo-sidebar"
-              type="button"
-              class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-            >
-              <span class="sr-only">Abrir menú</span>
-              <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
-              </svg>
-            </button>
-            <a href="{% url 'lista_habitaciones'%}" class="flex ms-2 md:me-24">
-              <img src="{% static 'logoBEDWISE.png' %}" class="h-12 me-3 rounded-xl" alt="BEDWISE LOGO" />
-              <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">BEDWISE</span>
-            </a>
-          </div>
-          <div class="flex items-center">
-            <div class="flex items-center ms-3">
-              <div>
-                <button
-                  type="button"
-                  class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                  aria-expanded="false"
-                  data-dropdown-toggle="dropdown-user"
-                >
-                  <span class="sr-only">Abrir menu</span>
-                  <img
-                    class="w-8 h-8 rounded-full"
-                    src="https://ui-avatars.com/api/?name={{ request.user.get_full_name}}&size=128"
-                    alt="user photo"
-                  />
-                </button>
-              </div>
-              <div
-                class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
-                id="dropdown-user"
-              >
-                <div class="px-4 py-3" role="none">
-                  <p class="text-sm text-gray-900 dark:text-white" role="none">
-                    {{ request.user.get_full_name }}
-                  </p>
-                  <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                    {{ request.user.email }}
-                  </p>
+    <!-- Navbar -->
+    <nav class="nav-gradient fixed top-0 z-50 w-full border-b border-blue-200 shadow-sm">
+        <div class="px-4 py-3 lg:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center justify-start">
+                    <!-- Mobile menu button -->
+                    <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" 
+                            type="button" class="inline-flex items-center sm:hidden p-2 text-sm text-white rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors">
+                        <span class="sr-only">Abrir menú</span>
+                        <i class="fas fa-bars w-5 h-5"></i>
+                    </button>
+                    
+                    <!-- Logo -->
+                    <a href="{% url 'lista_habitaciones'%}" class="flex items-center ml-3">
+                        <img src="{% static 'logoBEDWISE.png' %}" class="h-10 mr-3 rounded-lg" alt="BEDWISE LOGO" />
+                        <span class="self-center text-xl font-bold text-white whitespace-nowrap">BEDWISE</span>
+                    </a>
                 </div>
-                <ul class="py-1" role="none">
-                  <li>
-                    <a
-                      href="{% url 'lista_habitaciones'%}"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                      role="menuitem"
-                    >Habitaciones</a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                      role="menuitem"
-                    >Configuración</a>
-                  </li>
-                  <li>
-                    <form method="post" action="{% url 'logout' %}" class="inline-block">
-                      {% csrf_token %}
-                      <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Cerrar sesión</button>
-                    </form>
-                  </li>
-                </ul>
-              </div>
+                
+                <!-- User dropdown -->
+                <div class="flex items-center">
+                    <div class="relative ml-3">
+                        <button type="button" class="flex items-center text-sm rounded-full focus:ring-4 focus:ring-blue-300 transition-all"
+                                aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                            <span class="sr-only">Abrir menú de usuario</span>
+                            <img class="w-8 h-8 rounded-full user-avatar border-2 border-white" 
+                                 src="https://ui-avatars.com/api/?name={{ request.user.get_full_name}}&size=128&background=3b82f6&color=fff" 
+                                 alt="Foto de perfil de {{ request.user.get_full_name }}">
+                        </button>
+                        
+                        <!-- Dropdown menu -->
+                        <div class="z-50 hidden my-2 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-lg" id="dropdown-user">
+                            <div class="px-4 py-3" role="none">
+                                <p class="text-sm font-medium text-gray-900" role="none">
+                                    {{ request.user.get_full_name }}
+                                </p>
+                                <p class="text-sm text-gray-500 truncate" role="none">
+                                    {{ request.user.email }}
+                                </p>
+                            </div>
+                            <ul class="py-1" role="none">
+                                <li>
+                                    <a href="{% url 'lista_habitaciones'%}" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" 
+                                       role="menuitem">
+                                        <i class="fas fa-bed mr-2 text-blue-500"></i> Habitaciones
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" 
+                                       role="menuitem">
+                                        <i class="fas fa-cog mr-2 text-blue-500"></i> Configuración
+                                    </a>
+                                </li>
+                                <li>
+                                    <form method="post" action="{% url 'logout' %}" class="w-full">
+                                        {% csrf_token %}
+                                        <button type="submit" 
+                                                class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" 
+                                                role="menuitem">
+                                            <i class="fas fa-sign-out-alt mr-2 text-blue-500"></i> Cerrar sesión
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </nav>
 
     {% if messages %}
       {% include '_messages.html' %}
     {% endif %}
 
-    <aside
-      id="logo-sidebar"
-      class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
-      aria-label="Sidebar"
-    >
-      <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-        <ul class="space-y-2 font-medium">
-          <li>
-            <a
-              href="{% url 'estadisticas'%}"
-              class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-            >
-              <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
-                <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
-                <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
-              </svg>
-              <span class="ms-3">Inicio</span>
-            </a>
-          </li>
-          {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
-          <li>
-            <a
-              href="{% url 'listar_internaciones'%}"
-              class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-            >
-              <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
-                <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"/>
-              </svg>
-              <span class="flex-1 ms-3 whitespace-nowrap">Internaciones</span>
-            </a>
-          </li>
-          {% endif %}
-          <li>
-            <a
-              href="{% url 'lista_habitaciones'%}"
-              class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-            >
-              <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z"/>
-              </svg>
-              <span class="flex-1 ms-3 whitespace-nowrap">Habitaciones</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="{% url 'listar_pacientes'%}"
-              class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-            >
-              <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
-              </svg>
-              <span class="flex-1 ms-3 whitespace-nowrap">Pacientes</span>
-            </a>
-          </li>
-          {% if request.user.is_staff or request.user.is_superuser %}
-          <li>
-            <button
-              type="button"
-              class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-              aria-controls="dropdown-example"
-              data-collapse-toggle="dropdown-example"
-            >
-              <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
-              </svg>
-              <span class="ms-3 text-left rtl:text-right whitespace-nowrap">Personal</span>
-              <svg class="ms-2 w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-              </svg>
-            </button>
-            <ul id="dropdown-example" class="hidden py-2 space-y-2">
-              <li>
-                <a href="{% url 'listar_medicos'%}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Médico</a>
-              </li>
-              <li>
-                <a href="{% url 'listar_enfermeros'%}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Enfermero</a>
-              </li>
-              <li>
-                <a href="{% url 'listar_recepcionistas'%}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Recepcionistas</a>
-              </li>
+    <!-- Sidebar -->
+    <aside id="logo-sidebar" 
+           class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 sidebar-bg"
+           aria-label="Sidebar">
+        <div class="h-full px-3 pb-4 overflow-y-auto">
+            <ul class="space-y-2 font-medium">
+                <li>
+                    <a href="{% url 'estadisticas'%}" 
+                       class="sidebar-item flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
+                        <i class="sidebar-icon fas fa-chart-line w-5 h-5 text-blue-500 mr-3"></i>
+                        <span class="font-medium">Inicio</span>
+                    </a>
+                </li>
+                
+                {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
+                <li>
+                    <a href="{% url 'listar_internaciones'%}" 
+                       class="sidebar-item flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
+                        <i class="sidebar-icon fas fa-procedures w-5 h-5 text-blue-500 mr-3"></i>
+                        <span class="font-medium">Internaciones</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                <li>
+                    <a href="{% url 'lista_habitaciones'%}" 
+                       class="sidebar-item flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
+                        <i class="sidebar-icon fas fa-bed w-5 h-5 text-blue-500 mr-3"></i>
+                        <span class="font-medium">Habitaciones</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{% url 'listar_pacientes'%}" 
+                       class="sidebar-item flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
+                        <i class="sidebar-icon fas fa-user-injured w-5 h-5 text-blue-500 mr-3"></i>
+                        <span class="font-medium">Pacientes</span>
+                    </a>
+                </li>
+                
+                {% if request.user.is_staff or request.user.is_superuser %}
+                <li>
+                    <button type="button" 
+                            class="sidebar-item flex items-center w-full p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors"
+                            aria-controls="dropdown-personal" data-collapse-toggle="dropdown-personal">
+                        <i class="sidebar-icon fas fa-users w-5 h-5 text-blue-500 mr-3"></i>
+                        <span class="flex-1 text-left font-medium">Personal</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform group-hover:text-blue-500"></i>
+                    </button>
+                    <ul id="dropdown-personal" class="hidden py-2 space-y-2 pl-4">
+                        <li>
+                            <a href="{% url 'listar_medicos'%}" 
+                               class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-user-md w-4 h-4 text-blue-400 mr-3"></i>
+                                Médicos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'listar_enfermeros'%}" 
+                               class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-user-nurse w-4 h-4 text-blue-400 mr-3"></i>
+                                Enfermeros
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'listar_recepcionistas'%}" 
+                               class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-headset w-4 h-4 text-blue-400 mr-3"></i>
+                                Recepcionistas
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+                
+                <li>
+                    <form method="post" action="{% url 'logout' %}" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="sidebar-item flex items-center w-full p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
+                            <i class="sidebar-icon fas fa-sign-out-alt w-5 h-5 text-blue-500 mr-3"></i>
+                            <span class="font-medium">Cerrar Sesión</span>
+                        </button>
+                    </form>
+                </li>
             </ul>
-          </li>
-          {% endif %}
-          <li>
-            <form method="post" action="{% url 'logout' %}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-              <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"/>
-              </svg>
-              {% csrf_token %}
-              <button type="submit" class="flex items-center p-1 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                Cerrar Sesión
-              </button>
-            </form>
-          </li>
-        </ul>
-      </div>
+        </div>
     </aside>
 
-    <div class="p-4 sm:ml-64">
-      <div class="container mx-auto mt-12">
-        {% block content %} {% endblock content %}
-      </div>
-    </div>
+    <!-- Main content -->
+    <main class="p-4 sm:ml-64 pt-20 min-h-screen">
+        <div class="container mx-auto px-4 py-6">
+            {% block content %} {% endblock content %}
+        </div>
+    </main>
 
-    <!-- Scripts al final para mejor rendimiento -->
+    <!-- Footer -->
+    <footer class="bg-white shadow-sm border-t mt-auto">
+    <div class="mx-auto p-4 md:py-6 sm:ml-64">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <span class="text-sm text-gray-500 sm:text-center">© 2025 <a href="#" class="hover:underline">BedWise</a>. Todos los derechos reservados.
+            </span>
+            <div class="flex mt-4 sm:mt-0">
+                <a href="mailto:soporte@bedwise.com" class="text-sm text-gray-500 hover:text-gray-700 hover:underline flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    bedwise.ayuda@gmail.com
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <!-- Scripts -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.1/flowbite.min.js"></script>
-  </body>
+    
+    <!-- Custom scripts -->
+    <script>
+        // Animación para los elementos del sidebar
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                const icon = item.querySelector('.sidebar-icon');
+                icon.classList.add('animate__animated', 'animate__fadeInRight');
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                const icon = item.querySelector('.sidebar-icon');
+                icon.classList.remove('animate__animated', 'animate__fadeInRight');
+            });
+        });
+        
+        // Mejorar la experiencia del dropdown de usuario
+        const userButton = document.querySelector('[data-dropdown-toggle="dropdown-user"]');
+        const userDropdown = document.getElementById('dropdown-user');
+        
+        userButton.addEventListener('click', () => {
+            userDropdown.classList.toggle('hidden');
+            userDropdown.classList.toggle('animate__animated', 'animate__fadeIn');
+        });
+    </script>
+</body>
 </html>

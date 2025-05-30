@@ -259,19 +259,19 @@
       <div class="animate__animated animate__fadeInRight animate__delay-1s">
         <form method="POST" action="{% url 'generar_informe_internaciones' %}" class="bg-opacity-20 backdrop-blur-sm p-3 rounded-xl">
           {% csrf_token %}
-          <div class="flex flex-col sm:flex-row items-center gap-3">
+          <div class="flex flex-col sm:flex-row items-end gap-3">  <!-- Cambiado a items-end -->
             <div class="flex-1 min-w-[150px]">
               <label for="id_fecha_inicio" class="block text-xs font-semibold text-white mb-1">Fecha Inicio</label>
               <input type="date" name="fecha_inicio" id="id_fecha_inicio" required 
-                     class="w-full bg-white bg-opacity-80 border border-white border-opacity-30 text-gray-700 text-xs rounded-md focus:ring-1 focus:ring-white focus:border-white p-2 cursor-pointer transition">
+                    class="w-full bg-white bg-opacity-80 border border-white border-opacity-30 text-gray-700 text-xs rounded-md focus:ring-1 focus:ring-white focus:border-white p-2 cursor-pointer transition">
             </div>
             <div class="flex-1 min-w-[150px]">
               <label for="id_fecha_fin" class="block text-xs font-semibold text-white mb-1">Fecha Fin</label>
               <input type="date" name="fecha_fin" id="id_fecha_fin" required 
-                     class="w-full bg-white bg-opacity-80 border border-white border-opacity-30 text-gray-700 text-xs rounded-md focus:ring-1 focus:ring-white focus:border-white p-2 cursor-pointer transition">
+                    class="w-full bg-white bg-opacity-80 border border-white border-opacity-30 text-gray-700 text-xs rounded-md focus:ring-1 focus:ring-white focus:border-white p-2 cursor-pointer transition">
             </div>
             <button type="submit" 
-                    class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover animate__animated animate__pulse animate__infinite animate__slower mt-4 sm:mt-0 text-sm">
+                    class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover animate__animated animate__pulse animate__infinite animate__slower text-sm h-[42px]">  <!-- Añadido h-[42px] y quitado mt-4 -->
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
@@ -339,7 +339,7 @@
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                       </svg>
-                      Nuevo
+                      Nuevo Diagnócstico
                     </a>
                   {% endif %}
                 {% endif %}
