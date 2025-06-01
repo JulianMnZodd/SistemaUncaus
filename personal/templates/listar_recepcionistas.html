@@ -1,72 +1,499 @@
 {% extends '_base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="flex flex-col space-y-6">
-    <!-- Header Section -->
-    <div class="flex justify-between items-center">
-      <h1 class="text-3xl font-bold text-gray-900">Recepcionistas Registrados</h1>
-      <a href="{% url 'crear_recepcionista' %}" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-        </svg>
-        Nuevo Recepcionista
-      </a>
-    </div>
 
-    <!-- Table Container -->
-    <div class="bg-white shadow overflow-hidden rounded-lg">
-      <div class="overflow-x-auto">
-        <table class="min-w-max w-full table-auto">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horario</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            {% for recepcionista in recepcionistas %}
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ recepcionista.persona.first_name }} {{ recepcionista.persona.last_name}}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ recepcionista.persona }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ recepcionista.turno }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ recepcionista.persona.telefono }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div class="flex space-x-2">
-                  <a href="{% url 'editar_recepcionista' recepcionista.persona.id %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                    </svg>
-                    Editar
-                  </a>
-                   <a href="{% url 'eliminar_recepcionista' recepcionista.persona.id %}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full text-white bg-red-600 hover:bg-red-700 transition-colors">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                    Eliminar
-                  </a>
-                </div>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay recepcionistas registrados</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+<!-- Incluir Animate.css y Hover.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
+
+<!-- Aplicamos los mismos estilos del primer HTML -->
+<style>
+  :root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --accent: #4895ef;
+    --dark: #1b263b;
+    --light: #f8f9fa;
+    --success: #4cc9f0;
+    --warning: #f8961e;
+    --danger: #f72585;
+    --info: #560bad;
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Scroll personalizado - ESTILOS DEL PRIMER HTML */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.5);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+
+  /* Efecto vidrio moderno - más compacto */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+  }
+
+  /* Neumorfismo suave compacto */
+  .neumorphic {
+    border-radius: 0.75rem;
+    background: #f0f9ff;
+    box-shadow:  4px 4px 8px #d9e7f5,
+                -4px -4px 8px #ffffff;
+    transition: all 0.2s ease;
+  }
+
+  .neumorphic:hover {
+    box-shadow:  2px 2px 4px #d9e7f5,
+                -2px -2px 4px #ffffff;
+  }
+
+  /* Animaciones personalizadas */
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-fadeInRight {
+    animation: fadeInRight 0.4s ease-out forwards;
+  }
+  
+  /* Bordes modernos más pequeños */
+  .rounded-xl {
+    border-radius: 0.75rem;
+  }
+  .rounded-2xl {
+    border-radius: 1rem;
+  }
+  .rounded-3xl {
+    border-radius: 1.25rem;
+  }
+  .rounded-lg {
+    border-radius: 0.375rem;
+  }
+  
+  /* Efectos hover compactos */
+  .btn-hover {
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: translateY(0);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.3s;
+  }
+  
+  .btn-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-hover:hover::before {
+    left: 100%;
+  }
+  
+  /* Efecto para tarjetas compactas */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(1);
+  }
+  
+  .card-hover:hover {
+    transform: scale(1.01);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilos para contenedores compactos */
+  .seguimientos-container {
+    background-color: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(226, 232, 240, 0.3);
+  }
+  
+  .seguimientos-header {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    color: #0369a1;
+    border-bottom: 1px solid rgba(186, 230, 253, 0.5);
+  }
+  
+  .seguimientos-footer {
+    background-color: rgba(240, 249, 255, 0.9);
+    border-top: 1px solid rgba(224, 242, 254, 0.5);
+  }
+  
+  /* Estilo compacto para filas */
+  .seguimientos-row {
+    background-color: rgba(248, 250, 252, 0.8);
+    transition: all 0.2s ease;
+  }
+  
+  .seguimientos-row:hover {
+    background-color: rgba(224, 242, 254, 0.8) !important;
+    transform: translateY(-1px);
+  }
+
+  /* Tarjetas de camas compactas */
+  .bed-card {
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+  }
+  
+  /* Badges más pequeños */
+  .status-badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Efecto de cursor personalizado */
+  .cursor-follower {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    transition: transform 0.1s ease;
+  }
+  
+  /* Estilos compactos para la tabla */
+  .modern-table {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+  }
+  
+  .modern-table thead {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  }
+  
+  .modern-table th {
+    color: #0369a1;
+    font-weight: 600;
+    padding: 0.75rem;
+    text-align: left;
+    font-size: 0.875rem;
+  }
+  
+  .modern-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(224, 242, 254, 0.5);
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+  }
+  
+  .modern-table tr:hover td {
+    background-color: rgba(224, 242, 254, 0.3);
+    transform: translateX(2px);
+  }
+  
+  /* Estilos compactos para los botones de acción */
+  .action-btn {
+    transition: all 0.2s ease;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .action-btn svg {
+    margin-right: 0.2rem;
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  /* Estilos específicos para la página de recepcionistas */
+  .recepcionistas-header {
+    background: linear-gradient(135deg, #3f83f8 0%, #057a55 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-info {
+    background: rgba(224, 231, 255, 0.5);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(199, 210, 254, 0.3);
+  }
+
+  .pagination-btn {
+    transition: all 0.2s ease;
+    background: rgba(224, 242, 254, 0.5);
+  }
+
+  .pagination-btn:hover {
+    background: rgba(186, 230, 253, 0.7);
+  }
+</style>
+
+<!-- Cursor personalizado compacto -->
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<div class="container mx-auto px-3 py-8 max-w-6xl">
+  <div class="recepcionistas-header animate__animated animate__fadeInDown animate__fast">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="animate__animated animate__fadeInLeft animate__delay-1s">
+        <h1 class="text-3xl font-bold text-white tracking-tight">Recepcionistas Registrados</h1>
+        <p class="text-white text-x1 mt-1 opacity-250">
+          Administración de recepcionistas del sistema
+        </p>
+      </div>
+      
+      <!-- Botón Nuevo Recepcionista -->
+      <div class="animate__animated animate__fadeInRight animate__delay-1s">
+        <a href="{% url 'crear_recepcionista' %}" 
+           class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover text-sm">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Nuevo Recepcionista
+        </a>
       </div>
     </div>
+  </div>
 
-    <!-- Pagination -->
-    <div class="flex justify-center items-center space-x-2">
-      <button class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">&laquo; Anterior</button>
-      <span class="text-gray-600">Página {{ recepcionistas.number }} de {{ recepcionistas.paginator.num_pages }}</span>
-      <button class="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">Siguiente &raquo;</button>
+  <!-- Table Container con estilos del primer HTML -->
+  <div class="modern-table overflow-hidden rounded-2xl shadow-md animate__animated animate__fadeInUp">
+    <div class="overflow-x-auto">
+      <table class="min-w-full w-full">
+        <thead>
+          <tr>
+            <th class="px-6 py-3 text-left text-xs">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs">Correo</th>
+            <th class="px-6 py-3 text-left text-xs">Horario</th>
+            <th class="px-6 py-3 text-left text-xs">Teléfono</th>
+            <th class="px-6 py-3 text-left text-xs">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for recepcionista in recepcionistas %}
+          <tr class="seguimientos-row">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <a href="#" 
+                 class="text-gray-700 hover:text-blue-600 transition-colors font-medium flex items-center text-sm">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                {{ recepcionista.persona.first_name }} {{ recepcionista.persona.last_name }}
+              </a>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-sm">
+              {{ recepcionista.persona.email }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-sm">
+              {{ recepcionista.turno }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-sm">
+              {{ recepcionista.persona.telefono }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex space-x-1">
+                <a href="{% url 'editar_recepcionista' recepcionista.persona.id %}" 
+                   class="action-btn text-white bg-gradient-to-r from-blue-600 to-blue-500">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                  Editar
+                </a>
+                <button onclick="openModal('{{ recepcionista.persona.id }}')" 
+                        class="action-btn text-white bg-gradient-to-r from-red-600 to-red-500">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="px-6 py-6 text-center text-gray-500 text-sm">
+              <div class="flex flex-col items-center justify-center space-y-1">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-base font-medium">No hay recepcionistas registrados</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination con estilos del primer HTML -->
+  <div class="flex justify-center items-center space-x-2 mt-6">
+    {% if recepcionistas.has_previous %}
+      <a href="?page={{ recepcionistas.previous_page_number }}" 
+         class="px-4 py-2 rounded-md pagination-btn text-gray-700 hover:bg-gray-200 transition-colors">
+        &laquo; Anterior
+      </a>
+    {% else %}
+      <span class="px-4 py-2 rounded-md bg-gray-100 text-gray-400 cursor-not-allowed">
+        &laquo; Anterior
+      </span>
+    {% endif %}
+
+    <span class="text-gray-600 text-sm">Página {{ recepcionistas.number }} de {{ recepcionistas.paginator.num_pages }}</span>
+
+    {% if recepcionistas.has_next %}
+      <a href="?page={{ recepcionistas.next_page_number }}" 
+         class="px-4 py-2 rounded-md pagination-btn text-gray-700 hover:bg-gray-200 transition-colors">
+        Siguiente &raquo;
+      </a>
+    {% else %}
+      <span class="px-4 py-2 rounded-md bg-gray-100 text-gray-400 cursor-not-allowed">
+        Siguiente &raquo;
+      </span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal de Confirmación con estilos del primer HTML -->
+<div id="confirmModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+  <!-- Fondo oscuro semitransparente -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+
+  <!-- Contenedor del Modal -->
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="relative glass-card rounded-2xl shadow-xl max-w-md w-full p-6 animate__animated animate__fadeInUp">
+      <!-- Contenido del Modal -->
+      <div class="text-center">
+        <h3 class="text-lg font-medium text-white mb-4">Confirmar Eliminación</h3>
+        <p class="text-white mb-6">¿Estás seguro de que deseas eliminar este recepcionista?</p>
+        
+        <div class="flex justify-center space-x-4">
+          <button 
+            id="confirmButton" 
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg btn-hover"
+          >
+            Eliminar
+          </button>
+          <button 
+            onclick="closeModal()" 
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg btn-hover"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Scripts mejorados del primer HTML -->
+<script>
+  // Efecto de cursor personalizado compacto
+  document.addEventListener('DOMContentLoaded', function() {
+    const cursorFollower = document.getElementById('cursorFollower');
+    
+    document.addEventListener('mousemove', (e) => {
+      cursorFollower.style.left = e.clientX + 'px';
+      cursorFollower.style.top = e.clientY + 'px';
+    });
+    
+    // Efecto al pasar sobre elementos interactivos
+    const interactiveElements = document.querySelectorAll('a, button, input, select, .card-hover, .btn-hover, .action-btn');
+    interactiveElements.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        cursorFollower.style.opacity = '0.2';
+        cursorFollower.style.background = 'var(--accent)';
+      });
+      
+      el.addEventListener('mouseleave', () => {
+        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
+        cursorFollower.style.opacity = '0.1';
+        cursorFollower.style.background = 'var(--primary)';
+      });
+    });
+  });
+
+  // Funciones del modal
+  let recepcionistaIdToDelete = null;
+
+  function openModal(id) {
+    recepcionistaIdToDelete = id;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('confirmModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  // Cerrar modal al hacer clic fuera del contenido
+  document.getElementById('confirmModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeModal();
+    }
+  });
+
+  document.getElementById('confirmButton').onclick = function() {
+    if (recepcionistaIdToDelete) {
+      window.location.href = "{% url 'eliminar_recepcionista' 0 %}".replace('0', recepcionistaIdToDelete);
+    }
+  };
+</script>
 {% endblock content %}

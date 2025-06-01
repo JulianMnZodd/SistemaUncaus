@@ -1,36 +1,86 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
     <title>Iniciar Sesión | BedWise</title>
-    <!-- Tailwind CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Flowbite CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
-    <!-- Favicon -->
+    
+    <!-- Tailwind CSS (versión más reciente) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,aspect-ratio,line-clamp"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'gradient': 'gradient 8s ease infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        gradient: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Favicon moderno (SVG preferido) -->
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2967/2967696.png" type="image/png">
+    
+    <!-- Fuentes optimizadas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+    
+    <!-- Animaciones modernas -->
+    <style>
+        [data-loading] {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        [data-loaded] {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900">
-    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <!-- Logo y título -->
-        <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-            <img class="w-8 h-8 mr-2" src="https://cdn-icons-png.flaticon.com/512/2967/2967696.png" alt="logo">
-            Iniciar Sesión | BedWise
-        </a>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md" data-loading>
+        <!-- Logo con animación y microinteracción -->
+        <div class="flex justify-center mb-8">
+            <a href="#" class="flex items-center group" aria-label="BedWise Home">
+                <div class="relative group-hover:animate-float transition-transform duration-300">
+                    <img class="w-10 h-10" src="https://cdn-icons-png.flaticon.com/512/2967/2967696.png" alt="logo" loading="lazy">
+                    <div class="absolute inset-0 rounded-full bg-blue-500/10 group-hover:bg-blue-500/20 transition-all duration-300 -z-10"></div>
+                </div>
+                <span class="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent tracking-tight">BedWise</span>
+            </a>
+        </div>
         
-        <!-- Card de login -->
-        <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-               
+        <!-- Tarjeta de login con efecto vidrio mejorado -->
+        <div class="bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl shadow-xl shadow-gray-200/30 dark:shadow-gray-900/20 border border-white/20 dark:border-gray-700/30 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-gray-300/40 dark:hover:shadow-gray-800/30">
+            <div class="p-8">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white/90 mb-2 text-center">Inicia sesión</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 text-center">Accede a tu cuenta para continuar</p>
                 
-                <!-- Mensajes de error generales -->
+                <!-- Mensajes de error con animación -->
                 {% if form.non_field_errors %}
-                <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                    <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <div class="flex items-start p-4 mb-4 text-sm text-red-600 rounded-lg bg-red-50/90 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50 animate-[fadeIn_0.3s_ease]" role="alert">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
                     </svg>
-                    <span class="sr-only">Error</span>
                     <div>
                         {% for error in form.non_field_errors %}
                         <span>{{ error }}</span>
@@ -39,21 +89,29 @@
                 </div>
                 {% endif %}
 
-                <form class="space-y-4 md:space-y-6" method="post">
+                <form class="space-y-5" method="post" id="loginForm">
                     {% csrf_token %}
                     
-                    <!-- Campo Email -->
+                    <!-- Campo Email con mejor UX -->
                     <div>
-                        <label for="id_username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        <label for="id_username" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">
                             Correo electrónico
                         </label>
-                        <input type="email" name="username" id="id_username" 
-                               class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 {% if form.username.errors %}border-red-500 dark:border-red-500{% endif %}" 
-                               placeholder="nombre@correo.com" 
-                               value="{% if form.username.value %}{{ form.username.value }}{% endif %}"
-                               required>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 16">
+                                    <path d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z"/>
+                                    <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z"/>
+                                </svg>
+                            </div>
+                            <input type="email" name="username" id="id_username" autocomplete="username" 
+                                   class="bg-gray-50/70 dark:bg-gray-700/40 border border-gray-200/80 dark:border-gray-700/60 text-gray-900 dark:text-white/90 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full pl-10 p-2.5 transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600 {% if form.username.errors %}border-red-400 dark:border-red-500/70{% endif %}" 
+                                   placeholder="nombre@correo.com" 
+                                   value="{% if form.username.value %}{{ form.username.value }}{% endif %}"
+                                   required>
+                        </div>
                         {% if form.username.errors %}
-                        <div class="mt-1 text-sm text-red-600 dark:text-red-500">
+                        <div class="mt-1.5 text-xs text-red-500 dark:text-red-400 animate-[fadeIn_0.2s_ease]">
                             {% for error in form.username.errors %}
                             <p>{{ error }}</p>
                             {% endfor %}
@@ -61,16 +119,29 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Campo Contraseña -->
+                    <!-- Campo Contraseña con toggle -->
                     <div>
-                        <label for="id_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        <label for="id_password" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                             Contraseña
                         </label>
-                        <input type="password" name="password" id="id_password" placeholder="••••••••" 
-                               class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 {% if form.password.errors %}border-red-500 dark:border-red-500{% endif %}" 
-                               required>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
+                                    <path d="M14 7h-1.5V4.5a4.5 4.5 0 1 0-9 0V7H2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Zm-5 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm1.5-8h-5V4.5a2.5 2.5 0 1 1 5 0V7Z"/>
+                                </svg>
+                            </div>
+                            <input type="password" name="password" id="id_password" autocomplete="current-password" placeholder="••••••••" 
+                                   class="bg-gray-50/70 dark:bg-gray-700/40 border border-gray-200/80 dark:border-gray-700/60 text-gray-900 dark:text-white/90 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 block w-full pl-10 p-2.5 transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600 {% if form.password.errors %}border-red-400 dark:border-red-500/70{% endif %}" 
+                                   required>
+                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" id="togglePassword">
+                                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z"/>
+                                </svg>
+                            </button>
+                        </div>
                         {% if form.password.errors %}
-                        <div class="mt-1 text-sm text-red-600 dark:text-red-500">
+                        <div class="mt-1.5 text-xs text-red-500 dark:text-red-400 animate-[fadeIn_0.2s_ease]">
                             {% for error in form.password.errors %}
                             <p>{{ error }}</p>
                             {% endfor %}
@@ -80,40 +151,77 @@
                     
                     <!-- Opciones adicionales -->
                     <div class="flex items-center justify-between">
-                        <div class="flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="remember" name="remember" type="checkbox" 
-                                       class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="remember" class="text-gray-500 dark:text-gray-300">Recordarme</label>
-                            </div>
+                        <div class="flex items-center">
+                            <input id="remember" name="remember" type="checkbox" 
+                                   class="w-4 h-4 border border-gray-300/80 rounded bg-gray-50/80 focus:ring-2 focus:ring-blue-500/30 dark:bg-gray-700/50 dark:border-gray-600/50 checked:bg-blue-500 dark:checked:bg-blue-500 transition-colors duration-200">
+                            <label for="remember" class="ml-2.5 text-xs font-medium text-gray-600 dark:text-gray-300/90 cursor-pointer select-none">Recordarme</label>
                         </div>
-                        <a href="{% url 'password_reset' %}" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">
+                        <a href="{% url 'password_reset' %}" class="text-xs font-medium text-blue-600/90 hover:text-blue-700 dark:text-blue-400/90 dark:hover:text-blue-300 transition-colors duration-200 hover:underline">
                             ¿Olvidaste tu contraseña?
                         </a>
                     </div>
-                    <!-- Botón de submit -->
+                    
+                    <!-- Botón de submit con animación de gradiente -->
                     <button type="submit" 
-                            class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            class="w-full text-white bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 bg-[length:200%] hover:bg-gradient-to-r hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 focus:ring-2 focus:ring-blue-500/30 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all duration-500 hover:shadow-lg hover:shadow-blue-500/20 dark:hover:shadow-blue-900/30 animate-gradient">
                         Iniciar sesión
                     </button>
-                    
-                    <!-- Enlace a registro -->
-                    {% comment %} <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                        ¿No tienes una cuenta? <a href="#" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Regístrate</a>
-                    </p> {% endcomment %}
                 </form>
+                
+                <!-- Separador con texto -->
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300/50 dark:border-gray-600/50"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer de la tarjeta -->
+            <div class="px-8 py-4 bg-gray-50/50 dark:bg-gray-700/20 border-t border-gray-200/50 dark:border-gray-700/30 text-center">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    ¿No tienes una cuenta? 
+                    <a href="#" class="font-medium text-blue-600/90 hover:text-blue-700 dark:text-blue-400/90 dark:hover:text-blue-300 transition-colors duration-200 hover:underline">Regístrate</a>
+                </p>
             </div>
         </div>
         
-        <!-- Footer -->
-        <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <!-- Footer de la página -->
+        <div class="mt-8 text-center text-xs text-gray-500/80 dark:text-gray-400/70">
             © 2025 BedWise. Todos los derechos reservados.
+            <a href="#" class="hover:underline">Términos</a> · 
+            <a href="#" class="hover:underline">Privacidad</a>
         </div>
     </div>
 
-    <!-- Flowbite JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <!-- Scripts para mejorar la interacción -->
+    <script>
+        // Efecto de carga suave
+        document.addEventListener('DOMContentLoaded', () => {
+            const element = document.querySelector('[data-loading]');
+            element.setAttribute('data-loaded', '');
+            
+            // Toggle para mostrar/ocultar contraseña
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#id_password');
+            
+            togglePassword.addEventListener('click', () => {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                // Cambiar el icono
+                togglePassword.innerHTML = type === 'password' ? 
+                    '<svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z"/></svg>' :
+                    '<svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>';
+            });
+            
+            // Validación en tiempo real
+            const form = document.getElementById('loginForm');
+            form.addEventListener('submit', (e) => {
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Procesando...';
+            });
+        });
+    </script>
 </body>
 </html>

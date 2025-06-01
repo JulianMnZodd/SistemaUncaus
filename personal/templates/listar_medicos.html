@@ -22,6 +22,26 @@
     --glass-border: rgba(255, 255, 255, 0.2);
   }
 
+  /* Scroll personalizado - ESTILOS DEL PRIMER HTML */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.5);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+
   /* Efecto vidrio moderno - más compacto */
   .glass-card {
     background: var(--glass);
@@ -183,12 +203,6 @@
     transition: transform 0.1s ease;
   }
   
-  /* Scroll personalizado */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  
   /* Estilos compactos para la tabla */
   .modern-table {
     background: rgba(255, 255, 255, 0.9);
@@ -255,6 +269,12 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
+  .search-info {
+    background: rgba(224, 231, 255, 0.5);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(199, 210, 254, 0.3);
+  }
+
   .pagination-btn {
     transition: all 0.2s ease;
     background: rgba(224, 242, 254, 0.5);
@@ -269,7 +289,6 @@
 <div class="cursor-follower" id="cursorFollower"></div>
 
 <div class="container mx-auto px-3 py-8 max-w-6xl">
-  <!-- Header Section con estilos del primer HTML -->
   <div class="medicos-header animate__animated animate__fadeInDown animate__fast">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="animate__animated animate__fadeInLeft animate__delay-1s">
@@ -281,8 +300,9 @@
       
       <!-- Botón Nuevo Médico -->
       <div class="animate__animated animate__fadeInRight animate__delay-1s">
-        <a href="{% url 'crear_medico' %}" class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover text-sm">
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="{% url 'crear_medico' %}" 
+           class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover text-sm">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
           Nuevo Médico
@@ -307,8 +327,14 @@
         <tbody>
           {% for medico in medicos %}
           <tr class="seguimientos-row">
-            <td class="px-6 py-4 whitespace-nowrap text-gray-700 text-sm">
-              {{medico.persona.last_name}}, {{ medico.persona.first_name }}
+            <td class="px-6 py-4 whitespace-nowrap">
+              <a href="#" 
+                 class="text-gray-700 hover:text-blue-600 transition-colors font-medium flex items-center text-sm">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                {{ medico.persona.last_name }}, {{ medico.persona.first_name }}
+              </a>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-sm">
               {{ medico.especializacion }}
@@ -328,13 +354,13 @@
                   </svg>
                   Editar
                 </a>
-                <a href="{% url 'eliminar_medico' medico.persona.id %}" 
-                   class="action-btn text-white bg-gradient-to-r from-red-600 to-red-500">
+                <button onclick="openModal('{{ medico.persona.id }}')" 
+                        class="action-btn text-white bg-gradient-to-r from-red-600 to-red-500">
                   <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
                   Eliminar
-                </a>
+                </button>
               </div>
             </td>
           </tr>
@@ -383,6 +409,38 @@
   </div>
 </div>
 
+<!-- Modal de Confirmación con estilos del primer HTML -->
+<div id="confirmModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+  <!-- Fondo oscuro semitransparente -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+
+  <!-- Contenedor del Modal -->
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="relative glass-card rounded-2xl shadow-xl max-w-md w-full p-6 animate__animated animate__fadeInUp">
+      <!-- Contenido del Modal -->
+      <div class="text-center">
+        <h3 class="text-lg font-medium text-white mb-4">Confirmar Eliminación</h3>
+        <p class="text-white mb-6">¿Estás seguro de que deseas eliminar este médico?</p>
+        
+        <div class="flex justify-center space-x-4">
+          <button 
+            id="confirmButton" 
+            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg btn-hover"
+          >
+            Eliminar
+          </button>
+          <button 
+            onclick="closeModal()" 
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg btn-hover"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Scripts mejorados del primer HTML -->
 <script>
   // Efecto de cursor personalizado compacto
@@ -410,5 +468,32 @@
       });
     });
   });
+
+  // Funciones del modal
+  let medicoIdToDelete = null;
+
+  function openModal(id) {
+    medicoIdToDelete = id;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('confirmModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  // Cerrar modal al hacer clic fuera del contenido
+  document.getElementById('confirmModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeModal();
+    }
+  });
+
+  document.getElementById('confirmButton').onclick = function() {
+    if (medicoIdToDelete) {
+      window.location.href = "{% url 'eliminar_medico' 0 %}".replace('0', medicoIdToDelete);
+    }
+  };
 </script>
 {% endblock content %}

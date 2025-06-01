@@ -2,42 +2,203 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-  <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Registro de Recepcionista</h1>
 
-  <!-- Mensajes de error y éxito -->
-  {% include "partials/messages.html" %}
+<!-- Incluir Animate.css y Hover.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" />
 
-  <form method="post" class="space-y-8">
+<!-- Aplicar el mismo sistema de diseño del primer HTML -->
+<style>
+  :root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --accent: #4895ef;
+    --dark: #1b263b;
+    --light: #f8f9fa;
+    --success: #4cc9f0;
+    --warning: #f8961e;
+    --danger: #f72585;
+    --info: #560bad;
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Efecto vidrio moderno */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+  }
+
+  /* Neumorfismo suave */
+  .neumorphic {
+    border-radius: 0.75rem;
+    background: #f0f9ff;
+    box-shadow:  4px 4px 8px #d9e7f5,
+                -4px -4px 8px #ffffff;
+    transition: all 0.2s ease;
+  }
+
+  .neumorphic:hover {
+    box-shadow:  2px 2px 4px #d9e7f5,
+                -2px -2px 4px #ffffff;
+  }
+
+  /* Estilos para formularios */
+  .modern-form {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+  }
+
+  .form-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(224, 242, 254, 0.5);
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.2);
+    background: white;
+  }
+
+  /* Estilos para botones */
+  .action-btn {
+    transition: all 0.2s ease;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Cursor personalizado */
+  .cursor-follower {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    transition: transform 0.1s ease;
+  }
+
+  /* Estilos personalizados para secciones */
+  .section-title {
+    color: var(--secondary);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(63, 55, 201, 0.1);
+    padding-bottom: 0.5rem;
+  }
+</style>
+
+<!-- Cursor personalizado -->
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<div class="container mx-auto px-3 py-8 max-w-4xl animate__animated animate__fadeIn">
+  <!-- Encabezado -->
+  <div class="bg-gradient-to-r from-blue-500 to-green-600 p-6 rounded-2xl shadow-lg mb-8 animate__animated animate__fadeInDown animate__fast">
+    <h1 class="text-3xl font-bold text-white tracking-tight text-center">Registro de Recepcionista</h1>
+  </div>
+
+  <!-- Formulario -->
+  <form method="post" class="modern-form p-6 neumorphic">
     {% csrf_token %}
+
+    <!-- Mensajes de error y éxito -->
+    {% include "partials/messages.html" %}
 
     <!-- Sección Persona -->
     <div class="space-y-6">
-      <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Datos Personales</h2>
+      <h2 class="section-title text-xl font-semibold mb-6">Datos Personales</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {% for field in persona_form %}
-          {% include "partials/form_field.html" with field=field %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ field.label }}</label>
+            {{ field|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
+            {% if field.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ field.errors|join:", " }}</p>
+            {% endif %}
+          </div>
         {% endfor %}
       </div>
     </div>
 
     <!-- Sección Recepcionista -->
-    <div class="space-y-6">
-      <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Datos Profesionales</h2>
+    <div class="space-y-6 mt-8">
+      <h2 class="section-title text-xl font-semibold mb-6">Datos Profesionales</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {% for field in recepcionista_form %}
-          {% include "partials/form_field.html" with field=field %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ field.label }}</label>
+            {{ field|add_class:"form-input w-full px-4 py-2.5 rounded-lg focus:outline-none" }}
+            {% if field.errors %}
+            <p class="mt-2 text-sm text-red-600">{{ field.errors|join:", " }}</p>
+            {% endif %}
+          </div>
         {% endfor %}
       </div>
     </div>
 
     <!-- Botón de envío -->
-    <button type="submit" class="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center">
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-      </svg>
-      Registrar Recepcionista
-    </button>
+    <div class="flex justify-center mt-8 space-x-4">
+      <button type="submit" class="action-btn bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 px-6 py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Registrar Recepcionista
+      </button>
+      <a href="#" class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 px-6 py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Cancelar
+      </a>
+    </div>
   </form>
 </div>
+
+<script>
+  // Efecto de cursor personalizado
+  document.addEventListener('DOMContentLoaded', function() {
+    const cursorFollower = document.getElementById('cursorFollower');
+    
+    document.addEventListener('mousemove', (e) => {
+      cursorFollower.style.left = e.clientX + 'px';
+      cursorFollower.style.top = e.clientY + 'px';
+    });
+    
+    // Efecto al pasar sobre elementos interactivos
+    const interactiveElements = document.querySelectorAll('a, button, input, textarea, select, .action-btn');
+    interactiveElements.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        cursorFollower.style.opacity = '0.2';
+        cursorFollower.style.background = 'var(--accent)';
+      });
+      
+      el.addEventListener('mouseleave', () => {
+        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
+        cursorFollower.style.opacity = '0.1';
+        cursorFollower.style.background = 'var(--primary)';
+      });
+    });
+  });
+</script>
+
 {% endblock %}

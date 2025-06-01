@@ -22,6 +22,26 @@
     --glass-border: rgba(255, 255, 255, 0.2);
   }
 
+  /* Scroll personalizado - ESTILOS DEL PRIMER HTML */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(241, 241, 241, 0.5);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
+
   /* Efecto vidrio moderno - más compacto */
   .glass-card {
     background: var(--glass);
@@ -181,12 +201,6 @@
     transform: translate(-50%, -50%);
     opacity: 0.3;
     transition: transform 0.1s ease;
-  }
-  
-  /* Scroll personalizado */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
   }
   
   /* Estilos compactos para la tabla */
