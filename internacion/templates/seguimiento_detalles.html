@@ -236,6 +236,16 @@
       </svg>
       Editar Diagnóstico
     </a>
+
+    {% if request.user.is_staff  %}
+    <a href="{% url 'eliminar_seguimiento' seguimiento.idseguimiento %}" 
+       class="action-btn bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-7 7m0 0l-7-7m7 7V3m0 11h6a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v11a2 2 0 002 2h6m0-11h6" />
+      </svg>
+      Eliminar Seguimiento
+    </a>
+    {% endif %}
   </div>
 
   

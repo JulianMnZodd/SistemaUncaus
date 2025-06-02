@@ -45,6 +45,11 @@ def editar_paciente(request, paciente_id):
 @login_required
 @staff_required(redirect_url='listar_pacientes')
 def eliminar_paciente(request, paciente_id):
+    #verificar si el paciente tiene internaciones activas
+    if Internacion.objects.filter(idpaciente__idpaciente=paciente_id).exists():
+        messages.error(request, 'No se puede eliminar un paciente con internaciones activas.')
+        return redirect('listar_pacientes')
+    # Si no tiene internaciones activas, proceder a eliminar
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
     paciente.delete()
     messages.success(request, '¡Paciente eliminado exitosamente!')

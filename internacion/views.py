@@ -11,6 +11,7 @@ from personal.decoradores_permisos import (
     medico_or_staff_required,
     recepcionista_or_staff_required,
     enfermero_or_staff_required,
+    staff_required
 )
 
 
@@ -40,7 +41,7 @@ def asignar_cama(request, idcama):
             with transaction.atomic():
                 # Bloquea la cama hasta que termine la transacción
                 cama = Cama.objects.select_for_update().get(idcama=idcama)
-                if cama.estado != "L":
+                if cama.estado == "O":
                     messages.error(request, "La cama ya no está disponible.")
                     return redirect("lista_habitaciones")
 
@@ -278,6 +279,7 @@ def editar_seguimiento(request, seguimiento_id):
             form.save()
             medicacion_formset.save()
             signos_vitales_formset.save()
+            messages.success(request, "Seguimiento actualizado exitosamente.")
             return redirect('listar_internaciones')
     else:
         form = SeguimientoForm(instance=seguimiento)
@@ -290,6 +292,15 @@ def editar_seguimiento(request, seguimiento_id):
         'signos_vitales_formset': signos_vitales_formset,
     })
 
+@login_required
+@staff_required(redirect_url="listar_internaciones")
+def eliminar_seguimiento(request, seguimiento_id):
+    seguimiento = get_object_or_404(Seguimiento, idseguimiento=seguimiento_id)
+    seguimiento.delete()
+    messages.success(request, "Seguimiento eliminado exitosamente.")
+    return redirect("listar_internaciones")
+    
+    
     
 @login_required
 @medico_or_enfermero_or_staff_required(redirect_url="listar_internaciones")

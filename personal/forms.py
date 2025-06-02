@@ -40,13 +40,15 @@ class CustomUserCreationForm(UserCreationForm):
     
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name')
-        if not first_name.isalpha():
+        
+        #agregar validación para que solo contenga letras y espacios
+        if not first_name.isalpha() and not all(c.isspace() for c in first_name):
             raise ValidationError("El nombre solo puede contener letras.")
         return first_name
     
     def clean_last_name(self):
         last_name = self.cleaned_data.get('last_name')
-        if not last_name.isalpha():
+        if not last_name.isalpha() and not all(c.isspace() for c in last_name):
             raise ValidationError("El apellido solo puede contener letras.")
         return last_name
         
