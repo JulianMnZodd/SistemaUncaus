@@ -690,7 +690,7 @@
                   {% for habitacion in sector.habitaciones.all %}
                     {% for cama in habitacion.camas.all %}
                       {% if cama.estado == 'L' %}
-                        <option value="{{ cama.idcama }}" class="text-gray-200 hover:bg-blue-500">Habitación {{ habitacion.numero }} - Cama {{ cama.idcama }}</option>
+                        <option value="{{ cama.idcama }}" class="text-gray-200 hover:bg-blue-500">Habitación {{ habitacion.numero }} - Cama {{ cama.nro_cama }}</option>
                       {% endif %}
                     {% endfor %}
                   {% endfor %}

@@ -409,33 +409,52 @@
   </div>
 </div>
 
-<!-- Modal de Confirmación con estilos del primer HTML -->
+<!-- Modal de Confirmación -->
 <div id="confirmModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-  <!-- Fondo oscuro semitransparente -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+  <!-- Fondo oscuro con efecto vidrio -->
+  <div class="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm transition-opacity"></div>
 
-  <!-- Contenedor del Modal -->
-  <div class="min-h-screen flex items-center justify-center p-4">
-    <div class="relative glass-card rounded-2xl shadow-xl max-w-md w-full p-6 animate__animated animate__fadeInUp">
-      <!-- Contenido del Modal -->
-      <div class="text-center">
-        <h3 class="text-lg font-medium text-white mb-4">Confirmar Eliminación</h3>
-        <p class="text-white mb-6">¿Estás seguro de que deseas eliminar este médico?</p>
-        
-        <div class="flex justify-center space-x-4">
-          <button 
-            id="confirmButton" 
-            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg btn-hover"
-          >
-            Eliminar
-          </button>
-          <button 
-            onclick="closeModal()" 
-            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg btn-hover"
-          >
-            Cancelar
-          </button>
+  <!-- Contenedor del Modal - Animación y diseño mejorado -->
+  <div class="min-h-screen flex items-center justify-center p-4 text-center">
+    <div class="relative bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-md transform transition-all animate__animated animate__zoomIn animate__faster">
+      <!-- Encabezado del Modal -->
+      <div class="bg-gradient-to-r from-red-600 to-red-500 p-5">
+        <div class="flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <h3 class="ml-2 text-xl font-semibold text-white">Confirmar Eliminación</h3>
         </div>
+      </div>
+      
+      <!-- Cuerpo del Modal -->
+      <div class="p-6">
+        <p class="text-gray-700 mb-4">¿Estás seguro de que deseas eliminar permanentemente este médico?</p>
+        <p class="text-sm text-gray-500">Esta acción no se puede deshacer. Todos los datos relacionados con este médico serán eliminados del sistema.</p>
+        
+        <!-- Barra de progreso animada para efecto de peligro -->
+        <div class="mt-5 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+          <div class="h-full bg-red-500 rounded-full animate-pulse" style="width: 100%"></div>
+        </div>
+      </div>
+      
+      <!-- Pie del Modal -->
+      <div class="bg-gray-50 px-4 py-3 flex justify-end space-x-3">
+        <button 
+          onclick="closeModal()" 
+          class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        >
+          Cancelar
+        </button>
+        <button 
+          id="confirmButton" 
+          class="px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600 transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center"
+        >
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Eliminar
+        </button>
       </div>
     </div>
   </div>
