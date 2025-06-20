@@ -584,12 +584,12 @@
                     </a>
                   {% elif cama.estado == 'R' %}
                     <a href="{% url 'ver_reserva' cama.idcama %}" 
-                       class="w-full text-white bg-gradient-to-r from-purple-600 to hover:from-purple-700 hover:to-purple-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
-                       <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                       </svg>
-                       <span>Ver Reserva</span>
+                       class="w-full text-white bg-purple-800 hover:bg-purple-700 rounded-lg text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        <span>Ver Reserva</span>
                     </a>
                   {% else %}
                     {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
@@ -628,99 +628,125 @@
   </div>
 
   <!-- Modal de Confirmación Liberar - Diseño moderno -->
-  <div id="liberarModal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal md:h-full flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm transition-opacity duration-300">
-    <div class="relative p-4 w-full max-w-md">
-        <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-700 transform transition-all duration-300 hover:scale-[1.01]">
-            <div class="flex justify-between items-center p-6 border-b border-gray-700">
-                <h3 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-500">
-                    Confirmar Liberación
-                </h3>
-                <button type="button" class="text-gray-400 hover:text-white rounded-lg text-sm p-2 transition-colors duration-200" data-modal-toggle="liberarModal">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="p-6 text-center">
-                <div class="mx-auto mb-5 w-20 h-20 flex items-center justify-center bg-gradient-to-br from-red-900 to-red-700 rounded-full shadow-inner">
-                    <svg class="w-12 h-12 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                </div>
-                <h3 class="mb-6 text-xl font-medium text-gray-100">¿Está seguro que desea liberar esta cama?</h3>
-                <p class="mb-6 text-sm text-gray-400">Esta acción no se puede deshacer y liberará la cama para nuevos pacientes.</p>
-                <div class="flex justify-center space-x-4">
-                    <button id="confirmLiberar" type="button" class="relative overflow-hidden text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 focus:ring-4 focus:outline-none focus:ring-red-800 font-medium rounded-full text-sm px-6 py-3 text-center shadow-lg hover:shadow-red-900/30 transition-all duration-300 transform hover:-translate-y-0.5 group">
-                        <span class="relative z-10">Sí, liberar</span>
-                        <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -rotate-12"></span>
-                    </button>
-                    <button type="button" class="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-600 font-medium rounded-full text-sm px-6 py-3 text-center border border-gray-600 hover:border-gray-500 shadow transition-all duration-300 transform hover:-translate-y-0.5" data-modal-toggle="liberarModal">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-  </div>
+  <!-- Modal de Confirmación Liberar - Rediseñado según el primer HTML -->
+  <div id="liberarModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <!-- Fondo oscuro con efecto vidrio -->
+    <div class="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm transition-opacity"></div>
 
-  <!-- Modal de Derivación - Diseño moderno -->
-  <div id="derivarModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-700 p-6 w-full max-w-md relative transform transition-all duration-300 scale-95 opacity-0" id="derivarModalContent">
-      <button onclick="cerrarDerivacionModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors duration-200 p-1 rounded-full hover:bg-gray-700">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-      
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500">Derivar Paciente</h2>
-        <p class="text-sm text-gray-400 mt-2">Seleccione la cama disponible a la que desea derivar al paciente</p>
-      </div>
-      
-      <form method="POST" action="{% url 'derivar_paciente' %}" id="derivarForm" class="space-y-5">
-        {% csrf_token %}
-        <input type="hidden" name="idcama_origen" id="idcama_origen" value="">
-        
-        <div>
-          <label for="idcama_destino" class="block text-sm font-medium text-gray-300 mb-2">Cama de Destino:</label>
-          <div class="relative">
-            <select name="idcama_destino" id="idcama_destino" class="appearance-none w-full bg-gray-700 border border-gray-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 cursor-pointer transition duration-200 hover:bg-gray-600 hover:border-gray-500">
-              {% for sector in sectores %}
-                <optgroup label="Sector: {{ sector.tipo }}" class="text-gray-300 bg-gray-800">
-                  {% for habitacion in sector.habitaciones.all %}
-                    {% for cama in habitacion.camas.all %}
-                      {% if cama.estado == 'L' %}
-                        <option value="{{ cama.idcama }}" class="text-gray-200 hover:bg-blue-500">Habitación {{ habitacion.numero }} - Cama {{ cama.nro_cama }}</option>
-                      {% endif %}
-                    {% endfor %}
-                  {% endfor %}
-                </optgroup>
-              {% endfor %}
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
-            </div>
+    <!-- Contenedor del Modal - Estilo similar al primer HTML -->
+    <div class="min-h-screen flex items-center justify-center p-4 text-center">
+      <div id="derivarModalContent" class="relative bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-md transform transition-all scale-100 opacity-100">
+        <!-- Encabezado del Modal con gradiente rojo -->
+        <div class="bg-gradient-to-r from-red-600 to-red-500 p-5">
+          <div class="flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-white">Confirmar Liberación</h3>
           </div>
         </div>
         
-        <div class="flex space-x-4 pt-3">
-          <button type="submit" class="flex-1 relative overflow-hidden text-white bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-full text-sm px-5 py-3 text-center shadow-lg hover:shadow-blue-900/30 transition-all duration-300 transform hover:-translate-y-0.5 group">
-            <span class="relative z-10 flex items-center justify-center">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-              </svg>
-              Derivar
-            </span>
-            <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -rotate-12"></span>
-          </button>
+        <!-- Cuerpo del Modal -->
+        <div class="p-6">
+          <p class="text-gray-700 mb-4">¿Estás seguro de que deseas liberar esta cama?</p>
+          <p class="text-sm text-gray-500">Esta acción no se puede deshacer. El paciente será dado de alta y la cama quedará disponible.</p>
           
-          <button type="button" onclick="cerrarDerivacionModal()" class="flex-1 text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-600 font-medium rounded-full text-sm px-5 py-3 text-center border border-gray-600 hover:border-gray-500 shadow transition-all duration-300 transform hover:-translate-y-0.5">
+          <!-- Barra de progreso animada para efecto de peligro -->
+          <div class="mt-5 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-red-500 rounded-full animate-pulse" style="width: 100%"></div>
+          </div>
+        </div>
+        
+        <!-- Pie del Modal -->
+        <div class="bg-gray-50 px-4 py-3 flex justify-end space-x-3">
+          <button 
+            data-modal-toggle="liberarModal" 
+            class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
             Cancelar
           </button>
+          <button 
+            id="confirmLiberar" 
+            class="px-4 py-2 rounded-lg bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600 transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Liberar
+          </button>
         </div>
-      </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Derivación - Rediseñado según el primer HTML -->
+  <div id="derivarModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <!-- Fondo oscuro con efecto vidrio -->
+    <div class="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm transition-opacity"></div>
+
+    <!-- Contenedor del Modal -->
+    <div class="min-h-screen flex items-center justify-center p-4 text-center">
+      <div id="derivarModalContent" class="relative bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-md transform transition-all scale-100 opacity-100">
+        <!-- Encabezado del Modal con gradiente azul -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 p-5">
+          <div class="flex items-center justify-center">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-white">Derivar Paciente</h3>
+          </div>
+        </div>
+        
+        <!-- Cuerpo del Modal -->
+        <div class="p-6">
+          <form method="POST" action="{% url 'derivar_paciente' %}" id="derivarForm">
+            {% csrf_token %}
+            <input type="hidden" name="idcama_origen" id="idcama_origen" value="">
+            
+            <div class="mb-4">
+              <label for="idcama_destino" class="block text-sm font-medium text-gray-700 mb-2">Cama de Destino:</label>
+              <select name="idcama_destino" id="idcama_destino" 
+                      class="w-full bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 cursor-pointer hover:border-blue-300 transition">
+                {% for sector in sectores %}
+                  <optgroup label="Sector: {{ sector.tipo }}">
+                    {% for habitacion in sector.habitaciones.all %}
+                      {% for cama in habitacion.camas.all %}
+                        {% if cama.estado == 'L' %}
+                          <option value="{{ cama.idcama }}">Habitación {{ habitacion.numero }} - Cama {{ cama.nro_cama }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    {% endfor %}
+                  </optgroup>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="mt-5 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-500 rounded-full" style="width: 100%"></div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Pie del Modal -->
+        <div class="bg-gray-50 px-4 py-3 flex justify-end space-x-3">
+          <button 
+            onclick="cerrarDerivacionModal()" 
+            class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            form="derivarForm"
+            class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center"
+          >
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+            Derivar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -848,10 +874,9 @@
         modalContent.classList.remove('scale-100', 'opacity-100');
         modalContent.classList.add('scale-95', 'opacity-0');
         
-        setTimeout(() => {
-          modal.classList.add('hidden');
-        }, 300);
-      }
+        modal.classList.add('hidden');
+        
+    }
     });
   </script>
 
