@@ -1,0 +1,112 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10 max-w-5xl animate__animated animate__fadeIn">
+  <!-- Encabezado del perfil -->
+  <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-8 mb-8">
+    <div class="flex flex-col md:flex-row items-center justify-between">
+      <div class="flex items-center mb-4 md:mb-0">
+        <div class="bg-white p-3 rounded-full shadow-md mr-5">
+          <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-white">{{ user.first_name }} {{ user.last_name }}</h1>
+          <p class="text-blue-100 mt-1">{{ user_role }}</p>
+        </div>
+      </div>
+      <div class="flex space-x-3">
+        <a href="{% url 'edit_profile' %}" class="px-5 py-2.5 bg-white text-blue-600 rounded-lg shadow hover:bg-blue-50 transition-colors flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          Editar Perfil
+        </a>
+        <a href="{% url 'change_password' %}" class="px-5 py-2.5 bg-white text-blue-600 rounded-lg shadow hover:bg-blue-50 transition-colors flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+          Cambiar Contraseña
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información del perfil -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <!-- Información personal -->
+    <div class="md:col-span-2 bg-white rounded-xl shadow-lg p-6 animate__animated animate__fadeInUp animate__delay-1s">
+      <h2 class="text-xl font-semibold text-gray-800 border-b pb-3 mb-6">Información Personal</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Nombre completo</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.first_name }} {{ user.last_name }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Correo electrónico</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.email }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">DNI</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.dni|default:"No especificado" }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Género</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.get_genero_display|default:"No especificado" }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Teléfono</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.telefono|default:"No especificado" }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500">Fecha de nacimiento</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.fecha_nacimiento|date:"d/m/Y"|default:"No especificada" }}</p>
+        </div>
+        <div class="md:col-span-2">
+          <p class="text-sm font-medium text-gray-500">Domicilio</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.domicilio|default:"No especificado" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información de rol -->
+    <div class="bg-white rounded-xl shadow-lg p-6 animate__animated animate__fadeInUp animate__delay-2s">
+      <h2 class="text-xl font-semibold text-gray-800 border-b pb-3 mb-6">Información Profesional</h2>
+      
+      {% if role_info %}
+        {% for key, value in role_info.items %}
+        <div class="mb-4">
+          <p class="text-sm font-medium text-gray-500">{{ key|title }}</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ value }}</p>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="flex items-center justify-center h-40">
+          <p class="text-gray-500 text-center">No hay información adicional disponible para este rol.</p>
+        </div>
+      {% endif %}
+      
+      <!-- Estado de la cuenta -->
+      <div class="mt-6 pt-4 border-t">
+        <h3 class="text-lg font-medium text-gray-800 mb-3">Estado de la cuenta</h3>
+        <div class="flex items-center">
+          <div class="relative inline-flex mr-3">
+            <span class="flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+          </div>
+          <p class="text-sm font-medium text-gray-700">Activa</p>
+        </div>
+        
+        <!-- Fecha de registro -->
+        <div class="mt-4">
+          <p class="text-sm font-medium text-gray-500">Miembro desde</p>
+          <p class="text-base font-medium text-gray-800 mt-1">{{ user.date_joined|date:"d/m/Y" }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

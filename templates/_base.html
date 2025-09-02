@@ -1,5 +1,5 @@
-{% load compress %}
 {% load static %}
+{% load compress %}
 <!DOCTYPE html>
 <html lang="es" class="h-full">
 <head>
@@ -28,50 +28,12 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Custom styles -->
-    <style>
-        :root {
-            --primary-color: #3b82f6;
-            --secondary-color: #10b981;
-            --dark-color: #1f2937;
-            --light-color: #f9fafb;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
-        
-        .sidebar-icon {
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar-item:hover .sidebar-icon {
-            transform: translateX(3px);
-        }
-        
-        .nav-gradient {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-        }
-        
-        .sidebar-bg {
-            background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .card-shadow {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-        
-        .user-avatar {
-            transition: all 0.3s ease;
-        }
-        
-        .user-avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-        }
-    </style>
+    {% compress css %}
+    <link rel="stylesheet" href="{% static 'src/css/base.css' %}" />
+    <link rel="stylesheet" href="{% static 'src/css/components.css' %}" />
+    {% endcompress %}
+    
+    {% block extrahead %}{% endblock %}
     {{ select2_css }}
 </head>
 
@@ -118,6 +80,13 @@
                                 </p>
                             </div>
                             <ul class="py-1" role="none">
+                                <li>
+                                    <a href="{% url 'user_profile' %}" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" 
+                                       role="menuitem">
+                                        <i class="fas fa-user mr-2 text-blue-500"></i> Mi Perfil
+                                    </a>
+                                </li>
                                 <li>
                                     <a href="{% url 'lista_habitaciones'%}" 
                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" 
@@ -272,29 +241,28 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.1/flowbite.min.js"></script>
     
-    <!-- Custom scripts -->
-    <script>
-        // Animación para los elementos del sidebar
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                const icon = item.querySelector('.sidebar-icon');
-                icon.classList.add('animate__animated', 'animate__fadeInRight');
-            });
-            
-            item.addEventListener('mouseleave', () => {
-                const icon = item.querySelector('.sidebar-icon');
-                icon.classList.remove('animate__animated', 'animate__fadeInRight');
-            });
-        });
-        
-        // Mejorar la experiencia del dropdown de usuario
-        const userButton = document.querySelector('[data-dropdown-toggle="dropdown-user"]');
-        const userDropdown = document.getElementById('dropdown-user');
-        
-        userButton.addEventListener('click', () => {
-            userDropdown.classList.toggle('hidden');
-            userDropdown.classList.toggle('animate__animated', 'animate__fadeIn');
-        });
-    </script>
+    <!-- Sidebar Effects -->
+    <script src="{% static 'src/js/sidebar-effects.js' %}"></script>
+    
+    <!-- Cursor Effects -->
+    <script src="{% static 'src/js/cursor-effects.js' %}"></script>
+    
+    <!-- Accordion Effects -->
+    <script src="{% static 'src/js/accordion.js' %}"></script>
+    
+    <!-- Bed Management -->
+    <script src="{% static 'src/js/bed-management.js' %}"></script>
+    
+    <!-- Bed WebSocket -->
+    <script src="{% static 'src/js/bed-websocket.js' %}"></script>
+    
+    <!-- Bed Modal -->
+    <script src="{% static 'src/js/bed-modal.js' %}"></script>
+    
+    <!-- Animations -->
+    <script src="{% static 'src/js/animations.js' %}"></script>
+    
+    <!-- Extra scripts -->
+    {% block extrascripts %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,84 @@
+{% extends "_base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mx-auto px-3 py-8 max-w-4xl animate__animated animate__fadeIn">
+  <!-- Encabezado -->
+  <div class="bg-gradient-to-r from-blue-500 to-green-500 p-6 rounded-2xl shadow-lg mb-8 animate__animated animate__fadeInDown animate__fast">
+    <h1 class="text-3xl font-bold text-white tracking-tight text-center">{{ titulo }}</h1>
+  </div>
+
+  <!-- Formulario -->
+  <form method="post" class="bg-white p-8 rounded-xl shadow-lg">
+    {% csrf_token %}
+
+    <!-- Campos del formulario -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Sector -->
+      <div class="md:col-span-2">
+        <label for="{{ form.idsector.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.idsector.label }}</label>
+        {{ form.idsector|add_class:"form-select w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+        {% if form.idsector.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.idsector.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Número de Habitación -->
+      <div>
+        <label for="{{ form.numero.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.numero.label }}</label>
+        {{ form.numero|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+        {% if form.numero.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.numero.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Cantidad de Camas -->
+      <div>
+        <label for="{{ form.cantidad_camas.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.cantidad_camas.label }}</label>
+        {{ form.cantidad_camas|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+        {% if form.cantidad_camas.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.cantidad_camas.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Tipo de Habitación -->
+      <div class="md:col-span-2">
+        <label for="{{ form.tipo.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.tipo.label }}</label>
+        {{ form.tipo|add_class:"form-select w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+        {% if form.tipo.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.tipo.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="flex justify-end space-x-4 mt-8">
+      <a href="{% url 'lista_habitaciones' %}" class="px-6 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+        Cancelar
+      </a>
+      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:-translate-y-1 hover:shadow-lg">
+        {{ boton_texto }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Nota informativa -->
+<div class="container mx-auto px-3 py-4 max-w-4xl">
+  <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-blue-700">
+          Las camas serán creadas automáticamente según la cantidad especificada. 
+          Todas tendrán estado "Libre" y números de cama del 1 al número indicado.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

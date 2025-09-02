@@ -37,12 +37,13 @@ def crear_habitacion(sector):
 
 
 def crear_camas(habitacion):
-    for _ in range(2):
+    for numero_cama in [1, 2]:
         cama = Cama.objects.create(
             habitacion=habitacion,
-            estado="L",  # Siempre libre
+            nro_cama=numero_cama,  # Asigna 1 y 2
+            estado="L",
         )
-        print(f"Cama creada en habitación {habitacion.numero}, estado: {cama.estado}")
+        print(f"Cama {numero_cama} creada en habitación {habitacion.numero}, estado: {cama.estado}")
 
 
 def generar_sectores_habitaciones(cant_sectores=3):

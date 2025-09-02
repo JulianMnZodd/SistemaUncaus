@@ -290,3 +290,87 @@ def estadisticas_camas(request: HttpRequest) -> HttpResponse:
     }
     
     return render(request, 'estadisticas.html', context)
+
+# Vistas para crear sectores, habitaciones y camas
+from .forms import SectorForm, HabitacionForm, CamaForm
+from django.contrib import messages
+
+@login_required
+@enfermero_or_staff_required(redirect_url='lista_habitaciones')
+def crear_sector(request):
+    """
+    Vista para crear un nuevo sector hospitalario.
+    """
+    if request.method == 'POST':
+        form = SectorForm(request.POST)
+        if form.is_valid():
+            sector = form.save()
+            messages.success(request, f'El sector {sector.tipo} ha sido creado exitosamente.')
+            return redirect('lista_habitaciones')
+    else:
+        form = SectorForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Crear Nuevo Sector',
+        'boton_texto': 'Crear Sector',
+        'accion': 'crear'
+    }
+    return render(request, 'crear_sector.html', context)
+
+@login_required
+@enfermero_or_staff_required(redirect_url='lista_habitaciones')
+def crear_habitacion(request):
+    """
+    Vista para crear una nueva habitación y sus camas asociadas.
+    """
+    if request.method == 'POST':
+        form = HabitacionForm(request.POST)
+        if form.is_valid():
+            # Guardar la habitación
+            habitacion = form.save()
+            
+            # Crear las camas automáticamente
+            cantidad_camas = habitacion.cantidad_camas
+            for i in range(1, cantidad_camas + 1):
+                Cama.objects.create(
+                    habitacion=habitacion,
+                    estado='L',  # Libre por defecto
+                    nro_cama=i
+                )
+            
+            messages.success(request, f'La habitación {habitacion.numero} ha sido creada exitosamente con {cantidad_camas} camas.')
+            return redirect('lista_habitaciones')
+    else:
+        form = HabitacionForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Crear Nueva Habitación',
+        'boton_texto': 'Crear Habitación',
+        'accion': 'crear'
+    }
+    return render(request, 'crear_habitacion.html', context)
+
+@login_required
+@enfermero_or_staff_required(redirect_url='lista_habitaciones')
+def crear_cama(request):
+    """
+    Vista para crear una nueva cama.
+    """
+    if request.method == 'POST':
+        form = CamaForm(request.POST)
+        if form.is_valid():
+            cama = form.save()
+            messages.success(request, f'La cama {cama.nro_cama} ha sido creada exitosamente.')
+            return redirect('lista_habitaciones')
+    else:
+        form = CamaForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Crear Nueva Cama',
+        'boton_texto': 'Crear Cama',
+        'accion': 'crear'
+    }
+    return render(request, 'crear_cama.html', context)

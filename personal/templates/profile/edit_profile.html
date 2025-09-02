@@ -1,0 +1,125 @@
+{% extends "_base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10 max-w-4xl animate__animated animate__fadeIn">
+  <!-- Encabezado -->
+  <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-6 mb-8">
+    <div class="flex items-center">
+      <div class="bg-white p-2 rounded-full shadow-md mr-4">
+        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-white">Editar Perfil</h1>
+    </div>
+  </div>
+
+  <!-- Formulario de edición -->
+  <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Nombre -->
+        <div>
+          <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.first_name.label }}</label>
+          {{ form.first_name|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.first_name.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Apellido -->
+        <div>
+          <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.last_name.label }}</label>
+          {{ form.last_name|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.last_name.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Email -->
+        <div>
+          <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.email.label }}</label>
+          {{ form.email|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.email.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.email.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- DNI -->
+        <div>
+          <label for="{{ form.dni.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.dni.label }}</label>
+          {{ form.dni|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.dni.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.dni.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Teléfono -->
+        <div>
+          <label for="{{ form.telefono.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.telefono.label }}</label>
+          {{ form.telefono|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.telefono.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.telefono.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Género -->
+        <div>
+          <label for="{{ form.genero.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.genero.label }}</label>
+          {{ form.genero|add_class:"form-select w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.genero.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.genero.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Fecha de nacimiento -->
+        <div>
+          <label for="{{ form.fecha_nacimiento.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.fecha_nacimiento.label }}</label>
+          {{ form.fecha_nacimiento|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.fecha_nacimiento.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.fecha_nacimiento.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Domicilio -->
+        <div class="md:col-span-2">
+          <label for="{{ form.domicilio.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.domicilio.label }}</label>
+          {{ form.domicilio|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+          {% if form.domicilio.errors %}
+          <p class="mt-2 text-sm text-red-600">{{ form.domicilio.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Botones de acción -->
+      <div class="flex justify-end space-x-4 mt-8 pt-4 border-t border-gray-100">
+        <a href="{% url 'user_profile' %}" class="px-6 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+          Cancelar
+        </a>
+        <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:-translate-y-1 hover:shadow-lg">
+          Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Nota informativa -->
+  <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-blue-700">
+          Para cambiar tu contraseña, utiliza la opción <a href="{% url 'change_password' %}" class="font-medium underline">Cambiar Contraseña</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

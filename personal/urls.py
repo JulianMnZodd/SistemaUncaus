@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from . import views
 from django.contrib.auth.views import LogoutView
 from .views import CustomLoginView
+from .profile_views import user_profile, edit_profile, change_password
 
 urlpatterns = [
     path('registro/', views.registro, name='registro'),
@@ -18,4 +19,9 @@ urlpatterns = [
     path('eliminar-medico/<int:id_medico>/', views.eliminar_medico, name='eliminar_medico'),
     path('eliminar-recepcionista/<int:id_recepcionista>/', views.eliminar_recepcionista, name='eliminar_recepcionista'),
     path('eliminar-enfermero/<int:id_enfermero>/', views.eliminar_enfermero, name='eliminar_enfermero'),
+    
+    # Rutas de perfil de usuario
+    path('perfil/', user_profile, name='user_profile'),
+    path('perfil/editar/', edit_profile, name='edit_profile'),
+    path('perfil/cambiar-password/', change_password, name='change_password'),
 ]
