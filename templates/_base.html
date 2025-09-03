@@ -135,6 +135,13 @@
                         <i class="sidebar-icon fas fa-chart-line w-5 h-5 text-blue-500 mr-3"></i>
                         <span class="font-medium">Inicio</span>
                     </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'tutorial_sistema' %}"
+                           class="sidebar-item flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
+                            <i class="sidebar-icon fas fa-book w-5 h-5 text-blue-500 mr-3"></i>
+                            <span class="font-medium">Tutorial</span>
+                        </a>
                 </li>
                 
                 {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
