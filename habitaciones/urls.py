@@ -20,4 +20,14 @@ urlpatterns = [
     path('crear-sector/', views.crear_sector, name='crear_sector'),
     path('crear-habitacion/', views.crear_habitacion, name='crear_habitacion'),
     path('crear-cama/', views.crear_cama, name='crear_cama'),
+    
+    # URLs para ABM de sectores
+    path('sectores/', views.listar_sectores, name='listar_sectores'),
+    path('sectores/editar/<int:idsector>/', views.editar_sector, name='editar_sector'),
+    path('sectores/eliminar/<int:idsector>/', views.eliminar_sector, name='eliminar_sector'),
+    
+    # URLs para ABM de habitaciones
+    path('habitaciones-admin/', views.listar_habitaciones_admin, name='listar_habitaciones_admin'),
+    path('habitaciones/editar/<int:idhabitacion>/', views.editar_habitacion, name='editar_habitacion'),
+    path('habitaciones/eliminar/<int:idhabitacion>/', views.eliminar_habitacion, name='eliminar_habitacion'),
 ]

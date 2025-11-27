@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+import uuid
 from habitaciones.models import Cama, Habitacion
 from .forms import DiagnosticoForm, AsignarCamaForm
 from .models import Paciente, Medico, Enfermero, Internacion
@@ -333,11 +334,18 @@ def seguimiento_detalles(request, seguimiento_id):
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from .utils_reportes import agregar_encabezado_bedwise, agregar_pie_pagina
 
 
 @login_required
 def generar_consentimiento_pdf(request, paciente_id):
     paciente = get_object_or_404(Paciente, idpaciente=paciente_id)
+    
+    # Generar un ID único para este documento
+    doc_id = f"CON{paciente_id}-{uuid.uuid4()}"
 
     # Crear el objeto HttpResponse con el encabezado PDF adecuado.
     response = HttpResponse(content_type="application/pdf")
@@ -349,31 +357,30 @@ def generar_consentimiento_pdf(request, paciente_id):
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
 
-    # Título del documento (centrado)
-    p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(
-        width / 2, height - 50, "ACTA DE CONSENTIMIENTO INFORMADO PARA INTERNACIÓN"
+    # Usar la función de utilidad para agregar el encabezado
+    agregar_encabezado_bedwise(
+        p, "ACTA DE CONSENTIMIENTO PARA INTERNACIÓN", width, height
     )
 
     # Datos del paciente o representante
     p.setFont("Helvetica", 12)
     p.drawString(
-        50, height - 80, f"Nombre del Paciente: {paciente.nombre} {paciente.apellido}"
+        50, height - 140, f"Nombre del Paciente: {paciente.nombre} {paciente.apellido}"  # Aumentado de -80 a -140 para dar más espacio
     )
-    p.drawString(50, height - 100, f"Fecha de Nacimiento: {paciente.fecha_nacimiento}")
-    p.drawString(50, height - 120, f"Dirección: {paciente.domicilio}")
-    p.drawString(50, height - 140, f"Teléfono: {paciente.telefono}")
-    p.drawString(50, height - 160, f"Email: {paciente.email}")
+    p.drawString(50, height - 160, f"Fecha de Nacimiento: {paciente.fecha_nacimiento}")  # Ajustado de -100 a -160
+    p.drawString(50, height - 180, f"Dirección: {paciente.domicilio}")  # Ajustado de -120 a -180
+    p.drawString(50, height - 200, f"Teléfono: {paciente.telefono}")  # Ajustado de -140 a -200
+    p.drawString(50, height - 220, f"Email: {paciente.email}")  # Ajustado de -160 a -220
     # Campos adicionales que se pueden complementar desde la BD o dejar en blanco
-    p.drawString(50, height - 180, f"Documento de Identidad: {paciente.dni}")
-    p.drawString(50, height - 200, "Relación (si es representante): _________________")
+    p.drawString(50, height - 240, f"Documento de Identidad: {paciente.dni}")  # Ajustado de -180 a -240
+    p.drawString(50, height - 260, "Relación (si es representante): _________________")  # Ajustado de -200 a -260
 
     # Datos del establecimiento y personal médico
-    p.drawString(50, height - 250, "Médico Responsable: _________")
-    p.drawString(50, height - 270, "Registro Profesional: _________")
+    p.drawString(50, height - 290, "Médico Responsable: _________")  # Ajustado de -250 a -290
+    p.drawString(50, height - 310, "Registro Profesional: _________")  # Ajustado de -270 a -310
 
     # Exposición de la información
-    text = p.beginText(50, height - 300)
+    text = p.beginText(50, height - 340)  # Ajustado de -300 a -340
     text.setFont("Helvetica", 12)
     exposicion = [
         "Yo, el suscrito, declaro haber sido informado de manera clara y comprensible",
@@ -390,7 +397,7 @@ def generar_consentimiento_pdf(request, paciente_id):
     p.drawText(text)
 
     # Consentimiento
-    text = p.beginText(50, height - 420)
+    text = p.beginText(50, height - 460)  # Ajustado de -420 a -460
     text.setFont("Helvetica", 12)
     consentimiento = [
         "Doy mi consentimiento libre y voluntario para la internación y la realización",
@@ -403,10 +410,13 @@ def generar_consentimiento_pdf(request, paciente_id):
     p.drawText(text)
 
     # Firmas y fechas
-    p.drawString(50, height - 500, "Firma del Paciente o Representante: ______")
-    p.drawString(50, height - 520, "Fecha: __________________________")
-    p.drawString(50, height - 550, "Firma del Médico: ___________________")
-    p.drawString(50, height - 570, "Fecha: ____________________")
+    p.drawString(50, height - 540, "Firma del Paciente o Representante: ______")  # Ajustado de -500 a -540
+    p.drawString(50, height - 560, "Fecha: __________________________")  # Ajustado de -520 a -560
+    p.drawString(50, height - 590, "Firma del Médico: ___________________")  # Ajustado de -550 a -590
+    p.drawString(50, height - 610, "Fecha: ____________________")  # Ajustado de -570 a -610
+
+    # Agregar pie de página con código QR para validación
+    agregar_pie_pagina(p, width, 1, 1, doc_id)
 
     # Finalizar el PDF
     p.showPage()
@@ -439,6 +449,9 @@ def generar_informe_internaciones(request):
         if form.is_valid():
             fecha_inicio = form.cleaned_data["fecha_inicio"]
             fecha_fin = form.cleaned_data["fecha_fin"]
+            
+            # Generar un ID único para este documento
+            doc_id = f"LISTI{fecha_inicio.strftime('%Y%m%d')}-{uuid.uuid4()}"
 
             # Validar que fecha_inicio no sea posterior a fecha_fin
             if fecha_inicio > fecha_fin:
@@ -470,23 +483,23 @@ def generar_informe_internaciones(request):
             p = canvas.Canvas(response, pagesize=letter)
             width, height = letter
 
-            # Título del documento
-            p.setFont("Helvetica-Bold", 16)
-            p.drawCentredString(
-                width / 2,
-                height - 50,
-                f"Informe de Internaciones ({fecha_inicio} - {fecha_fin})",
+            # Usar la función de utilidad para agregar el encabezado
+            agregar_encabezado_bedwise(
+                p, 
+                f"Informe de Internaciones ({fecha_inicio.strftime('%d/%m/%Y')} - {fecha_fin.strftime('%d/%m/%Y')})",
+                width,
+                height
             )
 
             # Encabezados de la tabla
             p.setFont("Helvetica-Bold", 12)
-            p.drawString(50, height - 100, "Paciente")
-            p.drawString(200, height - 100, "Fecha de Ingreso")
-            p.drawString(350, height - 100, "Fecha de Alta")
-            p.drawString(500, height - 100, "Motivo")
+            p.drawString(50, height - 120, "Paciente")  # Aumentado el margen superior de 100 a 120
+            p.drawString(200, height - 120, "Fecha de Ingreso")  # Ajustado a -120
+            p.drawString(350, height - 120, "Fecha de Alta")  # Ajustado a -120
+            p.drawString(500, height - 120, "Motivo")  # Ajustado a -120
 
             # Datos de la tabla
-            y = height - 120
+            y = height - 140  # Ajustado de -120 a -140 para dar más espacio
             p.setFont("Helvetica", 10)
             for internacion in internaciones:
                 p.drawString(
@@ -513,11 +526,49 @@ def generar_informe_internaciones(request):
                     p.showPage()
                     # Repetir encabezados en la nueva página
                     p.setFont("Helvetica-Bold", 12)
-                    p.drawString(50, height - 100, "Paciente")
-                    p.drawString(200, height - 100, "Fecha de Ingreso")
-                    p.drawString(350, height - 100, "Fecha de Alta")
-                    p.drawString(500, height - 100, "Motivo")
-                    y = height - 120
+                    p.drawString(50, height - 120, "Paciente")  # Ajustado a -120
+                    p.drawString(200, height - 120, "Fecha de Ingreso")  # Ajustado a -120
+                    p.drawString(350, height - 120, "Fecha de Alta")  # Ajustado a -120
+                    p.drawString(500, height - 120, "Motivo")  # Ajustado a -120
+                    y = height - 140  # Ajustado a -140 para dar más espacio
+
+            # Agregar estadísticas
+            total_internaciones = internaciones.count()
+            altas = internaciones.filter(fecha_alta__isnull=False).count()
+            en_curso = internaciones.filter(fecha_alta__isnull=True).count()
+            
+            p.setFont("Helvetica-Bold", 12)
+            p.drawString(50, 100, "Resumen:")
+            p.setFont("Helvetica", 10)
+            p.drawString(70, 80, f"Total internaciones: {total_internaciones}")
+            p.drawString(70, 65, f"Internaciones finalizadas: {altas}")
+            p.drawString(70, 50, f"Internaciones en curso: {en_curso}")
+            
+            # Obtener el número total de páginas
+            total_paginas = p.getPageNumber()
+            
+            # Agregar encabezado y pie de página en cada página
+            for i in range(1, total_paginas + 1):
+                if i < total_paginas:
+                    p.showPage()
+                    # Repetir encabezados en la nueva página
+                    agregar_encabezado_bedwise(
+                        p, 
+                        f"Informe de Internaciones ({fecha_inicio.strftime('%d/%m/%Y')} - {fecha_fin.strftime('%d/%m/%Y')})",
+                        width,
+                        height
+                    )
+                    p.setFont("Helvetica-Bold", 12)
+                    p.drawString(50, height - 120, "Paciente")
+                    p.drawString(200, height - 120, "Fecha de Ingreso")
+                    p.drawString(350, height - 120, "Fecha de Alta")
+                    p.drawString(500, height - 120, "Motivo")
+                
+                # Agregar pie de página con número de página y código QR en la última página
+                if i == total_paginas:
+                    agregar_pie_pagina(p, width, i, total_paginas, doc_id)
+                else:
+                    agregar_pie_pagina(p, width, i, total_paginas)
 
             # Finalizar el PDF
             p.save()
@@ -534,6 +585,12 @@ def generar_informe_internacion(request, internacion_id):
     seguimientos = Seguimiento.objects.filter(idinternacion=internacion).order_by(
         "fecha"
     )
+    
+    # Obtener diagnóstico si existe
+    diagnostico = internacion.diagnostico_set.first()
+    
+    # Generar un ID único para este documento
+    doc_id = f"INT{internacion_id}-{uuid.uuid4()}"
 
     # Crear el objeto HttpResponse con el encabezado PDF adecuado
     response = HttpResponse(content_type="application/pdf")
@@ -545,17 +602,13 @@ def generar_informe_internacion(request, internacion_id):
     p = canvas.Canvas(response, pagesize=letter)
     width, height = letter
 
-    # Título del documento
-    p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(
-        width / 2,
-        height - 50,
-        f"Informe de Internación - Paciente: {internacion.idpaciente.nombre} {internacion.idpaciente.apellido}",
-    )
+    # Usar la función de utilidad para agregar el encabezado
+    titulo = f"Informe de Internación - {internacion.idpaciente.apellido}, {internacion.idpaciente.nombre}"
+    agregar_encabezado_bedwise(p, titulo, width, height)
 
     # Información general de la internación
     p.setFont("Helvetica", 12)
-    y = height - 100
+    y = height - 120  # Aumentado el margen superior de 100 a 120
     p.drawString(
         50,
         y,
@@ -612,6 +665,58 @@ def generar_informe_internacion(request, internacion_id):
 
         y -= 10  # Espacio entre seguimientos
 
+    # Agregar diagnóstico si existe
+    if diagnostico:
+        if y < 100:  # Salto de página si no hay espacio
+            p.showPage()
+            y = height - 50
+        
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, y, "Diagnóstico:")
+        y -= 15
+        
+        p.setFont("Helvetica", 10)
+        p.drawString(70, y, f"Fecha: {diagnostico.fecha.strftime('%d/%m/%Y %H:%M')}")
+        y -= 15
+        p.drawString(70, y, f"Detalles: {diagnostico.detalles}")
+        y -= 15
+        p.drawString(70, y, f"Gravedad: {diagnostico.gravedad}")
+        y -= 15
+        p.drawString(70, y, f"Tratamiento: {diagnostico.tratamiento}")
+        y -= 15
+        
+        if diagnostico.idmedico:
+            p.drawString(70, y, f"Médico: Dr. {diagnostico.idmedico.persona.last_name}, {diagnostico.idmedico.persona.first_name}")
+            y -= 15
+    
+    # Calcular duración de la internación
+    duracion = ""
+    if internacion.fecha_alta:
+        dias = (internacion.fecha_alta.date() - internacion.fecha_admision.date()).days
+        duracion = f"{dias} días"
+    else:
+        dias = (timezone.now().date() - internacion.fecha_admision.date()).days
+        duracion = f"{dias} días (en curso)"
+    
+    p.setFont("Helvetica", 10)
+    p.drawString(50, 60, f"Duración de la internación: {duracion}")
+    
+    # Manejo de páginas múltiples
+    total_paginas = p.getPageNumber()
+    
+    # Volver a la primera página y agregar números de página
+    for i in range(1, total_paginas + 1):
+        if i < total_paginas:
+            p.showPage()
+            # Agregar encabezado en páginas adicionales
+            agregar_encabezado_bedwise(p, titulo, width, height)
+        
+        # Agregar pie de página con número de página y código QR en la última página
+        if i == total_paginas:
+            agregar_pie_pagina(p, width, i, total_paginas, doc_id)
+        else:
+            agregar_pie_pagina(p, width, i, total_paginas)
+    
     # Finalizar el PDF
     p.save()
     return response
@@ -699,6 +804,9 @@ from datetime import datetime
 @login_required
 def generar_informe_alta(request, internacion_id):
     internacion = get_object_or_404(Internacion, idinternacion=internacion_id)
+    
+    # Generar un ID único para este documento
+    doc_id = f"ALTA{internacion_id}-{uuid.uuid4()}"
 
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = (
@@ -711,17 +819,12 @@ def generar_informe_alta(request, internacion_id):
     # Configuración inicial
     p.setTitle(f"Informe de Alta Médica - {internacion.idpaciente.apellido}")
     margin = 50
-    y_position = height - margin
+    
+    # Usar la función de utilidad para agregar el encabezado
+    agregar_encabezado_bedwise(p, "INFORME DE ALTA MÉDICA", width, height)
+    
+    y_position = height - 140  # Aumentado de -120 a -140 para dar más espacio
     spacing = 20
-
-    # Encabezado
-    p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, y_position, "INFORME DE ALTA MÉDICA")
-    y_position -= 40
-
-    # Línea decorativa
-    p.line(margin, y_position, width - margin, y_position)
-    y_position -= spacing * 2
 
     # Información del paciente
     p.setFont("Helvetica-Bold", 12)
@@ -819,13 +922,39 @@ def generar_informe_alta(request, internacion_id):
             width - 250, y_position - 40, "DNI: " + str(internacion.idpaciente.dni)
         )
 
-    # Pie de página
-    p.setFont("Helvetica-Oblique", 8)
-    p.drawCentredString(
-        width / 2,
-        40,
-        f"Documento generado el {datetime.now().strftime('%d/%m/%Y %H:%M')} - Hospital XYZ",
-    )
+    # Agregar información de seguimiento médico recomendado
+    y_position -= spacing * 2
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(margin, y_position, "SEGUIMIENTO MÉDICO RECOMENDADO:")
+    y_position -= spacing
+    p.setFont("Helvetica", 10)
+    p.drawString(margin + 10, y_position, "□ Control en consulta externa en 7 días")
+    y_position -= spacing
+    p.drawString(margin + 10, y_position, "□ Control en consulta externa en 14 días")
+    y_position -= spacing
+    p.drawString(margin + 10, y_position, "□ Control en consulta externa en 30 días")
+    y_position -= spacing
+    p.drawString(margin + 10, y_position, "□ Otro: _______________________________")
+    
+    # Agregar recomendaciones generales
+    y_position -= spacing * 2
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(margin, y_position, "RECOMENDACIONES:")
+    y_position -= spacing
+    p.setFont("Helvetica", 10)
+    recomendaciones = [
+        "Acudir a emergencias ante cualquier síntoma de alarma.",
+        "Cumplir con el tratamiento médico indicado.",
+        "Mantener reposo según las indicaciones médicas.",
+        "Asistir a las citas de control programadas."
+    ]
+    
+    for rec in recomendaciones:
+        p.drawString(margin + 10, y_position, "• " + rec)
+        y_position -= spacing
+    
+    # Usar la función de utilidad para agregar el pie de página
+    agregar_pie_pagina(p, width, 1, 1, doc_id)
 
     p.save()
     return response

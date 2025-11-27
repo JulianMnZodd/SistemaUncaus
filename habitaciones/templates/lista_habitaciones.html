@@ -129,28 +129,6 @@
         </div>
     </div>
   </div>
-
-  <!-- Botones de acción para crear -->
-  <div class="flex flex-wrap justify-end items-center gap-4 mb-6 animate__animated animate__fadeInDown">
-    {% if perms.habitaciones.add_sector %}
-    <a href="{% url 'crear_sector' %}" class="px-4 py-2.5 bg-blue-600 text-white rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-1">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-      </svg>
-      <span>Nuevo Sector</span>
-    </a>
-    {% endif %}
-    
-    {% if perms.habitaciones.add_habitacion %}
-    <a href="{% url 'crear_habitacion' %}" class="px-4 py-2.5 bg-green-600 text-white rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-1">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-      </svg>
-      <span>Nueva Habitación</span>
-    </a>
-    {% endif %}
-  </div>
-
   <!-- Contenido principal con diseño moderno -->
   <div class="space-y-10 mt-6">
     {% for sector in sectores %}
@@ -285,7 +263,7 @@
                     </a>
                   {% else %}
                     {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
-                      <form class="inline w-full" method="POST" action="{% url 'liberar_cama' cama.idcama %}" id="formLiberar-{{ cama.idcama }}">
+                      <form class="inline w-full" method="POST" action="{% url 'liberar_cama' cama.idcama %}" id="formLiberar-{{ cama.idcama }}" target="_blank">
                         {% csrf_token %}
                         <button type="button" 
                                 onclick="confirmarLiberacion('formLiberar-{{ cama.idcama }}')"
@@ -442,4 +420,59 @@
     </div>
   </div>
 </div>
+
+<script>
+let formToSubmit = null;
+
+// Función para confirmar liberación con modal
+function confirmarLiberacion(formId) {
+    formToSubmit = document.getElementById(formId);
+    document.getElementById('liberarModal').classList.remove('hidden');
+}
+
+// Cerrar modal al hacer clic en cancelar
+document.addEventListener('DOMContentLoaded', function() {
+    // Botón de cancelar en el modal
+    const cancelButtons = document.querySelectorAll('[data-modal-toggle="liberarModal"]');
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('liberarModal').classList.add('hidden');
+            formToSubmit = null;
+        });
+    });
+    
+    // Botón de confirmar en el modal
+    const confirmButton = document.getElementById('confirmLiberar');
+    if (confirmButton) {
+        confirmButton.addEventListener('click', function() {
+            if (formToSubmit) {
+                // Enviar el formulario (se abrirá en nueva ventana por target="_blank")
+                formToSubmit.submit();
+                
+                // Cerrar el modal
+                document.getElementById('liberarModal').classList.add('hidden');
+                
+                // Recargar la página después de un momento
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1000);
+                
+                formToSubmit = null;
+            }
+        });
+    }
+});
+
+// Función para mostrar modal de derivación
+function mostrarDerivacionModal(idcama) {
+    document.getElementById('idcama_origen').value = idcama;
+    document.getElementById('derivarModal').classList.remove('hidden');
+}
+
+// Función para cerrar modal de derivación
+function cerrarDerivacionModal() {
+    document.getElementById('derivarModal').classList.add('hidden');
+}
+</script>
+
 {% endblock content %}
