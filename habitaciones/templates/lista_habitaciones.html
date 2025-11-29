@@ -53,7 +53,7 @@
                                        class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2">
                                 <label for="sector-{{ sector.idsector }}" 
                                        class="ml-3 text-sm font-medium text-gray-700 cursor-pointer hover:text-blue-600 transition-colors flex items-center">
-                                    <span>{{ sector.tipo }}</span>
+                                    <span>{{ sector.nombre }}</span>
                                     {% if sector.count %}<span class="text-xs text-gray-500 ml-2 px-1.5 py-0.5 bg-gray-100 rounded-full">{{ sector.count }}</span>{% endif %}
                                 </label>
                             </div>
@@ -140,7 +140,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500">Sector: {{ sector.tipo }}</h2>
+        <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500">Sector: {{ sector.nombre }}</h2>
       </div>
       
       <!-- Grid de habitaciones moderno -->
@@ -378,7 +378,7 @@
               <select name="idcama_destino" id="idcama_destino" 
                       class="w-full bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 cursor-pointer hover:border-blue-300 transition">
                 {% for sector in sectores %}
-                  <optgroup label="Sector: {{ sector.tipo }}">
+                  <optgroup label="Sector: {{ sector.nombre }}">
                     {% for habitacion in sector.habitaciones.all %}
                       {% for cama in habitacion.camas.all %}
                         {% if cama.estado == 'L' %}

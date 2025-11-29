@@ -11,17 +11,17 @@ from habitaciones.models import Sector, Habitacion, Cama  # Ajusta el nombre de 
 
 fake = Faker("es_ES")
 
-TIPOS_SECTOR = ["General", "Terapia", "VIP", "Quirófano"]
+NOMBRES_SECTOR = ["Terapia Intensiva", "Cardiología", "Pediatría", "Quirófano", "Maternidad", "Oncología"]
 TIPOS_HABITACION = ["VIP", "UCI", "FEM", "MIX", "PED", "MAT", "PSI"]
 
 
 def crear_sector():
     sector = Sector.objects.create(
-        tipo=choice(TIPOS_SECTOR),
+        nombre=choice(NOMBRES_SECTOR),
         cantidad_habitaciones=randint(1, 5),
         piso=randint(1, 10),
     )
-    print(f"Sector creado: {sector.tipo} en el piso {sector.piso}")
+    print(f"Sector creado: {sector.nombre} en el piso {sector.piso}")
     return sector
 
 
@@ -32,7 +32,7 @@ def crear_habitacion(sector):
         cantidad_camas=2,
         tipo=choice(TIPOS_HABITACION),
     )
-    print(f"Habitación creada: {habitacion.numero} en el sector {sector.tipo}")
+    print(f"Habitación creada: {habitacion.numero} en el sector {sector.nombre}")
     return habitacion
 
 

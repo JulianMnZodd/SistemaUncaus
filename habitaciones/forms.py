@@ -4,14 +4,14 @@ from .models import Habitacion, Cama, Sector
 class SectorForm(forms.ModelForm):
     class Meta:
         model = Sector
-        fields = ['tipo', 'cantidad_habitaciones', 'piso']
+        fields = ['nombre', 'cantidad_habitaciones', 'piso']
         widgets = {
-            'tipo': forms.Select(attrs={'class': 'form-select w-full px-4 py-2.5 rounded-lg focus:outline-none'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-input w-full px-4 py-2.5 rounded-lg focus:outline-none', 'placeholder': 'Ej: Terapia Intensiva, Cardiología, etc.'}),
             'cantidad_habitaciones': forms.NumberInput(attrs={'class': 'form-input w-full px-4 py-2.5 rounded-lg focus:outline-none', 'min': 1}),
             'piso': forms.NumberInput(attrs={'class': 'form-input w-full px-4 py-2.5 rounded-lg focus:outline-none', 'min': 0}),
         }
         labels = {
-            'tipo': 'Tipo de Sector',
+            'nombre': 'Nombre del Sector',
             'cantidad_habitaciones': 'Cantidad de Habitaciones',
             'piso': 'Número de Piso',
         }

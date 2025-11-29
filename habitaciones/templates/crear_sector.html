@@ -14,12 +14,12 @@
 
     <!-- Campos del formulario -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Tipo de Sector -->
+      <!-- Nombre de Sector -->
       <div class="md:col-span-2">
-        <label for="{{ form.tipo.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.tipo.label }}</label>
-        {{ form.tipo|add_class:"form-select w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
-        {% if form.tipo.errors %}
-        <p class="mt-2 text-sm text-red-600">{{ form.tipo.errors|join:", " }}</p>
+        <label for="{{ form.nombre.id_for_label }}" class="block text-sm font-medium text-blue-600 mb-2">{{ form.nombre.label }}</label>
+        {{ form.nombre|add_class:"form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" }}
+        {% if form.nombre.errors %}
+        <p class="mt-2 text-sm text-red-600">{{ form.nombre.errors|join:"," }}</p>
         {% endif %}
       </div>
 

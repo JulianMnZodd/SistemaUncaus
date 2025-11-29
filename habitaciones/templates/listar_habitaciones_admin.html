@@ -34,7 +34,7 @@
                     <option value="">Todos los sectores</option>
                     {% for sector in sectores %}
                     <option value="{{ sector.idsector }}" {% if sector_filtrado == sector.idsector|stringformat:"s" %}selected{% endif %}>
-                        {{ sector.tipo }} - Piso {{ sector.piso }}
+                        {{ sector.nombre }} - Piso {{ sector.piso }}
                     </option>
                     {% endfor %}
                 </select>
@@ -87,7 +87,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ habitacion.idsector.tipo }}</div>
+                            <div class="text-sm text-gray-900">{{ habitacion.idsector.nombre }}</div>
                             <div class="text-xs text-gray-500">Piso {{ habitacion.idsector.piso }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -101,21 +101,26 @@
                                 {{ habitacion.total_camas }}
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex gap-1 text-xs">
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-2 text-xs">
                                 {% if habitacion.camas_libres > 0 %}
-                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded">
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-md font-medium whitespace-nowrap">
                                     <i class="fas fa-check-circle"></i> {{ habitacion.camas_libres }} Libre{{ habitacion.camas_libres|pluralize }}
                                 </span>
                                 {% endif %}
                                 {% if habitacion.camas_ocupadas > 0 %}
-                                <span class="px-2 py-1 bg-red-100 text-red-800 rounded">
+                                <span class="px-2 py-1 bg-red-100 text-red-800 rounded-md font-medium whitespace-nowrap">
                                     <i class="fas fa-user"></i> {{ habitacion.camas_ocupadas }} Ocupada{{ habitacion.camas_ocupadas|pluralize }}
                                 </span>
                                 {% endif %}
                                 {% if habitacion.camas_reservadas > 0 %}
-                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md font-medium whitespace-nowrap">
                                     <i class="fas fa-clock"></i> {{ habitacion.camas_reservadas }} Reservada{{ habitacion.camas_reservadas|pluralize }}
+                                </span>
+                                {% endif %}
+                                {% if habitacion.total_camas == 0 %}
+                                <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md font-medium whitespace-nowrap">
+                                    <i class="fas fa-info-circle"></i> Sin camas
                                 </span>
                                 {% endif %}
                             </div>
@@ -157,10 +162,21 @@
             </div>
             <div class="text-center">
                 <div class="text-2xl font-bold text-green-600">
-                    {% widthratio habitaciones|length habitaciones|length 0 %}
-                    {% for h in habitaciones %}{% if h.camas_libres > 0 %}1{% endif %}{% endfor %}
+                    <span id="contadorLibres">0</span>
                 </div>
                 <div class="text-sm text-gray-600">Con Camas Libres</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">
+                    <span id="totalCamas">0</span>
+                </div>
+                <div class="text-sm text-gray-600">Total Camas</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600">
+                    <span id="camasOcupadas">0</span>
+                </div>
+                <div class="text-sm text-gray-600">Camas Ocupadas</div>
             </div>
         </div>
     </div>
@@ -195,6 +211,48 @@
 </div>
 
 <script>
+// Calcular estadísticas
+document.addEventListener('DOMContentLoaded', function() {
+    const habitaciones = [
+        {% for h in habitaciones %}
+        {
+            libres: {{ h.camas_libres|default:0 }},
+            ocupadas: {{ h.camas_ocupadas|default:0 }},
+            reservadas: {{ h.camas_reservadas|default:0 }},
+            total: {{ h.total_camas|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    console.log('Habitaciones:', habitaciones);
+    
+    let conLibres = 0;
+    let totalCamas = 0;
+    let camasOcupadas = 0;
+    let totalLibres = 0;
+    
+    habitaciones.forEach(h => {
+        if (h.libres > 0) conLibres++;
+        totalCamas += h.total;
+        camasOcupadas += h.ocupadas;
+        totalLibres += h.libres;
+    });
+    
+    console.log('Habitaciones con camas libres:', conLibres);
+    console.log('Total de camas libres:', totalLibres);
+    console.log('Total de camas:', totalCamas);
+    console.log('Camas ocupadas:', camasOcupadas);
+    
+    // Actualizar los contadores
+    const contadorLibresEl = document.getElementById('contadorLibres');
+    const totalCamasEl = document.getElementById('totalCamas');
+    const camasOcupadasEl = document.getElementById('camasOcupadas');
+    
+    if (contadorLibresEl) contadorLibresEl.textContent = totalLibres;
+    if (totalCamasEl) totalCamasEl.textContent = totalCamas;
+    if (camasOcupadasEl) camasOcupadasEl.textContent = camasOcupadas;
+});
+
 function confirmarEliminacion(habitacionId, habitacionNumero) {
     document.getElementById('habitacionNumero').textContent = habitacionNumero;
     document.getElementById('formEliminar').action = `/habitaciones/eliminar/${habitacionId}/`;

@@ -308,7 +308,7 @@ def estadisticas_camas(request: HttpRequest) -> HttpResponse:
         'porcentaje_variacion': round(porcentaje_variacion, 1),
         
         # Distribuciones
-        'distribucion_labels': json.dumps([s.tipo for s in distribucion_sector]),
+        'distribucion_labels': json.dumps([s.nombre for s in distribucion_sector]),
         'distribucion_total': json.dumps([s.total_camas for s in distribucion_sector]),
         'distribucion_ocupadas': json.dumps([s.ocupadas for s in distribucion_sector]),
         'distribucion_reservadas': json.dumps([s.reservadas for s in distribucion_sector]),

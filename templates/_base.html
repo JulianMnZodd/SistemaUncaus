@@ -135,8 +135,7 @@
                         <i class="sidebar-icon fas fa-chart-line w-5 h-5 text-blue-500 mr-3"></i>
                         <span class="font-medium">Inicio</span>
                     </a>
-                    </li>
-                 
+                    </li>                 
                 
                 {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
                 <li>

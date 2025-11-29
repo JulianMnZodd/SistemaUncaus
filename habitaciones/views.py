@@ -170,7 +170,7 @@ def generar_grafico_porcentaje_internados() -> Optional[str]:
             porcentaje = (camas_ocupadas / total_camas) * 100
             
             data.append(porcentaje)
-            labels.append(sector.tipo)
+            labels.append(sector.nombre)
             colores.append(sector.color_grafico or '#%06x' % random.randint(0, 0xFFFFFF))
 
         if not data:
@@ -229,7 +229,7 @@ def crear_sector(request):
         form = SectorForm(request.POST)
         if form.is_valid():
             sector = form.save()
-            messages.success(request, f'El sector {sector.tipo} ha sido creado exitosamente.')
+            messages.success(request, f'El sector {sector.nombre} ha sido creado exitosamente.')
             return redirect('lista_habitaciones')
     else:
         form = SectorForm()
@@ -309,7 +309,7 @@ def listar_sectores(request):
     """Vista para listar todos los sectores con sus habitaciones"""
     sectores = Sector.objects.prefetch_related('habitaciones').annotate(
         total_habitaciones=Count('habitaciones')
-    ).order_by('piso', 'tipo')
+    ).order_by('piso', 'nombre')
     
     context = {
         'sectores': sectores,
@@ -327,7 +327,7 @@ def editar_sector(request, idsector):
         form = SectorForm(request.POST, instance=sector)
         if form.is_valid():
             sector_editado = form.save()
-            messages.success(request, f'El sector {sector_editado.tipo} ha sido actualizado exitosamente.')
+            messages.success(request, f'El sector {sector_editado.nombre} ha sido actualizado exitosamente.')
             return redirect('listar_sectores')
     else:
         form = SectorForm(instance=sector)
@@ -350,11 +350,11 @@ def eliminar_sector(request, idsector):
     if request.method == 'POST':
         # Verificar si tiene habitaciones antes de eliminar
         if sector.habitaciones.exists():
-            messages.error(request, f'No se puede eliminar el sector {sector.tipo} porque tiene habitaciones asociadas.')
+            messages.error(request, f'No se puede eliminar el sector {sector.nombre} porque tiene habitaciones asociadas.')
         else:
-            tipo_sector = sector.tipo
+            nombre_sector = sector.nombre
             sector.delete()
-            messages.success(request, f'El sector {tipo_sector} ha sido eliminado exitosamente.')
+            messages.success(request, f'El sector {nombre_sector} ha sido eliminado exitosamente.')
         return redirect('listar_sectores')
     
     context = {
@@ -391,7 +391,7 @@ def listar_habitaciones_admin(request):
     
     context = {
         'habitaciones': habitaciones,
-        'sectores': Sector.objects.all().order_by('piso', 'tipo'),
+        'sectores': Sector.objects.all().order_by('piso', 'nombre'),
         'tipos_habitacion': Habitacion.TIPOS_HABITACION,
         'sector_filtrado': sector_id,
         'tipo_filtrado': tipo,
