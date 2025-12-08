@@ -2,6 +2,7 @@
 BedWise es un sistema web de gestión hospitalaria orientado a la administración de internaciones y control de camas en tiempo real, desarrollado para la Unidad Médica Educativa (UME) de Presidencia Roque Sáenz Peña.
 
 El sistema permite digitalizar procesos que anteriormente se realizaban de forma manual, mejorando la eficiencia operativa, la organización institucional y la calidad de atención médica.
+
 ---
 
 ## 🏫 Contexto del Proyecto
@@ -129,8 +130,9 @@ El proyecto cuenta con:
 * Diagramas de Secuencia
 * Diagrama de Clases
 * Diagramas de Estado
-
-Si necesitas la documentacion: https://docs.google.com/document/d/1zj46COWichMXNbkHy-uXih1m7WCcLye6/edit?usp=drive_link&ouid=105965244124374792248&rtpof=true&sd=true
-o contactame conmigo: julianmn15@gmail.com
+  
 ---
+
+Si necesitas la documentación contactame: julianmn15@gmail.com
+
 
