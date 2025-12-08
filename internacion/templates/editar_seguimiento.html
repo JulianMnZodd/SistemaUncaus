@@ -77,11 +77,20 @@
       {% endfor %}
     </div>
 
-    <!-- Botón -->
-    <div class="text-right">
-      <button type="submit" class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600">
+    <!-- Botones -->
+    <div class="flex items-center justify-end space-x-4">
+      <button type="submit" class="action-btn bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
         Guardar Cambios
       </button>
+      <a href="{% url 'listar_seguimientos' seguimiento.idinternacion.idinternacion %}" class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        Cancelar
+      </a>
     </div>
   </form>
 </div>

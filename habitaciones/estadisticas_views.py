@@ -52,56 +52,27 @@ def estadisticas_camas(request: HttpRequest) -> HttpResponse:
 
     def calcular_metricas_avanzadas(days: int, start_date, now):
         """Calcula métricas avanzadas del hospital"""
-        # Tasa de rotación de camas (pacientes por cama por período)
-        total_internaciones = Internacion.objects.filter(
-            fecha_admision__gte=start_date
+        # Tasa de rotación de camas (altas por cama en el período)
+        altas_periodo = Internacion.objects.filter(
+            fecha_alta__gte=start_date,
+            fecha_alta__isnull=False
         ).count()
         total_camas = Cama.objects.count()
-        tasa_rotacion = round(total_internaciones / total_camas, 2) if total_camas > 0 else 0
+        tasa_rotacion = round(altas_periodo / total_camas, 2) if total_camas > 0 else 0
         
-        # Tiempo promedio desde reserva hasta ingreso
-        reservas_con_internacion = Reserva.objects.filter(
-            fecha_reserva__gte=start_date
-        ).prefetch_related('cama__internacion_set')
-        
-        tiempo_reserva_ingreso = []
-        for reserva in reservas_con_internacion:
-            internaciones = reserva.cama.internacion_set.filter(
-                fecha_admision__gte=reserva.fecha_reserva
-            ).first()
-            if internaciones:
-                delta = internaciones.fecha_admision - reserva.fecha_reserva
-                tiempo_reserva_ingreso.append(delta.total_seconds() / 3600)  # en horas
-        
-        promedio_reserva_ingreso = (
-            sum(tiempo_reserva_ingreso) / len(tiempo_reserva_ingreso) 
-            if tiempo_reserva_ingreso else 0
-        )
-        
-        # Capacidad de respuesta (porcentaje de camas ocupadas vs disponibles)
+        # Capacidad de ocupación actual (porcentaje de camas ocupadas)
         camas_ocupadas = Cama.objects.filter(estado='O').count()
         capacidad_respuesta = round((camas_ocupadas / total_camas * 100), 1) if total_camas > 0 else 0
         
-        # Eficiencia operacional (alta rotación + baja duración promedio = mayor eficiencia)
-        duracion_promedio_dias = Internacion.objects.exclude(
-            fecha_alta__isnull=True
-        ).annotate(
-            duracion=ExpressionWrapper(
-                F('fecha_alta') - F('fecha_admision'),
-                output_field=DurationField()
-            )
-        ).aggregate(avg=Avg('duracion'))['avg']
-        
-        if duracion_promedio_dias:
-            duracion_dias = duracion_promedio_dias.total_seconds() / 86400
-            # Fórmula simple: eficiencia = (rotación / duración) * 100
-            eficiencia = round((tasa_rotacion / duracion_dias * 100), 1) if duracion_dias > 0 else 0
+        # Índice operacional (eficiencia): Tasa de rotación / Porcentaje de ocupación
+        # Indica cuántas veces se utiliza cada cama ocupada
+        if capacidad_respuesta > 0:
+            eficiencia = round(tasa_rotacion / (capacidad_respuesta / 100), 2)
         else:
             eficiencia = 0
         
         return {
             'tasa_rotacion': tasa_rotacion,
-            'promedio_reserva_ingreso': round(promedio_reserva_ingreso, 1),
             'capacidad_respuesta': capacidad_respuesta,
             'eficiencia_operacional': eficiencia
         }
@@ -284,6 +255,20 @@ def estadisticas_camas(request: HttpRequest) -> HttpResponse:
         if internaciones_anterior > 0 else 0
     )
 
+    # Análisis de sectores más demandados (top 5)
+    sectores_demanda = (
+        Sector.objects
+        .prefetch_related('habitaciones__camas__internacion_set')
+        .annotate(
+            total_internaciones=Count(
+                'habitaciones__camas__internacion',
+                filter=Q(habitaciones__camas__internacion__fecha_admision__gte=start_date)
+            )
+        )
+        .filter(total_internaciones__gt=0)
+        .order_by('-total_internaciones')[:5]
+    )
+
     # DATOS ACTUALIZADOS EN TIEMPO REAL PARA RESERVAS
     # CORRECCIÓN: Las reservas activas son las camas con estado 'R'
     reservas_activas_count = Cama.objects.filter(estado='R').count()
@@ -327,7 +312,6 @@ def estadisticas_camas(request: HttpRequest) -> HttpResponse:
         
         # Métricas avanzadas
         'tasa_rotacion': metricas_avanzadas['tasa_rotacion'],
-        'promedio_reserva_ingreso': metricas_avanzadas['promedio_reserva_ingreso'],
         'capacidad_respuesta': metricas_avanzadas['capacidad_respuesta'],
         'eficiencia_operacional': metricas_avanzadas['eficiencia_operacional'],
         
@@ -336,6 +320,9 @@ def estadisticas_camas(request: HttpRequest) -> HttpResponse:
         'reservas_activas': reservas_activas_count,
         'reservas_vencidas': reservas_vencidas_count,
         'total_internaciones_periodo': internaciones_actual,
+        
+        # Sectores de mayor demanda
+        'sectores_demanda': sectores_demanda,
         
         # Sistema de alertas actualizado
         'alertas': alertas,
@@ -509,33 +496,31 @@ def estadisticas_avanzadas(request: HttpRequest) -> HttpResponse:
     metricas_calidad = calcular_metricas_calidad()
     recomendaciones = generar_recomendaciones()
     
-    # Análisis de sectores más demandados
-    sectores_demanda = (
-        Sector.objects
-        .prefetch_related('habitaciones__camas__internacion_set')
-        .annotate(
-            total_internaciones=Count('habitaciones__camas__internacion')
+    # Análisis de estancia hospitalaria (últimos 90 días)
+    internaciones_completadas = Internacion.objects.filter(
+        fecha_alta__isnull=False,
+        fecha_admision__gte=timezone.now() - timedelta(days=90)
+    ).annotate(
+        duracion=ExpressionWrapper(
+            F('fecha_alta') - F('fecha_admision'),
+            output_field=DurationField()
         )
-        .order_by('-total_internaciones')[:5]
     )
     
-    # Horarios pico (análisis más detallado)
-    horarios_pico = []
-    for hora in range(24):
-        count = Internacion.objects.filter(
-            fecha_admision__hour=hora,
-            fecha_admision__gte=timezone.now() - timedelta(days=30)
-        ).count()
-        horarios_pico.append({
-            'hora': f"{hora:02d}:00",
-            'count': count,
-            'es_pico': count > 0 and count == max([
-                Internacion.objects.filter(
-                    fecha_admision__hour=h,
-                    fecha_admision__gte=timezone.now() - timedelta(days=30)
-                ).count() for h in range(24)
-            ])
-        })
+    # Clasificar por duración
+    estancias_cortas = 0  # <= 3 días
+    estancias_medias = 0  # 4-7 días
+    estancias_largas = 0  # > 7 días
+    
+    for internacion in internaciones_completadas:
+        if internacion.duracion:
+            dias = internacion.duracion.total_seconds() / 86400
+            if dias <= 3:
+                estancias_cortas += 1
+            elif dias <= 7:
+                estancias_medias += 1
+            else:
+                estancias_largas += 1
     
     context = {
         # Análisis predictivo
@@ -551,9 +536,10 @@ def estadisticas_avanzadas(request: HttpRequest) -> HttpResponse:
         # Recomendaciones
         'recomendaciones': recomendaciones,
         
-        # Análisis adicional
-        'sectores_demanda': sectores_demanda,
-        'horarios_pico': horarios_pico,
+        # Análisis de estancia
+        'estancias_cortas': estancias_cortas,
+        'estancias_medias': estancias_medias,
+        'estancias_largas': estancias_largas,
         
         # Fechas
         'fechas_historicas': json.dumps([

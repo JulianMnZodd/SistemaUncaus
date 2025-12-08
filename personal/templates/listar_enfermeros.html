@@ -72,7 +72,7 @@
                   </svg>
                   Editar
                 </a>
-                <button onclick="openModal('{{ enfermero.persona.id }}')" 
+                <button onclick="openModal('{{ enfermero.persona.id }}', '{{ enfermero.persona.first_name }} {{ enfermero.persona.last_name }}')" 
                         class="action-btn text-white bg-gradient-to-r from-red-600 to-red-500">
                   <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -147,8 +147,23 @@
       
       <!-- Cuerpo del Modal -->
       <div class="p-6">
-        <p class="text-gray-700 mb-4">¿Estás seguro de que deseas eliminar permanentemente este enfermero?</p>
-        <p class="text-sm text-gray-500">Esta acción no se puede deshacer. Todos los datos relacionados con este enfermero serán eliminados del sistema.</p>
+        <p class="text-gray-700 mb-2 font-medium">¿Estás seguro de que deseas eliminar a <span id="enfermeroNombre" class="text-red-600"></span>?</p>
+        <p class="text-sm text-gray-500 mb-4">Esta acción no se puede deshacer.</p>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700">
+                <strong>Advertencia:</strong> Si este enfermero tiene seguimientos registrados, no podrá ser eliminado.
+              </p>
+            </div>
+          </div>
+        </div>
         
         <!-- Barra de progreso animada para efecto de peligro -->
         <div class="mt-5 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
@@ -183,8 +198,9 @@
   // Funciones del modal
   let enfermeroIdToDelete = null;
 
-  function openModal(id) {
+  function openModal(id, nombre) {
     enfermeroIdToDelete = id;
+    document.getElementById('enfermeroNombre').textContent = nombre;
     document.getElementById('confirmModal').classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
   }

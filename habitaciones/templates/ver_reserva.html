@@ -104,16 +104,13 @@
       <div class="flex flex-wrap gap-4 justify-between">
         <!-- Grupo de acciones principales -->
         <div class="flex flex-wrap gap-4">
-          <!-- Botón para liberar cama -->
-          <form method="POST" action="{% url 'liberar_cama_reservada' cama.idcama %}" class="flex-shrink-0">
-            {% csrf_token %}
-            <button type="submit" class="action-btn bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600 px-6 py-3">
-              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-              Liberar Cama
-            </button>
-          </form>
+          <!-- Botón para abrir modal de liberar cama -->
+          <button type="button" onclick="openModal('modalLiberar')" class="action-btn bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600 px-6 py-3">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Liberar Cama
+          </button>
 
           <!-- Botón para asignar cama -->
           <a href="{% url 'asignar_cama' cama.idcama %}" class="action-btn bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 px-6 py-3">
@@ -190,19 +187,59 @@
   </div>
 </div>
 
-<script>
-  // Efecto de cursor personalizado
-  document.addEventListener('DOMContentLoaded', function() {
+<!-- Modal de confirmación para liberar cama -->
+<div id="modalLiberar" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Confirmar liberación de cama</h3>
+      <div class="mt-2 px-7 py-3">
+        <p class="text-sm text-gray-500">
+          ¿Está seguro que desea liberar la cama <strong>{{ cama.nro_cama }}</strong> de la habitación <strong>{{ cama.habitacion.numero }}</strong>?
+        </p>
+        <p class="text-sm text-gray-500 mt-2">
+          Esta acción eliminará la reserva del Dr. <strong>{{ reserva.medico.persona.first_name }} {{ reserva.medico.apellido }}</strong>.
+        </p>
+      </div>
+      <div class="items-center px-4 py-3">
+        <form method="POST" action="{% url 'liberar_cama_reservada' cama.idcama %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 mr-2">
+            Sí, liberar cama
+          </button>
+        </form>
+        <button onclick="closeModal('modalLiberar')" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
-    // Confirmación antes de liberar cama
-    const liberarForm = document.querySelector('form[action*="liberar_cama"]');
-    if (liberarForm) {
-      liberarForm.addEventListener('submit', function(e) {
-        if (!confirm('¿Está seguro que desea liberar esta cama?')) {
-          e.preventDefault();
+<script>
+  // Funciones para abrir y cerrar modales
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+  }
+  
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+  }
+  
+  // Cerrar modal al hacer clic fuera de él
+  document.addEventListener('DOMContentLoaded', function() {
+    const modals = document.querySelectorAll('[id^="modal"]');
+    modals.forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.add('hidden');
         }
       });
-    }
+    });
   });
 </script>
 

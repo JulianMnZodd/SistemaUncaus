@@ -1,5 +1,6 @@
 from django.db import models
 from django.shortcuts import redirect, render, get_object_or_404
+from django.contrib import messages
 from .models import Habitacion,Cama,Sector,Cama, Medico, Reserva
 from internacion.models import Internacion
 from django.contrib.auth.decorators import login_required
@@ -28,27 +29,67 @@ def lista_habitaciones(request):
     # Parámetros de filtrado
     selected_sectors = request.GET.getlist('sector')
     available_beds = 'available_beds' in request.GET
+    bed_status = request.GET.get('bed_status', '')  # Filtro por estado específico
+    search_patient = request.GET.get('search_patient', '').strip()  # Búsqueda de paciente
     
     # Convertir a enteros solo si hay valores válidos
     selected_sectors_ids = []
-    if selected_sectors:  # Verifica si hay valores en selected_sectors
+    if selected_sectors:
         selected_sectors_ids = [int(s_id) for s_id in selected_sectors if s_id.isdigit()]
     
-    # Configurar prefetch con filtros
-    camas_filter = Cama.objects.filter(estado='L') if available_beds else Cama.objects.all()
+    # Prefetch de internaciones activas para las camas (SIEMPRE se aplica)
+    internaciones_activas_prefetch = Prefetch(
+        'internacion_set',
+        queryset=Internacion.objects.filter(fecha_alta__isnull=True).select_related('idpaciente'),
+        to_attr='internaciones_activas'
+    )
+    
+    # Configurar queryset base de camas
+    camas_queryset = Cama.objects.all()
+    
+    # Aplicar filtros de estado
+    if available_beds:
+        camas_queryset = camas_queryset.filter(estado='L')
+    elif bed_status:  # Filtro por estado específico
+        camas_queryset = camas_queryset.filter(estado=bed_status)
+    
+    # Filtro por búsqueda de paciente
+    camas_con_paciente = None
+    if search_patient:
+        # Buscar internaciones que coincidan con el nombre del paciente
+        internaciones_encontradas = Internacion.objects.filter(
+            fecha_alta__isnull=True
+        ).filter(
+            Q(idpaciente__nombre__icontains=search_patient) |
+            Q(idpaciente__apellido__icontains=search_patient) |
+            Q(idpaciente__dni__icontains=search_patient)
+        ).select_related('cama')
+        
+        # Obtener IDs de camas que tienen esos pacientes
+        camas_con_paciente = [int.cama.idcama for int in internaciones_encontradas]
+        
+        if camas_con_paciente:
+            camas_queryset = camas_queryset.filter(idcama__in=camas_con_paciente)
+        else:
+            # Si no se encuentra ningún paciente, mostrar conjunto vacío
+            camas_queryset = camas_queryset.none()
+    
+    # Aplicar prefetch de internaciones
+    camas_queryset = camas_queryset.prefetch_related(internaciones_activas_prefetch)
+    
     habitaciones_prefetch = Prefetch(
         'habitaciones',
         queryset=Habitacion.objects.prefetch_related(
-            Prefetch('camas', queryset=camas_filter)
+            Prefetch('camas', queryset=camas_queryset)
         )
     )
     
     # Obtener sectores con filtros
     sectores = Sector.objects.prefetch_related(habitaciones_prefetch)
-    if selected_sectors_ids:  # Aplicar filtro solo si hay IDs válidos
+    if selected_sectors_ids:
         sectores = sectores.filter(idsector__in=selected_sectors_ids)
     
-    # Mapa de pacientes
+    # Mapa de pacientes para búsqueda rápida
     cama_paciente_map = {}
     internaciones = Internacion.objects.filter(fecha_alta__isnull=True).select_related('idpaciente', 'cama')
     for internacion in internaciones:
@@ -59,7 +100,10 @@ def lista_habitaciones(request):
         'all_sectors': Sector.objects.all(),
         'selected_sectors': selected_sectors_ids,
         'available_beds': available_beds,
+        'bed_status': bed_status,
+        'search_patient': search_patient,
         'cama_paciente_map': cama_paciente_map,
+        'camas_encontradas': camas_con_paciente if search_patient else None,
     }
     return render(request, 'lista_habitaciones.html', context)
 
@@ -89,8 +133,12 @@ def liberar_cama(request, idcama):
 def liberar_cama_reservada(request, idcama):
     cama = get_object_or_404(Cama, idcama=idcama)
     if request.method == 'POST':
-        cama.liberar()  # Solo libera la cama sin generar el informe
-        return redirect('lista_habitaciones')  # Redirige a la lista de habitaciones
+        # Eliminar las reservas asociadas
+        Reserva.objects.filter(cama=cama).delete()
+        cama.estado = 'L'
+        cama.save()
+        messages.success(request, f'Cama {cama.nro_cama} liberada exitosamente')
+        return redirect('lista_habitaciones')
     return redirect('lista_habitaciones')
 
 from django.utils import timezone

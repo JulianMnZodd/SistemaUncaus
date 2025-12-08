@@ -37,6 +37,7 @@
             <th class="px-6 py-3 text-left text-xs">Nombre</th>
             <th class="px-6 py-3 text-left text-xs">Especialidad</th>
             <th class="px-6 py-3 text-left text-xs">Matrícula</th>
+            <th class="px-6 py-3 text-left text-xs">Email</th>
             <th class="px-6 py-3 text-left text-xs">Teléfono</th>
             <th class="px-6 py-3 text-left text-xs">Acciones</th>
           </tr>
@@ -60,6 +61,9 @@
               {{ medico.matricula }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-sm">
+              {{ medico.persona.email }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-600 text-sm">
               {{ medico.persona.telefono }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -71,7 +75,7 @@
                   </svg>
                   Editar
                 </a>
-                <button onclick="openModal('{{ medico.persona.id }}')" 
+                <button onclick="openModal('{{ medico.persona.id }}', '{{ medico.persona.last_name }}, {{ medico.persona.first_name }}')" 
                         class="action-btn text-white bg-gradient-to-r from-red-600 to-red-500">
                   <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -83,7 +87,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="5" class="px-6 py-6 text-center text-gray-500 text-sm">
+            <td colspan="6" class="px-6 py-6 text-center text-gray-500 text-sm">
               <div class="flex flex-col items-center justify-center space-y-1">
                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -146,8 +150,23 @@
       
       <!-- Cuerpo del Modal -->
       <div class="p-6">
-        <p class="text-gray-700 mb-4">¿Estás seguro de que deseas eliminar permanentemente este médico?</p>
-        <p class="text-sm text-gray-500">Esta acción no se puede deshacer. Todos los datos relacionados con este médico serán eliminados del sistema.</p>
+        <p class="text-gray-700 mb-2 font-medium">¿Estás seguro de que deseas eliminar a <span id="medicoNombre" class="text-red-600"></span>?</p>
+        <p class="text-sm text-gray-500 mb-4">Esta acción no se puede deshacer.</p>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700">
+                <strong>Advertencia:</strong> Si este médico tiene diagnósticos o derivaciones asociadas, no podrá ser eliminado.
+              </p>
+            </div>
+          </div>
+        </div>
         
         <!-- Barra de progreso animada para efecto de peligro -->
         <div class="mt-5 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
@@ -183,8 +202,9 @@
   // Funciones del modal
   let medicoIdToDelete = null;
 
-  function openModal(id) {
+  function openModal(id, nombre) {
     medicoIdToDelete = id;
+    document.getElementById('medicoNombre').textContent = nombre;
     document.getElementById('confirmModal').classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
   }

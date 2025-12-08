@@ -63,8 +63,8 @@ class Cama(models.Model):
         
         # Importación diferida para evitar importación circular
         from internacion.models import Internacion
-        # Actualizar la fecha de alta en la internación correspondiente
-        internacion = Internacion.objects.filter(cama=self).last()
+        # Actualizar la fecha de alta en la internación activa correspondiente
+        internacion = Internacion.objects.filter(cama=self, fecha_alta__isnull=True).first()
         if internacion:
             internacion.fecha_alta = timezone.now()
             internacion.save()

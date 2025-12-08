@@ -95,13 +95,6 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" 
-                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" 
-                                       role="menuitem">
-                                        <i class="fas fa-cog mr-2 text-blue-500"></i> Configuración
-                                    </a>
-                                </li>
-                                <li>
                                     <form method="post" action="{% url 'logout' %}" class="w-full">
                                         {% csrf_token %}
                                         <button type="submit" 
@@ -133,7 +126,7 @@
                     <a href="{% url 'estadisticas'%}" 
                        class="sidebar-item flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
                         <i class="sidebar-icon fas fa-chart-line w-5 h-5 text-blue-500 mr-3"></i>
-                        <span class="font-medium">Inicio</span>
+                        <span class="font-medium">Estadísticas</span>
                     </a>
                     </li>                 
                 
@@ -235,13 +228,13 @@
                     </form>
                 </li>
 
-                   <li>
+                   {% comment %} <li>
                         <a href="{% url 'tutorial_sistema' %}"
                            class="sidebar-item flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-colors">
                             <i class="sidebar-icon fas fa-book w-5 h-5 text-blue-500 mr-3"></i>
                             <span class="font-medium">Tutorial</span>
                         </a>
-                </li>
+                </li> {% endcomment %}
             </ul>
         </div>
     </aside>
@@ -253,23 +246,7 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white shadow-sm border-t mt-auto">
-    <div class="mx-auto p-4 md:py-6 sm:ml-64">
-        <div class="sm:flex sm:items-center sm:justify-between">
-            <span class="text-sm text-gray-500 sm:text-center">© 2025 <a href="#" class="hover:underline">BedWise</a>. Todos los derechos reservados.
-            </span>
-            <div class="flex mt-4 sm:mt-0">
-                <a href="mailto:soporte@bedwise.com" class="text-sm text-gray-500 hover:text-gray-700 hover:underline flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
-                    bedwise.ayuda@gmail.com
-                </a>
-            </div>
-        </div>
-    </div>
-</footer>
+    
 
     <!-- Scripts -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -299,4 +276,21 @@
     <!-- Extra scripts -->
     {% block extrascripts %}{% endblock %}
 </body>
+<!-- Footer -->
+    <footer class="bg-white shadow-sm border-t mt-auto">
+    <div class="mx-auto p-4 md:py-6 sm:ml-64">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <span class="text-sm text-gray-500 sm:text-center">© 2025 <a href="#" class="hover:underline">BedWise</a>. Todos los derechos reservados.
+            </span>
+            <div class="flex mt-4 sm:mt-0">
+                <a href="mailto:soporte@bedwise.com" class="text-sm text-gray-500 hover:text-gray-700 hover:underline flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    bedwise.ayuda@gmail.com
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
 </html>

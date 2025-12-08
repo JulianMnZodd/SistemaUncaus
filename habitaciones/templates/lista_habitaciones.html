@@ -31,6 +31,59 @@
     <div id="filters-accordion" class="hidden">
         <div class="p-6 seguimientos-footer space-y-6">
             <form method="get" class="space-y-8">
+                <!-- Buscador de Pacientes - NUEVO -->
+                <div class="neumorphic p-5 rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50">
+                    <label class="block mb-4 text-sm font-semibold text-gray-700">
+                        <span class="flex items-center space-x-2">
+                            <div class="p-1.5 bg-purple-100 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Buscar Paciente</span>
+                        </span>
+                    </label>
+                    
+                    <div class="relative">
+                        <input type="text" 
+                               name="search_patient" 
+                               id="search_patient"
+                               value="{{ search_patient }}"
+                               placeholder="Buscar por nombre, apellido o DNI..."
+                               class="w-full bg-white border-2 border-purple-200 text-gray-700 text-sm rounded-xl focus:ring-purple-500 focus:border-purple-500 p-3 pl-10 hover:border-purple-300 transition-all">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        {% if search_patient %}
+                        <button type="button" 
+                                onclick="document.getElementById('search_patient').value=''; this.closest('form').submit();"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    {% if search_patient %}
+                    <div class="mt-3 p-3 bg-purple-100 rounded-lg">
+                        <p class="text-sm text-purple-800 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Buscando: <strong class="ml-1">"{{ search_patient }}"</strong>
+                            {% if camas_encontradas %}
+                                - {{ camas_encontradas|length }} resultado{{ camas_encontradas|length|pluralize }}
+                            {% else %}
+                                - Sin resultados
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Filtro por Sectores - Diseño mejorado -->
                     <div class="neumorphic p-5 rounded-2xl">
@@ -151,12 +204,14 @@
           <!-- Encabezado de habitación con gradiente -->
           <div class="p-4 bg-gradient-to-r from-blue-600 to-green-500">
             <h2 class="text-lg font-bold text-white">Habitación #{{ habitacion.numero }}</h2>
+            <p class="text-sm text-white opacity-90 mt-1">{{ habitacion.get_tipo_display }}</p>
           </div>
           
           <!-- Grid de camas mejorado -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
             {% for cama in habitacion.camas.all %}
-            <div class="bed-card compact-bed-card relative flex flex-col items-center seguimientos-row rounded-xl transition-all duration-300 animate__animated animate__fadeInRight" 
+            <div class="bed-card compact-bed-card relative flex flex-col items-center seguimientos-row rounded-xl transition-all duration-300 animate__animated animate__fadeInRight
+                 {% if camas_encontradas and cama.idcama in camas_encontradas %}ring-4 ring-purple-500 ring-offset-2 bg-purple-50{% endif %}" 
                  data-cama-id="{{ cama.idcama }}" data-index="{{ forloop.counter0 }}">
               <div class="relative w-full flex flex-col items-center p-3">
                 <!-- SVG con efecto 3D -->
@@ -216,22 +271,19 @@
                   
                   <!-- Mostrar paciente si existe una internación activa -->
                   {% if cama.estado == 'O' %}
-                    {% with internacion=cama.internacion_set.last %}
-                      {% if internacion and not internacion.fecha_alta %}
-                        <div class=" compact-patient-info">
-                          <p class="font-medium text-gray-700" id="paciente-{{ cama.idcama }}">
-                              {% with paciente=internacion.idpaciente %} 
-                                  <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}" 
-                                    class="hover:text-blue-600 transition-colors flex items-center justify-center">
-                                    <svg style="width:1.5rem; height: 1.5rem;" class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                <span id="paciente-nombre-{{ cama.idcama }}">{{ paciente.nombre }} {{ paciente.apellido }}</span>                                  </a>
-                              {% endwith %}
-                          </p>
-                        </div>
-                      {% endif %}
-                    {% endwith %}
+                    {% for internacion in cama.internaciones_activas %}
+                      <div class="compact-patient-info">
+                        <p class="font-medium text-gray-700" id="paciente-{{ cama.idcama }}">
+                          <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}" 
+                            class="hover:text-blue-600 transition-colors flex items-center justify-center">
+                            <svg style="width:1.5rem; height: 1.5rem;" class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span id="paciente-nombre-{{ cama.idcama }}">{{ internacion.idpaciente.nombre }} {{ internacion.idpaciente.apellido }}</span>
+                          </a>
+                        </p>
+                      </div>
+                    {% endfor %}
                   {% endif %}
                 </div>
 
@@ -473,6 +525,31 @@ function mostrarDerivacionModal(idcama) {
 function cerrarDerivacionModal() {
     document.getElementById('derivarModal').classList.add('hidden');
 }
+
+// Auto-scroll a la primera cama encontrada cuando hay búsqueda
+document.addEventListener('DOMContentLoaded', function() {
+    const searchParam = '{{ search_patient }}';
+    if (searchParam) {
+        // Esperar un momento para que se complete el render
+        setTimeout(function() {
+            // Buscar la primera cama con el badge "Encontrado"
+            const firstFoundBed = document.querySelector('.bg-purple-50');
+            if (firstFoundBed) {
+                // Hacer scroll suave hasta el elemento
+                firstFoundBed.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center'
+                });
+                
+                // Opcional: añadir un efecto de flash sutil
+                firstFoundBed.classList.add('animate-pulse');
+                setTimeout(function() {
+                    firstFoundBed.classList.remove('animate-pulse');
+                }, 2000);
+            }
+        }, 300);
+    }
+});
 </script>
 
 {% endblock content %}

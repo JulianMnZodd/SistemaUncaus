@@ -53,7 +53,7 @@
 
     <!-- Botones de acción -->
     <div class="flex justify-end space-x-4 mt-8">
-      <a href="{% url 'lista_habitaciones' %}" class="px-6 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
+      <a href="{% url 'listar_habitaciones_admin' %}" class="px-6 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50">
         Cancelar
       </a>
       <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:-translate-y-1 hover:shadow-lg">
@@ -76,9 +76,36 @@
         <p class="text-sm text-blue-700">
           Las camas serán creadas automáticamente según la cantidad especificada. 
           Todas tendrán estado "Libre" y números de cama del 1 al número indicado.
+          <strong>Nota:</strong> Las habitaciones VIP solo pueden tener 1 cama.
         </p>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoSelect = document.getElementById('id_tipo');
+    const cantidadCamasInput = document.getElementById('id_cantidad_camas');
+    
+    function actualizarCantidadCamas() {
+        if (tipoSelect.value === 'VIP') {
+            cantidadCamasInput.value = 1;
+            cantidadCamasInput.max = 1;
+            cantidadCamasInput.readOnly = true;
+            cantidadCamasInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+        } else {
+            cantidadCamasInput.max = 6;
+            cantidadCamasInput.readOnly = false;
+            cantidadCamasInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+        }
+    }
+    
+    // Ejecutar al cargar la página
+    actualizarCantidadCamas();
+    
+    // Ejecutar cuando cambie el tipo
+    tipoSelect.addEventListener('change', actualizarCantidadCamas);
+});
+</script>
 {% endblock %}

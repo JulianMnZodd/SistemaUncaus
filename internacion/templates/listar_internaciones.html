@@ -33,7 +33,7 @@
             </div>
             <button type="submit" 
                     class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover animate__animated animate__pulse animate__infinite animate__slower text-sm">
-              <svg class="w-4 h-4 r-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
               Generar Informe
@@ -42,6 +42,45 @@
         </form>
       </div>
     </div>
+    
+    <!-- Buscador minimalista -->
+    <div class="mt-4 animate__animated animate__fadeIn">
+      <form method="get" class="flex justify-center">
+        <div class="relative w-full max-w-md">
+          <input 
+            type="text" 
+            name="search" 
+            value="{{ search_query }}"
+            placeholder="Buscar paciente por nombre, apellido o DNI..."
+            class="w-full pl-10 pr-10 py-2.5 text-sm bg-white bg-opacity-90 backdrop-blur-sm border border-white border-opacity-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 text-gray-700 placeholder-gray-500"
+          />
+          <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          {% if search_query %}
+          <a href="{% url 'listar_internaciones' %}" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+    
+    {% if search_query %}
+    <div class="mt-3 text-center text-sm text-white text-opacity-90 animate__animated animate__fadeIn">
+      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      Buscando: <strong>"{{ search_query }}"</strong> - 
+      {% if internaciones %}
+        {{ internaciones.paginator.count }} resultado{{ internaciones.paginator.count|pluralize }}
+      {% else %}
+        Sin resultados
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 
   <!-- Table Container compacto -->
@@ -142,6 +181,35 @@
       </table>
     </div>
   </div>
+
+  <!-- Paginación -->
+  {% if internaciones.has_other_pages %}
+  <div class="mt-6 flex justify-center">
+    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Paginación">
+      {% if internaciones.has_previous %}
+        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          Primera
+        </a>
+        <a href="?page={{ internaciones.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          Anterior
+        </a>
+      {% endif %}
+
+      <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+        Página {{ internaciones.number }} de {{ internaciones.paginator.num_pages }}
+      </span>
+
+      {% if internaciones.has_next %}
+        <a href="?page={{ internaciones.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          Siguiente
+        </a>
+        <a href="?page={{ internaciones.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          Última
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
 </div>
 
 {% endblock content %}

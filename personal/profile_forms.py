@@ -1,5 +1,5 @@
 from django import forms
-from .models import Persona
+from .models import Persona, Medico, Enfermero, Recepcionista
 from django.core.exceptions import ValidationError
 import re
 
@@ -8,6 +8,16 @@ class UserProfileForm(forms.ModelForm):
     Formulario para editar el perfil de usuario, excluyendo campos sensibles
     como contraseñas y permisos.
     """
+    fecha_nacimiento = forms.DateField(
+        label='Fecha de nacimiento',
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50',
+        }),
+        input_formats=['%Y-%m-%d'],
+        required=True
+    )
+    
     class Meta:
         model = Persona
         fields = ['first_name', 'last_name', 'email', 'dni', 'telefono', 
@@ -20,13 +30,8 @@ class UserProfileForm(forms.ModelForm):
             'telefono': 'Teléfono',
             'domicilio': 'Domicilio',
             'genero': 'Género',
-            'fecha_nacimiento': 'Fecha de nacimiento',
         }
         widgets = {
-            'fecha_nacimiento': forms.DateInput(attrs={
-                'type': 'date', 
-                'class': 'form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
-            }),
             'first_name': forms.TextInput(attrs={
                 'class': 'form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
             }),
@@ -52,6 +57,12 @@ class UserProfileForm(forms.ModelForm):
             }),
         }
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Asegurar que la fecha de nacimiento se muestre correctamente en el input type="date"
+        if self.instance and self.instance.fecha_nacimiento:
+            self.initial['fecha_nacimiento'] = self.instance.fecha_nacimiento.strftime('%Y-%m-%d')
+    
     def clean_first_name(self):
         first_name = self.cleaned_data.get('first_name')
         if not all(c.isalpha() or c.isspace() for c in first_name):
@@ -72,6 +83,74 @@ class UserProfileForm(forms.ModelForm):
             if not telefono_limpio.isdigit() or len(telefono_limpio) < 7:
                 raise ValidationError("Ingrese un número de teléfono válido.")
         return telefono
+
+class MedicoProfileForm(forms.ModelForm):
+    """
+    Formulario para editar los datos específicos de un médico.
+    """
+    class Meta:
+        model = Medico
+        fields = ['especializacion', 'matricula']
+        labels = {
+            'especializacion': 'Especialización',
+            'matricula': 'Matrícula',
+        }
+        widgets = {
+            'especializacion': forms.TextInput(attrs={
+                'class': 'form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
+            }),
+            'matricula': forms.TextInput(attrs={
+                'class': 'form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50',
+                'maxlength': '8'
+            }),
+        }
+    
+    def clean_matricula(self):
+        matricula = self.cleaned_data.get('matricula')
+        if matricula:
+            if len(matricula) < 4 or len(matricula) > 8:
+                raise ValidationError("La matrícula debe tener entre 4 y 8 caracteres.")
+        return matricula
+
+class EnfermeroProfileForm(forms.ModelForm):
+    """
+    Formulario para editar los datos específicos de un enfermero.
+    """
+    class Meta:
+        model = Enfermero
+        fields = ['matricula']
+        labels = {
+            'matricula': 'Matrícula',
+        }
+        widgets = {
+            'matricula': forms.TextInput(attrs={
+                'class': 'form-input w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50',
+                'maxlength': '8'
+            }),
+        }
+    
+    def clean_matricula(self):
+        matricula = self.cleaned_data.get('matricula')
+        if matricula:
+            if len(matricula) < 4 or len(matricula) > 8:
+                raise ValidationError("La matrícula debe tener entre 4 y 8 caracteres.")
+        return matricula
+
+class RecepcionistaProfileForm(forms.ModelForm):
+    """
+    Formulario para editar los datos específicos de un recepcionista.
+    """
+    class Meta:
+        model = Recepcionista
+        fields = ['turno']
+        labels = {
+            'turno': 'Turno',
+        }
+        widgets = {
+            'turno': forms.Select(attrs={
+                'class': 'form-select w-full px-4 py-2.5 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
+            }),
+        }
 
 class PasswordChangeForm(forms.Form):
     """

@@ -23,8 +23,8 @@ class HabitacionForm(forms.ModelForm):
         widgets = {
             'idsector': forms.Select(attrs={'class': 'form-select w-full px-4 py-2.5 rounded-lg focus:outline-none'}),
             'numero': forms.NumberInput(attrs={'class': 'form-input w-full px-4 py-2.5 rounded-lg focus:outline-none', 'min': 1}),
-            'cantidad_camas': forms.NumberInput(attrs={'class': 'form-input w-full px-4 py-2.5 rounded-lg focus:outline-none', 'min': 1}),
-            'tipo': forms.Select(attrs={'class': 'form-select w-full px-4 py-2.5 rounded-lg focus:outline-none'}),
+            'cantidad_camas': forms.NumberInput(attrs={'class': 'form-input w-full px-4 py-2.5 rounded-lg focus:outline-none', 'min': 1, 'max': 6, 'id': 'id_cantidad_camas'}),
+            'tipo': forms.Select(attrs={'class': 'form-select w-full px-4 py-2.5 rounded-lg focus:outline-none', 'id': 'id_tipo'}),
         }
         labels = {
             'idsector': 'Sector',
@@ -32,6 +32,30 @@ class HabitacionForm(forms.ModelForm):
             'cantidad_camas': 'Cantidad de Camas',
             'tipo': 'Tipo de Habitación',
         }
+    
+    def clean_cantidad_camas(self):
+        cantidad = self.cleaned_data.get('cantidad_camas')
+        tipo = self.cleaned_data.get('tipo')
+        
+        if cantidad and cantidad > 6:
+            raise forms.ValidationError('El número máximo de camas por habitación es 6.')
+        
+        # Si es VIP, solo permitir 1 cama
+        if tipo == 'VIP' and cantidad != 1:
+            raise forms.ValidationError('Las habitaciones VIP solo pueden tener 1 cama.')
+        
+        return cantidad
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        tipo = cleaned_data.get('tipo')
+        cantidad_camas = cleaned_data.get('cantidad_camas')
+        
+        # Validación adicional
+        if tipo == 'VIP' and cantidad_camas and cantidad_camas != 1:
+            raise forms.ValidationError('Las habitaciones VIP solo pueden tener 1 cama.')
+        
+        return cleaned_data
 
 class CamaForm(forms.ModelForm):
     class Meta:

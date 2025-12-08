@@ -115,10 +115,8 @@ class MedicoForm(forms.ModelForm):
     def clean_matricula(self):
         matricula = self.cleaned_data.get('matricula')
         if matricula:
-            if not matricula.isdigit():
-                raise ValidationError("La matrícula debe contener solo números")
             if len(matricula) < 4 or len(matricula) > 8:
-                raise ValidationError("La matrícula debe tener entre 4 y 8 dígitos")
+                raise ValidationError("La matrícula debe tener entre 4 y 8 caracteres")
         return matricula
         
 class EnfermeroForm(forms.ModelForm):
@@ -129,10 +127,8 @@ class EnfermeroForm(forms.ModelForm):
     def clean_matricula(self):
         matricula = self.cleaned_data.get('matricula')
         if matricula:
-            if not matricula.isdigit():
-                raise ValidationError("La matrícula debe contener solo números")
             if len(matricula) < 4 or len(matricula) > 8:
-                raise ValidationError("La matrícula debe tener entre 4 y 8 dígitos")
+                raise ValidationError("La matrícula debe tener entre 4 y 8 caracteres")
         return matricula
         
 class RecepcionistaForm(forms.ModelForm):
