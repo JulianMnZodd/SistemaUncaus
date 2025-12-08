@@ -1,0 +1,273 @@
+{% extends "_base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">{{ titulo }}</h1>
+            <p class="text-gray-600 mt-2">Administra todas las habitaciones del hospital</p>
+        </div>
+        <a href="{% url 'crear_habitacion' %}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition duration-300 flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            Crear Nueva Habitación
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <form method="GET" class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sector</label>
+                <select name="sector" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">Todos los sectores</option>
+                    {% for sector in sectores %}
+                    <option value="{{ sector.idsector }}" {% if sector_filtrado == sector.idsector|stringformat:"s" %}selected{% endif %}>
+                        {{ sector.nombre }} - Piso {{ sector.piso }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                <select name="tipo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">Todos los tipos</option>
+                    {% for codigo, nombre in tipos_habitacion %}
+                    <option value="{{ codigo }}" {% if tipo_filtrado == codigo %}selected{% endif %}>
+                        {{ nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition duration-300">
+                    <i class="fas fa-filter mr-2"></i>Filtrar
+                </button>
+                <a href="{% url 'listar_habitaciones_admin' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-6 py-2 rounded-lg transition duration-300 inline-block ml-2">
+                    <i class="fas fa-times mr-2"></i>Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Habitaciones -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N°</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Camas</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for habitacion in habitaciones %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <i class="fas fa-door-open text-blue-500 mr-2"></i>
+                                <span class="font-semibold text-gray-900">{{ habitacion.numero }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ habitacion.idsector.nombre }}</div>
+                            <div class="text-xs text-gray-500">Piso {{ habitacion.idsector.piso }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {{ habitacion.get_tipo_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-bed text-gray-400"></i>
+                                {{ habitacion.total_camas }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                {% if habitacion.camas_libres > 0 %}
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-md font-medium whitespace-nowrap">
+                                    <i class="fas fa-check-circle"></i> {{ habitacion.camas_libres }} Libre{{ habitacion.camas_libres|pluralize }}
+                                </span>
+                                {% endif %}
+                                {% if habitacion.camas_ocupadas > 0 %}
+                                <span class="px-2 py-1 bg-red-100 text-red-800 rounded-md font-medium whitespace-nowrap">
+                                    <i class="fas fa-user"></i> {{ habitacion.camas_ocupadas }} Ocupada{{ habitacion.camas_ocupadas|pluralize }}
+                                </span>
+                                {% endif %}
+                                {% if habitacion.camas_reservadas > 0 %}
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md font-medium whitespace-nowrap">
+                                    <i class="fas fa-clock"></i> {{ habitacion.camas_reservadas }} Reservada{{ habitacion.camas_reservadas|pluralize }}
+                                </span>
+                                {% endif %}
+                                {% if habitacion.total_camas == 0 %}
+                                <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md font-medium whitespace-nowrap">
+                                    <i class="fas fa-info-circle"></i> Sin camas
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'editar_habitacion' habitacion.idhabitacion %}" 
+                               class="text-yellow-600 hover:text-yellow-900 mr-3">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <button onclick="confirmarEliminacion('{{ habitacion.idhabitacion }}', '{{ habitacion.numero }}')" 
+                                    class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
+                            <p class="text-gray-500 text-lg">No hay habitaciones registradas</p>
+                            <a href="{% url 'crear_habitacion' %}" class="text-blue-600 hover:underline mt-2 inline-block">
+                                Crear la primera habitación
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    {% if habitaciones %}
+    <div class="mt-6 bg-white rounded-lg shadow-md p-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-gray-800">{{ habitaciones|length }}</div>
+                <div class="text-sm text-gray-600">Total Habitaciones</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">
+                    <span id="contadorLibres">0</span>
+                </div>
+                <div class="text-sm text-gray-600">Con Camas Libres</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600">
+                    <span id="totalCamas">0</span>
+                </div>
+                <div class="text-sm text-gray-600">Total Camas</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600">
+                    <span id="camasOcupadas">0</span>
+                </div>
+                <div class="text-sm text-gray-600">Camas Ocupadas</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de Confirmación -->
+<div id="modalEliminar" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <div class="text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirmar Eliminación</h3>
+            <p class="text-gray-600 mb-6">
+                ¿Está seguro que desea eliminar la habitación <strong id="habitacionNumero"></strong>?
+                <br>Esta acción también eliminará todas las camas asociadas.
+            </p>
+            <form id="formEliminar" method="POST" class="flex gap-3">
+                {% csrf_token %}
+                <button type="button" onclick="cerrarModal()" 
+                        class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded transition duration-300">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition duration-300">
+                    Eliminar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Calcular estadísticas
+document.addEventListener('DOMContentLoaded', function() {
+    const habitaciones = [
+        {% for h in habitaciones %}
+        {
+            libres: {{ h.camas_libres|default:0 }},
+            ocupadas: {{ h.camas_ocupadas|default:0 }},
+            reservadas: {{ h.camas_reservadas|default:0 }},
+            total: {{ h.total_camas|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    console.log('Habitaciones:', habitaciones);
+    
+    let conLibres = 0;
+    let totalCamas = 0;
+    let camasOcupadas = 0;
+    let totalLibres = 0;
+    
+    habitaciones.forEach(h => {
+        if (h.libres > 0) conLibres++;
+        totalCamas += h.total;
+        camasOcupadas += h.ocupadas;
+        totalLibres += h.libres;
+    });
+    
+    console.log('Habitaciones con camas libres:', conLibres);
+    console.log('Total de camas libres:', totalLibres);
+    console.log('Total de camas:', totalCamas);
+    console.log('Camas ocupadas:', camasOcupadas);
+    
+    // Actualizar los contadores
+    const contadorLibresEl = document.getElementById('contadorLibres');
+    const totalCamasEl = document.getElementById('totalCamas');
+    const camasOcupadasEl = document.getElementById('camasOcupadas');
+    
+    if (contadorLibresEl) contadorLibresEl.textContent = totalLibres;
+    if (totalCamasEl) totalCamasEl.textContent = totalCamas;
+    if (camasOcupadasEl) camasOcupadasEl.textContent = camasOcupadas;
+});
+
+function confirmarEliminacion(habitacionId, habitacionNumero) {
+    document.getElementById('habitacionNumero').textContent = habitacionNumero;
+    document.getElementById('formEliminar').action = `/habitaciones/eliminar/${habitacionId}/`;
+    document.getElementById('modalEliminar').classList.remove('hidden');
+}
+
+function cerrarModal() {
+    document.getElementById('modalEliminar').classList.add('hidden');
+}
+
+// Cerrar modal al hacer clic fuera de él
+document.getElementById('modalEliminar').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModal();
+    }
+});
+</script>
+{% endblock %}

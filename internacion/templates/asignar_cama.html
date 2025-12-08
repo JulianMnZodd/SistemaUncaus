@@ -4,183 +4,19 @@
 
 {% block content %}
 
-<!-- Incluir los mismos estilos del primer HTML -->
-<style>
-  :root {
-    --primary: #4361ee;
-    --secondary: #3f37c9;
-    --accent: #4895ef;
-    --dark: #1b263b;
-    --light: #f8f9fa;
-    --success: #4cc9f0;
-    --warning: #f8961e;
-    --danger: #f72585;
-    --info: #560bad;
-    --glass: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.2);
-  }
-
-  /* Scroll personalizado */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(241, 241, 241, 0.5);
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
-  }
-
-  /* Efecto vidrio moderno */
-  .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-  }
-
-  /* Neumorfismo suave */
-  .neumorphic {
-    border-radius: 0.75rem;
-    background: #f0f9ff;
-    box-shadow:  4px 4px 8px #d9e7f5,
-                -4px -4px 8px #ffffff;
-    transition: all 0.2s ease;
-  }
-
-  .neumorphic:hover {
-    box-shadow:  2px 2px 4px #d9e7f5,
-                -2px -2px 4px #ffffff;
-  }
-
-  /* Estilos para la tabla */
-  .modern-table {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    border-radius: 0.75rem;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
-  }
-  
-  .modern-table thead {
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  }
-  
-  .modern-table th {
-    color: #0369a1;
-    font-weight: 600;
-    padding: 0.75rem;
-    text-align: left;
-    font-size: 0.875rem;
-  }
-  
-  .modern-table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid rgba(224, 242, 254, 0.5);
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-  }
-  
-  .modern-table tr:hover td {
-    background-color: rgba(224, 242, 254, 0.3);
-    transform: translateX(2px);
-  }
-
-  /* Estilos para botones */
-  .action-btn {
-    transition: all 0.2s ease;
-    border-radius: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.7rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  .action-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .action-btn svg {
-    margin-right: 0.2rem;
-    width: 0.8rem;
-    height: 0.8rem;
-  }
-
-  /* Efecto hover para filas */
-  .paciente-row {
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-
-  .paciente-row:hover {
-    background-color: rgba(224, 242, 254, 0.3) !important;
-  }
-
-  /* Estilo para el buscador */
-  .search-input {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(199, 210, 254, 0.3);
-    transition: all 0.2s ease;
-  }
-
-  .search-input:focus {
-    background: white;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
-  }
-
-  /* Estilo para los modales */
-  .modal-content {
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  }
-
-  .modal-header {
-    background: linear-gradient(135deg, #3f83f8 0%, #057a55 100%);
-    color: white;
-    padding: 1.25rem;
-  }
-
-  /* Efecto para el checkbox de selección */
-  .seleccionado {
-    transition: all 0.2s ease;
-  }
-
-  .seleccionado.active {
-    background-color: var(--primary);
-    border-color: var(--primary);
-  }
-</style>
-
 <!-- Cursor personalizado -->
 <div class="cursor-follower" id="cursorFollower"></div>
 
 <div class="container mx-auto px-3 py-8 max-w-6xl">
-  <!-- Encabezado con gradiente como en el primer HTML -->
-  <div class="pacientes-header animate__animated animate__fadeInDown animate__fast rounded-2xl mb-8" style="background: linear-gradient(135deg, #3f83f8 0%, #057a55 100%);">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6">
+<!-- Encabezado con estilo unificado -->
+  <div class="page-header animate__animated animate__fadeInDown animate__fast">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="animate__animated animate__fadeInLeft animate__delay-1s">
-        <h1 class="text-3xl font-bold text-white tracking-tight">Asignar Cama</h1>
-        <p class="text-white text-opacity-90 mt-1 text-sm">
-          Seleccione un paciente para asignar a una cama
-        </p>
+        <h1>Asignar Cama</h1>
+        <p>Seleccione un paciente para asignar a una cama</p>
       </div>
       
-      <!-- Buscador con estilo del primer HTML -->
+      <!-- Buscador con estilo unificado -->
       <div class="animate__animated animate__fadeInRight animate__delay-1s w-full md:w-auto">
         <input type="text" id="buscador" placeholder="Buscar paciente por nombre, apellido o DNI..."
                class="search-input w-full px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 text-gray-700">
@@ -271,17 +107,17 @@
     <div class="space-y-4 glass-card p-6 rounded-xl">
       <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Notas de Ingreso</h2>
       <div>
-        {{ form.nota_ingreso|add_class:"w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" }}
+        {{ form.nota_ingreso|add_class:"form-field focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" }}
         {% if form.nota_ingreso.errors %}
           <p class="mt-2 text-sm text-red-600">{{ form.nota_ingreso.errors|join:", " }}</p>
         {% endif %}
       </div>
     </div>
 
-    <!-- Botones de acción con estilo del primer HTML -->
+    <!-- Botones de acción con estilos unificados -->
     <div class="flex justify-center mt-8 space-x-4">
       <button type="button" data-modal-target="modal-asignar" data-modal-toggle="modal-asignar"
-              class="action-btn text-white bg-gradient-to-r from-indigo-600 to-indigo-500 px-6 py-3 rounded-lg font-medium">
+              class="action-btn confirm-btn text-white bg-gradient-to-r from-indigo-600 to-indigo-500 px-6 py-3 rounded-lg font-medium">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
         </svg>
@@ -289,7 +125,7 @@
       </button>
       
       <button type="button" data-modal-target="modal-pdf" data-modal-toggle="modal-pdf"
-              class="action-btn text-white bg-gradient-to-r from-green-600 to-green-500 px-6 py-3 rounded-lg font-medium">
+              class="action-btn confirm-btn text-white bg-gradient-to-r from-green-600 to-green-500 px-6 py-3 rounded-lg font-medium">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
@@ -324,7 +160,7 @@
           Cancelar
         </button>
         <button type="submit" name="action" value="asignar" form="asignar-cama-form"
-                class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200">
+                class="confirm-btn px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200">
           Confirmar
         </button>
       </div>
@@ -357,7 +193,7 @@
           Cancelar
         </button>
         <button type="submit" name="action" value="generar_pdf" form="asignar-cama-form"
-                class="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 transition-all duration-200">
+                class="confirm-btn px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600 transition-all duration-200">
           Generar
         </button>
       </div>
@@ -366,32 +202,6 @@
 </div>
 
 <script>
-// Cursor personalizado como en el primer HTML
-document.addEventListener('DOMContentLoaded', function() {
-    const cursorFollower = document.getElementById('cursorFollower');
-    
-    document.addEventListener('mousemove', (e) => {
-        cursorFollower.style.left = e.clientX + 'px';
-        cursorFollower.style.top = e.clientY + 'px';
-    });
-    
-    // Efecto al pasar sobre elementos interactivos
-    const interactiveElements = document.querySelectorAll('a, button, input, select, .paciente-row, .action-btn');
-    interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursorFollower.style.transform = 'translate(-50%, -50%) scale(1.5)';
-            cursorFollower.style.opacity = '0.2';
-            cursorFollower.style.background = 'var(--accent)';
-        });
-        
-        el.addEventListener('mouseleave', () => {
-            cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
-            cursorFollower.style.opacity = '0.1';
-            cursorFollower.style.background = 'var(--primary)';
-        });
-    });
-});
-
 // JavaScript para el buscador de pacientes
 document.getElementById('buscador').addEventListener('input', function () {
     const searchTerm = this.value.toLowerCase();

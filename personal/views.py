@@ -45,7 +45,7 @@ def crear_medico(request):
             medico.save()
 
             messages.success(request, '¡Médico creado exitosamente!')
-            return redirect('crear_medico')
+            return redirect('listar_medicos')
         else:
             messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
@@ -99,7 +99,7 @@ def crear_enfermero(request):
             enfermero.save()
 
             messages.success(request, '¡Enfermero creado exitosamente!')
-            return redirect('crear_enfermero')
+            return redirect('listar_enfermeros')
     else:
         persona_form = CustomUserCreationForm()
         enfermero_form = EnfermeroForm()
@@ -174,9 +174,34 @@ def listar_medicos(request):
 @login_required
 @staff_required(redirect_url='lista_habitaciones')
 def eliminar_medico(request, id_medico):
+    from django.db.models import ProtectedError
+    from internacion.models import Diagnostico
+    
     medico = get_object_or_404(Medico, persona_id=id_medico)
-    medico.delete()
-    messages.success(request, '¡Médico eliminado exitosamente!')
+    
+    # Verificar si tiene diagnósticos asociados
+    diagnosticos_como_principal = Diagnostico.objects.filter(idmedico=medico).count()
+    diagnosticos_como_derivado = Diagnostico.objects.filter(idmedico_derivado=medico).count()
+    total_diagnosticos = diagnosticos_como_principal + diagnosticos_como_derivado
+    
+    if total_diagnosticos > 0:
+        razones = []
+        if diagnosticos_como_principal > 0:
+            razones.append(f"{diagnosticos_como_principal} diagnóstico(s) como médico principal")
+        if diagnosticos_como_derivado > 0:
+            razones.append(f"{diagnosticos_como_derivado} diagnóstico(s) como médico derivado")
+        
+        mensaje_error = f"No se puede eliminar al Dr/a. {medico.persona.get_full_name()} porque tiene: {', '.join(razones)}."
+        messages.error(request, mensaje_error)
+        return redirect('listar_medicos')
+    
+    try:
+        nombre_completo = medico.persona.get_full_name()
+        medico.delete()
+        messages.success(request, f'¡Médico {nombre_completo} eliminado exitosamente!')
+    except ProtectedError:
+        messages.error(request, f'No se puede eliminar al Dr/a. {medico.persona.get_full_name()} porque tiene registros médicos asociados.')
+    
     return redirect('listar_medicos')
 
 
@@ -189,9 +214,26 @@ def listar_enfermeros(request):
 @login_required
 @staff_required(redirect_url='lista_habitaciones')
 def eliminar_enfermero(request, id_enfermero):
+    from django.db.models import ProtectedError
+    from internacion.models import Seguimiento
+    
     enfermero = get_object_or_404(Enfermero, persona_id=id_enfermero)
-    enfermero.delete()
-    messages.success(request, '¡Enfermero eliminado exitosamente!')
+    
+    # Verificar si tiene seguimientos asociados
+    seguimientos = Seguimiento.objects.filter(idenfermero=enfermero).count()
+    
+    if seguimientos > 0:
+        mensaje_error = f"No se puede eliminar a {enfermero.persona.get_full_name()} porque tiene {seguimientos} seguimiento(s) de enfermería registrado(s)."
+        messages.error(request, mensaje_error)
+        return redirect('listar_enfermeros')
+    
+    try:
+        nombre_completo = enfermero.persona.get_full_name()
+        enfermero.delete()
+        messages.success(request, f'¡Enfermero {nombre_completo} eliminado exitosamente!')
+    except ProtectedError:
+        messages.error(request, f'No se puede eliminar a {enfermero.persona.get_full_name()} porque tiene registros de seguimiento asociados.')
+    
     return redirect('listar_enfermeros')
 
 @login_required
@@ -228,9 +270,17 @@ def editar_recepcionista(request, recepcionista_id):
 @login_required
 @staff_required(redirect_url='lista_habitaciones')
 def eliminar_recepcionista(request, id_recepcionista):
+    from django.db.models import ProtectedError
+    
     recepcionista = get_object_or_404(Recepcionista, persona_id=id_recepcionista)
-    recepcionista.delete()
-    messages.success(request, '¡Recepcionista eliminado exitosamente!')
+    
+    try:
+        nombre_completo = recepcionista.persona.get_full_name()
+        recepcionista.delete()
+        messages.success(request, f'¡Recepcionista {nombre_completo} eliminado exitosamente!')
+    except ProtectedError:
+        messages.error(request, f'No se puede eliminar a {recepcionista.persona.get_full_name()} porque tiene registros asociados en el sistema.')
+    
     return redirect('listar_recepcionistas')
 
 

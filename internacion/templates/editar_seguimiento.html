@@ -4,79 +4,15 @@
 
 {% block content %}
 
-<!-- Estilos personalizados -->
-<style>
-  :root {
-    --primary: #4361ee;
-    --secondary: #3f37c9;
-    --accent: #4895ef;
-    --dark: #1b263b;
-    --light: #f8f9fa;
-    --success: #4cc9f0;
-    --warning: #f8961e;
-    --danger: #f72585;
-    --info: #560bad;
-    --glass: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.2);
-  }
-
-  .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-  }
-
-  .neumorphic {
-    border-radius: 0.75rem;
-    background: #f0f9ff;
-    box-shadow: 4px 4px 8px #d9e7f5, -4px -4px 8px #ffffff;
-    transition: all 0.2s ease;
-  }
-
-  .modern-form {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    border-radius: 1rem;
-    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
-  }
-
-  .form-input {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(224, 242, 254, 0.5);
-    transition: all 0.2s ease;
-  }
-
-  .form-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.2);
-    background: white;
-  }
-
-  .action-btn {
-    transition: all 0.2s ease;
-    border-radius: 0.375rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  .action-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  }
-</style>
+<!-- Cursor personalizado -->
+<div class="cursor-follower" id="cursorFollower"></div>
 
 <div class="container mx-auto px-4 py-8 max-w-4xl">
-  <div class="bg-gradient-to-r from-blue-500 to-green-600 p-6 rounded-2xl shadow-lg mb-8">
+  <div class="page-header">
     <h2 class="text-3xl font-bold text-white text-center">Editar Seguimiento</h2>
   </div>
 
-  <form method="post" class="modern-form p-6 space-y-10">
+  <form method="post" class="modern-form p-6 space-y-10 bg-white bg-opacity-90 backdrop-blur-sm rounded-xl shadow-lg">
     {% csrf_token %}
 
     <!-- Observación -->
@@ -141,11 +77,20 @@
       {% endfor %}
     </div>
 
-    <!-- Botón -->
-    <div class="text-right">
-      <button type="submit" class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600">
+    <!-- Botones -->
+    <div class="flex items-center justify-end space-x-4">
+      <button type="submit" class="action-btn bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
         Guardar Cambios
       </button>
+      <a href="{% url 'listar_seguimientos' seguimiento.idinternacion.idinternacion %}" class="action-btn bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        Cancelar
+      </a>
     </div>
   </form>
 </div>

@@ -6,15 +6,8 @@ from datetime import timedelta
 
 class Sector(models.Model):
     
-    TIPOS_SECTOR = [
-        ('General', 'General'),
-        ('Terapia', 'Terapia'),
-        ('VIP', 'VIP'),
-        ('Quirófano', 'Quirófano'),
-    ]
-    
     idsector = models.AutoField(db_column='idSector', primary_key=True)  # Field name made lowercase.
-    tipo = models.CharField(max_length=15, choices=TIPOS_SECTOR)
+    nombre = models.CharField(max_length=100, verbose_name="Nombre del Sector", db_column='tipo')  # Renombrado de tipo a nombre
     cantidad_habitaciones = models.IntegerField()
     piso = models.IntegerField()
 
@@ -23,7 +16,7 @@ class Sector(models.Model):
         db_table = 'sector'
         
     def __str__(self):
-        return f"{self.tipo}"
+        return f"{self.nombre}"
 
 class Habitacion(models.Model):
     
@@ -70,8 +63,8 @@ class Cama(models.Model):
         
         # Importación diferida para evitar importación circular
         from internacion.models import Internacion
-        # Actualizar la fecha de alta en la internación correspondiente
-        internacion = Internacion.objects.filter(cama=self).last()
+        # Actualizar la fecha de alta en la internación activa correspondiente
+        internacion = Internacion.objects.filter(cama=self, fecha_alta__isnull=True).first()
         if internacion:
             internacion.fecha_alta = timezone.now()
             internacion.save()

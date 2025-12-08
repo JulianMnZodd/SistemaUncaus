@@ -2,294 +2,6 @@
 {% load static %}
 {% block content %}
 
-<!-- Glassmorphism y Neumorphism combinados -->
-<style>
-  :root {
-    --primary: #4361ee;
-    --secondary: #3f37c9;
-    --accent: #4895ef;
-    --dark: #1b263b;
-    --light: #f8f9fa;
-    --success: #4cc9f0;
-    --warning: #f8961e;
-    --danger: #f72585;
-    --info: #560bad;
-    --glass: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.2);
-  }
-
-  /* Efecto vidrio moderno */
-  .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  }
-
-  /* Neumorfismo suave */
-  .neumorphic {
-    border-radius: 1rem;
-    background: #f0f9ff;
-    box-shadow:  8px 8px 16px #d9e7f5,
-                -8px -8px 16px #ffffff;
-    transition: all 0.3s ease;
-  }
-
-  .neumorphic:hover {
-    box-shadow:  4px 4px 8px #d9e7f5,
-                -4px -4px 8px #ffffff;
-  }
-
-  /* Animaciones personalizadas */
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes fadeInRight {
-    from {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  
-  .animate-fadeInRight {
-    animation: fadeInRight 0.6s ease-out forwards;
-  }
-  
-  /* Retraso escalonado para elementos */
-  [data-index] {
-    animation-delay: calc(attr(data-index) * 0.1s);
-  }
-  
-  /* Bordes modernos */
-  .rounded-xl {
-    border-radius: 1rem;
-  }
-  .rounded-2xl {
-    border-radius: 1.5rem;
-  }
-  .rounded-3xl {
-    border-radius: 2rem;
-  }
-  .rounded-lg {
-    border-radius: 0.5rem;
-  }
-  
-  /* Efectos hover 2025 */
-  .btn-hover {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    transform: translateY(0);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .btn-hover::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: 0.5s;
-  }
-  
-  .btn-hover:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  .btn-hover:hover::before {
-    left: 100%;
-  }
-  
-  /* Efecto para tarjetas */
-  .card-hover {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform: scale(1);
-  }
-  
-  .card-hover:hover {
-    transform: scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
-  }
-  
-  /* Efecto de carga moderno */
-  @keyframes pulse {
-    0% { opacity: 0.6; transform: scale(0.98); }
-    50% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0.6; transform: scale(0.98); }
-  }
-  
-  .loading-element {
-    animation: pulse 1.5s infinite ease-in-out;
-  }
-  
-  /* Estilos para contenedores modernos */
-  .seguimientos-container {
-    background-color: rgba(248, 250, 252, 0.85);
-    border: 1px solid rgba(226, 232, 240, 0.3);
-  }
-  
-  .seguimientos-header {
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-    color: #0369a1;
-    border-bottom: 2px solid rgba(186, 230, 253, 0.5);
-  }
-  
-  .seguimientos-footer {
-    background-color: rgba(240, 249, 255, 0.85);
-    border-top: 2px solid rgba(224, 242, 254, 0.5);
-  }
-  
-  /* Estilo para filas de camas */
-  .seguimientos-row {
-    background-color: rgba(248, 250, 252, 0.7);
-    transition: all 0.3s ease;
-  }
-  
-  .seguimientos-row:hover {
-    background-color: rgba(224, 242, 254, 0.7) !important;
-    transform: translateY(-2px);
-  }
-
-  /* Tarjetas de camas modernas */
-  .bed-card {
-    padding: 0.75rem;
-    transition: all 0.3s ease;
-  }
-  
-  .bed-card svg {
-    width: 4rem;
-    height: 4rem;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-  }
-  
-
-  .bed-card:hover svg {
-    transform: scale(1.05);
-    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.15));
-  }
-  
-  /* Badges modernos */
-  .status-badge {
-    font-size: 0.65rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  /* Efecto de cursor personalizado */
-  .cursor-follower {
-    position: fixed;
-    width: 20px;
-    height: 20px;
-    background: var(--accent);
-    border-radius: 50%;
-    pointer-events: none;
-    mix-blend-mode: screen;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    opacity: 0.3;
-    transition: transform 0.1s ease;
-  }
-  
-  /* Scroll personalizado */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(241, 241, 241, 0.5);
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
-  }
-  
-  /* Efecto de gradiente animado */
-  .gradient-bg {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-  }
-  
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  .compact-bed-card {
-    padding: 0.5rem; /* Reducir el padding */
-  }
-  
-  .compact-bed-card svg {
-    width: 3rem; /* Reducir tamaño del icono de cama */
-    height: 3rem;
-  }
-  
-  
-  .compact-status-badge {
-    font-size: 0.6rem;
-    padding: 0.2rem 0.4rem;
-  }
-  
-  .compact-actions {
-    margin-top: 0.5rem;
-  }
-  
-  .compact-actions a, 
-  .compact-actions button {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.7rem;
-  }
-  
-  .compact-actions svg {
-    width: 0.75rem;
-    height: 0.75rem;
-    margin-right: 0.25rem;
-  }
-  
-  .compact-patient-info {
-    font-size: 0.7rem;
-    margin-top: 0.25rem;
-    width: 100%;
-    white-space: normal; 
-    overflow: visible; 
-    text-overflow: initial; 
-  }
-
-  .compact-patient-info p {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-</style>
-
 <!-- Cursor personalizado -->
 <div class="cursor-follower" id="cursorFollower"></div>
 
@@ -319,6 +31,59 @@
     <div id="filters-accordion" class="hidden">
         <div class="p-6 seguimientos-footer space-y-6">
             <form method="get" class="space-y-8">
+                <!-- Buscador de Pacientes - NUEVO -->
+                <div class="neumorphic p-5 rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50">
+                    <label class="block mb-4 text-sm font-semibold text-gray-700">
+                        <span class="flex items-center space-x-2">
+                            <div class="p-1.5 bg-purple-100 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-700">Buscar Paciente</span>
+                        </span>
+                    </label>
+                    
+                    <div class="relative">
+                        <input type="text" 
+                               name="search_patient" 
+                               id="search_patient"
+                               value="{{ search_patient }}"
+                               placeholder="Buscar por nombre, apellido o DNI..."
+                               class="w-full bg-white border-2 border-purple-200 text-gray-700 text-sm rounded-xl focus:ring-purple-500 focus:border-purple-500 p-3 pl-10 hover:border-purple-300 transition-all">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        {% if search_patient %}
+                        <button type="button" 
+                                onclick="document.getElementById('search_patient').value=''; this.closest('form').submit();"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    {% if search_patient %}
+                    <div class="mt-3 p-3 bg-purple-100 rounded-lg">
+                        <p class="text-sm text-purple-800 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Buscando: <strong class="ml-1">"{{ search_patient }}"</strong>
+                            {% if camas_encontradas %}
+                                - {{ camas_encontradas|length }} resultado{{ camas_encontradas|length|pluralize }}
+                            {% else %}
+                                - Sin resultados
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Filtro por Sectores - Diseño mejorado -->
                     <div class="neumorphic p-5 rounded-2xl">
@@ -341,7 +106,7 @@
                                        class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2">
                                 <label for="sector-{{ sector.idsector }}" 
                                        class="ml-3 text-sm font-medium text-gray-700 cursor-pointer hover:text-blue-600 transition-colors flex items-center">
-                                    <span>{{ sector.tipo }}</span>
+                                    <span>{{ sector.nombre }}</span>
                                     {% if sector.count %}<span class="text-xs text-gray-500 ml-2 px-1.5 py-0.5 bg-gray-100 rounded-full">{{ sector.count }}</span>{% endif %}
                                 </label>
                             </div>
@@ -417,50 +182,8 @@
         </div>
     </div>
   </div>
-
-  <!-- Script para el acordeón mejorado -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const accordionButtons = document.querySelectorAll('[data-accordion-target]');
-      
-      accordionButtons.forEach(button => {
-          button.addEventListener('click', function() {
-              const targetId = this.getAttribute('data-accordion-target');
-              const target = document.querySelector(targetId);
-              const icon = this.querySelector('[data-accordion-icon]');
-              
-              // Animación suave
-              if (target.classList.contains('hidden')) {
-                  target.classList.remove('hidden');
-                  target.style.maxHeight = '0';
-                  target.style.overflow = 'hidden';
-                  setTimeout(() => {
-                      target.style.maxHeight = target.scrollHeight + 'px';
-                      setTimeout(() => {
-                          target.style.maxHeight = 'none';
-                      }, 300);
-                  }, 10);
-              } else {
-                  target.style.maxHeight = target.scrollHeight + 'px';
-                  setTimeout(() => {
-                      target.style.maxHeight = '0';
-                      setTimeout(() => {
-                          target.classList.add('hidden');
-                          target.style.maxHeight = '';
-                      }, 300);
-                  }, 10);
-              }
-              
-              // Rotar icono
-              icon.style.transform = target.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-              this.setAttribute('aria-expanded', !target.classList.contains('hidden'));
-          });
-      });
-    });
-  </script>
-
   <!-- Contenido principal con diseño moderno -->
-  <div class="space-y-10 mt-12">
+  <div class="space-y-10 mt-6">
     {% for sector in sectores %}
     <div class="animate__animated animate__fadeInUp" data-index="{{ forloop.counter0 }}">
       <!-- Encabezado de sector mejorado -->
@@ -470,7 +193,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500">Sector: {{ sector.tipo }}</h2>
+        <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500">Sector: {{ sector.nombre }}</h2>
       </div>
       
       <!-- Grid de habitaciones moderno -->
@@ -481,12 +204,14 @@
           <!-- Encabezado de habitación con gradiente -->
           <div class="p-4 bg-gradient-to-r from-blue-600 to-green-500">
             <h2 class="text-lg font-bold text-white">Habitación #{{ habitacion.numero }}</h2>
+            <p class="text-sm text-white opacity-90 mt-1">{{ habitacion.get_tipo_display }}</p>
           </div>
           
           <!-- Grid de camas mejorado -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
             {% for cama in habitacion.camas.all %}
-            <div class="bed-card compact-bed-card relative flex flex-col items-center seguimientos-row rounded-xl transition-all duration-300 animate__animated animate__fadeInRight" 
+            <div class="bed-card compact-bed-card relative flex flex-col items-center seguimientos-row rounded-xl transition-all duration-300 animate__animated animate__fadeInRight
+                 {% if camas_encontradas and cama.idcama in camas_encontradas %}ring-4 ring-purple-500 ring-offset-2 bg-purple-50{% endif %}" 
                  data-cama-id="{{ cama.idcama }}" data-index="{{ forloop.counter0 }}">
               <div class="relative w-full flex flex-col items-center p-3">
                 <!-- SVG con efecto 3D -->
@@ -546,22 +271,19 @@
                   
                   <!-- Mostrar paciente si existe una internación activa -->
                   {% if cama.estado == 'O' %}
-                    {% with internacion=cama.internacion_set.last %}
-                      {% if internacion and not internacion.fecha_alta %}
-                        <div class=" compact-patient-info">
-                          <p class="font-medium text-gray-700" id="paciente-{{ cama.idcama }}">
-                              {% with paciente=internacion.idpaciente %} 
-                                  <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}" 
-                                    class="hover:text-blue-600 transition-colors flex items-center justify-center">
-                                    <svg style="width:1.5rem; height: 1.5rem;" class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                <span id="paciente-nombre-{{ cama.idcama }}">{{ paciente.nombre }} {{ paciente.apellido }}</span>                                  </a>
-                              {% endwith %}
-                          </p>
-                        </div>
-                      {% endif %}
-                    {% endwith %}
+                    {% for internacion in cama.internaciones_activas %}
+                      <div class="compact-patient-info">
+                        <p class="font-medium text-gray-700" id="paciente-{{ cama.idcama }}">
+                          <a href="{% url 'detalle_paciente' internacion.idpaciente.idpaciente %}" 
+                            class="hover:text-blue-600 transition-colors flex items-center justify-center">
+                            <svg style="width:1.5rem; height: 1.5rem;" class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span id="paciente-nombre-{{ cama.idcama }}">{{ internacion.idpaciente.nombre }} {{ internacion.idpaciente.apellido }}</span>
+                          </a>
+                        </p>
+                      </div>
+                    {% endfor %}
                   {% endif %}
                 </div>
 
@@ -593,7 +315,7 @@
                     </a>
                   {% else %}
                     {% if request.user.is_staff or request.user.enfermero_set.exists or request.user.medico_set.exists %}
-                      <form class="inline w-full" method="POST" action="{% url 'liberar_cama' cama.idcama %}" id="formLiberar-{{ cama.idcama }}">
+                      <form class="inline w-full" method="POST" action="{% url 'liberar_cama' cama.idcama %}" id="formLiberar-{{ cama.idcama }}" target="_blank">
                         {% csrf_token %}
                         <button type="button" 
                                 onclick="confirmarLiberacion('formLiberar-{{ cama.idcama }}')"
@@ -708,7 +430,7 @@
               <select name="idcama_destino" id="idcama_destino" 
                       class="w-full bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 cursor-pointer hover:border-blue-300 transition">
                 {% for sector in sectores %}
-                  <optgroup label="Sector: {{ sector.tipo }}">
+                  <optgroup label="Sector: {{ sector.nombre }}">
                     {% for habitacion in sector.habitaciones.all %}
                       {% for cama in habitacion.camas.all %}
                         {% if cama.estado == 'L' %}
@@ -749,318 +471,85 @@
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Scripts mejorados -->
-  <script>
-    // Efecto de cursor personalizado
-    document.addEventListener('DOMContentLoaded', function() {
-      const cursorFollower = document.getElementById('cursorFollower');
-      
-      document.addEventListener('mousemove', (e) => {
-        cursorFollower.style.left = e.clientX + 'px';
-        cursorFollower.style.top = e.clientY + 'px';
-      });
-      
-      // Efecto al pasar sobre elementos interactivos
-      const interactiveElements = document.querySelectorAll('a, button, input, select, .card-hover, .btn-hover');
-      interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-          cursorFollower.style.transform = 'translate(-50%, -50%) scale(2)';
-          cursorFollower.style.opacity = '0.2';
-          cursorFollower.style.background = 'var(--accent)';
+<script>
+let formToSubmit = null;
+
+// Función para confirmar liberación con modal
+function confirmarLiberacion(formId) {
+    formToSubmit = document.getElementById(formId);
+    document.getElementById('liberarModal').classList.remove('hidden');
+}
+
+// Cerrar modal al hacer clic en cancelar
+document.addEventListener('DOMContentLoaded', function() {
+    // Botón de cancelar en el modal
+    const cancelButtons = document.querySelectorAll('[data-modal-toggle="liberarModal"]');
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('liberarModal').classList.add('hidden');
+            formToSubmit = null;
         });
-        
-        el.addEventListener('mouseleave', () => {
-          cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
-          cursorFollower.style.opacity = '0.1';
-          cursorFollower.style.background = 'var(--primary)';
+    });
+    
+    // Botón de confirmar en el modal
+    const confirmButton = document.getElementById('confirmLiberar');
+    if (confirmButton) {
+        confirmButton.addEventListener('click', function() {
+            if (formToSubmit) {
+                // Enviar el formulario (se abrirá en nueva ventana por target="_blank")
+                formToSubmit.submit();
+                
+                // Cerrar el modal
+                document.getElementById('liberarModal').classList.add('hidden');
+                
+                // Recargar la página después de un momento
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1000);
+                
+                formToSubmit = null;
+            }
         });
-      });
-      
-      // Inicializar modal de liberación
-      const liberarModal = new Modal(document.getElementById('liberarModal'), {
-          backdrop: 'static',
-          keyboard: false,
-          focus: true
-      });
-      
-      let currentForm = null;
-  
-      window.confirmarLiberacion = (formId) => {
-          currentForm = document.getElementById(formId);
-          liberarModal.show();
-      }
-  
-      document.getElementById('confirmLiberar').addEventListener('click', async () => {
-    if(currentForm) {
-        try {
-            // Enviar el formulario normalmente
-            currentForm.submit();
-            
-            // Esperar un momento para que el servidor procese la liberación
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            // Recargar solo la sección de camas afectada
-            const camaId = currentForm.action.split('/').pop();
-            const camaContainer = document.querySelector(`[data-cama-id="${camaId}"]`).closest('.grid');
-            const response = await fetch(window.location.href);
-            const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const newCamaContainer = doc.querySelector(`[data-cama-id="${camaId}"]`).closest('.grid');
-            camaContainer.innerHTML = newCamaContainer.innerHTML;
-            
-        } catch (error) {
-            console.error('Error:', error);
-            // Si hay error, recargar toda la página
-            window.location.reload();
-        } finally {
-            const liberarModal = document.getElementById('liberarModal');
-            liberarModal.classList.add('hidden');
-        }
     }
 });
 
-      // Animación al hacer hover en botones
-      document.querySelectorAll('.btn-hover').forEach(element => {
-        element.addEventListener('mouseenter', () => {
-          element.classList.add('animate__animated', 'animate__pulse');
-        });
-        
-        element.addEventListener('animationend', () => {
-          element.classList.remove('animate__animated', 'animate__pulse');
-        });
-      });
-      
-      // Efecto de scroll con Intersection Observer (más moderno)
-      const animateOnScroll = function() {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('animate__animated', 'animate__fadeInUp');
-              observer.unobserve(entry.target);
-            }
-          });
-        }, {
-          threshold: 0.1
-        });
-        
-        document.querySelectorAll('.animate-on-scroll').forEach(el => {
-          observer.observe(el);
-        });
-      };
-      
-      animateOnScroll();
-      
-      // Mostrar modal de derivación con animación
-      window.mostrarDerivacionModal = (idCamaOrigen) => {
-        const modal = document.getElementById('derivarModal');
-        const modalContent = document.getElementById('derivarModalContent');
-        const inputOrigen = document.getElementById('idcama_origen');
-        
-        inputOrigen.value = idCamaOrigen;
-        modal.classList.remove('hidden');
-        
-        setTimeout(() => {
-          modalContent.classList.remove('scale-95', 'opacity-0');
-          modalContent.classList.add('scale-100', 'opacity-100');
-        }, 10);
-      }
+// Función para mostrar modal de derivación
+function mostrarDerivacionModal(idcama) {
+    document.getElementById('idcama_origen').value = idcama;
+    document.getElementById('derivarModal').classList.remove('hidden');
+}
 
-      window.cerrarDerivacionModal = () => {
-        const modal = document.getElementById('derivarModal');
-        const modalContent = document.getElementById('derivarModalContent');
-        
-        modalContent.classList.remove('scale-100', 'opacity-100');
-        modalContent.classList.add('scale-95', 'opacity-0');
-        
-        modal.classList.add('hidden');
-        
+// Función para cerrar modal de derivación
+function cerrarDerivacionModal() {
+    document.getElementById('derivarModal').classList.add('hidden');
+}
+
+// Auto-scroll a la primera cama encontrada cuando hay búsqueda
+document.addEventListener('DOMContentLoaded', function() {
+    const searchParam = '{{ search_patient }}';
+    if (searchParam) {
+        // Esperar un momento para que se complete el render
+        setTimeout(function() {
+            // Buscar la primera cama con el badge "Encontrado"
+            const firstFoundBed = document.querySelector('.bg-purple-50');
+            if (firstFoundBed) {
+                // Hacer scroll suave hasta el elemento
+                firstFoundBed.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center'
+                });
+                
+                // Opcional: añadir un efecto de flash sutil
+                firstFoundBed.classList.add('animate-pulse');
+                setTimeout(function() {
+                    firstFoundBed.classList.remove('animate-pulse');
+                }, 2000);
+            }
+        }, 300);
     }
-    });
-  </script>
+});
+</script>
 
-  <!-- WebSocket mejorado con reconexión automática -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      let socket;
-      const connectWebSocket = () => {
-        socket = new WebSocket('ws://' + window.location.host + '/ws/camas/');
-        console.log('Intentando conectar al WebSocket...');
-        socket.onopen = () => {
-          console.log('WebSocket connection established');
-          // Enviar un ping cada 30 segundos para mantener la conexión activa
-          setInterval(() => {
-            if (socket.readyState === WebSocket.OPEN) {
-              socket.send(JSON.stringify({ type: 'ping' }));
-            }
-          }, 30000);
-        };
-        
-        socket.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            console.log('Actualizando cama:', data);
-            updateCamaUI(data);
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
-        };
-        
-        socket.onerror = (error) => {
-          console.error('WebSocket error:', error);
-          // Intentar reconectar después de 5 segundos
-          setTimeout(connectWebSocket, 5000);
-        };
-        
-        socket.onclose = () => {
-          console.log('WebSocket connection closed');
-          // Intentar reconectar después de 5 segundos
-          setTimeout(connectWebSocket, 5000);
-        };
-      };
-      
-      connectWebSocket();
-      
-      const estadoColors = {
-        'O': '#FF0000', // Rojo puro para Ocupada
-        'R': '#FFC300', // Amarillo puro para Reservada
-        'L': '#00FF00'  // Verde puro para Libre
-      };
-
-      const updateCamaUI = (data) => {
-        const camaContainer = document.querySelector(`[data-cama-id="${data.idcama}"]`);
-        if (!camaContainer) return;
-      
-        // Animación de cambio de estado
-        camaContainer.classList.add('animate__animated', 'animate__pulse');
-        setTimeout(() => {
-          camaContainer.classList.remove('animate__animated', 'animate__pulse');
-        }, 1000);
-      
-        const svg = camaContainer.querySelector('svg');
-        if (svg) {
-          svg.style.fill = estadoColors[data.estado];
-          svg.classList.add('updated');
-        }
-      
-        const estadoBadge = camaContainer.querySelector('span');
-        if (estadoBadge) {
-          estadoBadge.className = `status-badge inline-flex items-center px-3 py-1 rounded-full font-semibold text-xs ${
-            data.estado === 'O' ? 'bg-red-100 text-red-800' :
-            data.estado === 'R' ? 'bg-yellow-100 text-yellow-800' :
-            'bg-green-100 text-green-800'
-          }`;
-          estadoBadge.innerHTML = `
-            <span class="w-2 h-2 rounded-full mr-1.5 ${
-              data.estado === 'O' ? 'bg-red-500' :
-              data.estado === 'R' ? 'bg-yellow-500' :
-              'bg-green-500'
-            }"></span>
-            ${data.estado === 'O' ? 'Ocupada' : data.estado === 'R' ? 'Reservada' : 'Libre'}
-          `;
-        }
-
-        // Suponiendo que data tiene los campos: idcama, paciente_nombre, paciente_apellido
-        const pacienteNombreSpan = camaContainer.querySelector(`#paciente-nombre-${data.idcama}`);
-        if (pacienteNombreSpan) {
-            pacienteNombreSpan.textContent = `${data.paciente_nombre} ${data.paciente_apellido}`.trim();
-        }
-      
-        const pacienteElement = camaContainer.querySelector(`#paciente-${data.idcama}`);
-        if (data.estado === 'L' && pacienteElement) {
-          pacienteElement.remove();
-        } else if (data.estado === 'O' && data.paciente_nombre) {
-          if (!pacienteElement) {
-            const pacienteDiv = document.createElement('div');
-            pacienteDiv.className = 'mt-2 w-full';
-            pacienteDiv.innerHTML = `
-              <p id="paciente-${data.idcama}" class="text-xs font-medium text-gray-700 truncate">
-                <a class="compact-user-icon" href="/detalle_paciente/${data.paciente_id}" 
-                   class="hover:text-blue-600 transition-colors flex items-center justify-center space-x-1">
-                   <svg class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                   </svg>
-                   <span>${data.paciente_nombre}</span>
-                </a>
-              </p>
-            `;
-            const estadoContainer = camaContainer.querySelector('.text-center.space-y-2');
-            if (estadoContainer) {
-              estadoContainer.appendChild(pacienteDiv);
-            }
-          } else {
-            pacienteElement.innerHTML = `
-              <a href="/detalle_paciente/${data.paciente_id}" 
-                 class="hover:text-blue-600 transition-colors flex items-center justify-center space-x-1">
-                 <svg class="compact-user-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                 </svg>
-                 <span>${data.paciente_nombre}</span>
-              </a>
-            `;
-          }
-        }
-      
-        const actionsContainer = camaContainer.querySelector(`#actions-${data.idcama}`);
-        if (actionsContainer) {
-          let newActions = '';
-          if (data.estado === 'L') {
-            newActions = `
-              <a href="/asignar_cama/${data.idcama}" 
-                class="w-full text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                <span>Asignar</span>
-              </a>
-              <a href="/reservar_cama/${data.idcama}" 
-                class="w-full text-white bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <span>Reservar</span>
-              </a>`;
-          } else if (data.estado === 'R') {
-            newActions = `
-              <a href="/ver_reserva/${data.idcama}" 
-                class="w-full text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-                <span>Ver Reserva</span>
-              </a>`;
-          } else if (data.estado === 'O') {
-            newActions = `
-              <form class="inline w-full" method="POST" action="/liberar_cama/${data.idcama}" id="formLiberar-${data.idcama}">
-                <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
-                <button type="button" 
-                        onclick="confirmarLiberacion('formLiberar-${data.idcama}')"
-                        class="w-full text-white bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                    <span>Liberar</span>
-                </button>
-              </form>
-              <a href="#" 
-                onclick="mostrarDerivacionModal(${data.idcama})"
-                class="w-full text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 rounded-lg btn-hover text-xs px-3 py-2 text-center inline-flex items-center justify-center transition-all shadow-md hover:shadow-lg">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                </svg>
-                <span>Derivar</span>
-              </a>`;
-          }
-          actionsContainer.innerHTML = newActions;
-        }
-      };
-
-      const getCSRFToken = () => {
-        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-      };
-    });
-  </script>
-</div>
 {% endblock content %}

@@ -1,0 +1,156 @@
+/* Base Tailwind CSS */
+
+/* Variables globales de componentes ya están definidas en _base.html :root */
+
+/* Clases para efectos de vidrio */
+.bg-glass {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* Clases para neumorfismo */
+.neumorphic {
+    border-radius: 0.75rem;
+    background: #f0f9ff;
+    box-shadow: 4px 4px 8px #d9e7f5, -4px -4px 8px #ffffff;
+    transition: all 0.2s ease;
+}
+
+.neumorphic:hover {
+    box-shadow: 2px 2px 4px #d9e7f5, -2px -2px 4px #ffffff;
+}
+
+/* Clases para formularios */
+.form-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+    padding: 1.5rem;
+}
+
+.form-input {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(224, 242, 254, 0.5);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    border-color: #4895ef;
+    box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.2);
+    background-color: white;
+    outline: none;
+}
+
+/* Clases para tablas */
+.modern-table {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+}
+
+.modern-table th {
+    color: #0369a1;
+    font-weight: 600;
+    padding: 0.75rem;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+.modern-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(224, 242, 254, 0.5);
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.modern-table tr:hover td {
+    background-color: rgba(224, 242, 254, 0.3);
+    transform: translateX(2px);
+}
+
+/* Clases para botones */
+.btn {
+    transition: all 0.2s ease;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para botones por colores */
+.btn-primary {
+    background: linear-gradient(to right, #4361ee, #3f37c9);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, #3a53cc, #362eb1);
+}
+
+.btn-success {
+    background: linear-gradient(to right, #10b981, #059669);
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(to right, #0ea271, #048a61);
+}
+
+.btn-secondary {
+    background: linear-gradient(to right, #6b7280, #4b5563);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(to right, #4b5563, #374151);
+}
+
+.btn-danger {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(to right, #dc2626, #b91c1c);
+}
+
+/* Clases para encabezados */
+.page-header {
+    background: linear-gradient(135deg, #3f83f8 0%, #057a55 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+.page-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+}

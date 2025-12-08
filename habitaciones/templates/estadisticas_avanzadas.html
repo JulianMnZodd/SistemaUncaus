@@ -1,0 +1,238 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Encabezado -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Estadísticas Avanzadas</h1>
+                <p class="mt-2 text-sm text-gray-500">Análisis predictivo y métricas de calidad - {{ last_update }}</p>
+            </div>
+            <div class="flex space-x-2 mt-4 sm:mt-0">
+                <a href="{% url 'estadisticas' %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    <i class="bi-arrow-left mr-1"></i>Dashboard Principal
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Análisis Predictivo -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Gráfico Predictivo -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <i class="bi-graph-up-arrow mr-2 text-purple-600"></i>
+                    Análisis Predictivo
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Histórico vs Predicción (7 días)</p>
+            </div>
+            <div class="p-4">
+                <canvas id="prediccionChart" class="w-full h-80"></canvas>
+            </div>
+            <div class="p-4 bg-gray-50 border-t">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600">Promedio Semanal:</span>
+                    <span class="font-semibold text-purple-600">{{ promedio_semanal }} ingresos/día</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Análisis de Estancia Hospitalaria -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <i class="bi-calendar-range mr-2 text-teal-600"></i>
+                    Análisis de Estancia
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Distribución de duración de internaciones</p>
+            </div>
+            <div class="p-4">
+                <canvas id="estanciaChart" class="w-full h-80"></canvas>
+            </div>
+            <div class="p-4 bg-gray-50 border-t">
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-xs text-gray-600">Corta Estancia</p>
+                        <p class="text-lg font-bold text-green-600">{{ estancias_cortas }}</p>
+                        <p class="text-xs text-gray-500">≤ 3 días</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600">Media Estancia</p>
+                        <p class="text-lg font-bold text-yellow-600">{{ estancias_medias }}</p>
+                        <p class="text-xs text-gray-500">4-7 días</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600">Larga Estancia</p>
+                        <p class="text-lg font-bold text-red-600">{{ estancias_largas }}</p>
+                        <p class="text-xs text-gray-500">> 7 días</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recomendaciones -->
+    {% if recomendaciones %}
+    <div class="bg-white rounded-xl shadow-lg mb-8">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">
+                <i class="bi-lightbulb mr-2 text-yellow-600"></i>
+                Recomendaciones del Sistema
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                {% for rec in recomendaciones %}
+                <div class="border-l-4 {% if rec.tipo == 'critico' %}border-red-500 bg-red-50{% elif rec.tipo == 'advertencia' %}border-yellow-500 bg-yellow-50{% else %}border-blue-500 bg-blue-50{% endif %} p-4 rounded-r-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            {% if rec.tipo == 'critico' %}
+                                <i class="bi-exclamation-triangle-fill text-red-600 text-xl"></i>
+                            {% elif rec.tipo == 'advertencia' %}
+                                <i class="bi-exclamation-triangle text-yellow-600 text-xl"></i>
+                            {% else %}
+                                <i class="bi-info-circle text-blue-600 text-xl"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="font-semibold {% if rec.tipo == 'critico' %}text-red-800{% elif rec.tipo == 'advertencia' %}text-yellow-800{% else %}text-blue-800{% endif %}">
+                                {{ rec.titulo }}
+                            </h3>
+                            <p class="text-sm {% if rec.tipo == 'critico' %}text-red-700{% elif rec.tipo == 'advertencia' %}text-yellow-700{% else %}text-blue-700{% endif %} mt-1">
+                                {{ rec.mensaje }}
+                            </p>
+                            <p class="text-xs {% if rec.tipo == 'critico' %}text-red-600{% elif rec.tipo == 'advertencia' %}text-yellow-600{% else %}text-blue-600{% endif %} mt-2 font-medium">
+                                📋 Acción recomendada: {{ rec.accion }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuración común
+    Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+    Chart.defaults.color = '#374151';
+
+    // Gráfico predictivo
+    const prediccionCtx = document.getElementById('prediccionChart').getContext('2d');
+    
+    // Combinar fechas históricas y predicción
+    const fechasHistoricas = {{ fechas_historicas|safe }};
+    const fechasPrediccion = {{ fechas_prediccion|safe }};
+    const datosHistoricos = {{ datos_historicos|safe }};
+    const prediccion = {{ prediccion_7_dias|safe }};
+    
+    new Chart(prediccionCtx, {
+        type: 'line',
+        data: {
+            labels: fechasHistoricas.concat(fechasPrediccion),
+            datasets: [
+                {
+                    label: 'Histórico',
+                    data: datosHistoricos.concat(Array(7).fill(null)),
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3
+                },
+                {
+                    label: 'Predicción',
+                    data: Array(30).fill(null).concat(prediccion),
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Fecha'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Número de Ingresos'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfico de análisis de estancia
+    const estanciaCtx = document.getElementById('estanciaChart');
+    if (estanciaCtx) {
+        new Chart(estanciaCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Corta Estancia (≤3 días)', 'Media Estancia (4-7 días)', 'Larga Estancia (>7 días)'],
+                datasets: [{
+                    data: [{{ estancias_cortas|default:0 }}, {{ estancias_medias|default:0 }}, {{ estancias_largas|default:0 }}],
+                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

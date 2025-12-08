@@ -2,290 +2,37 @@
 {% load static %}
 {% block content %}
 
-<!-- Glassmorphism y Neumorphism combinados -->
-<style>
-  :root {
-    --primary: #4361ee;
-    --secondary: #3f37c9;
-    --accent: #4895ef;
-    --dark: #1b263b;
-    --light: #f8f9fa;
-    --success: #4cc9f0;
-    --danger: #f72585;
-    --info: #560bad;
-    --glass: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.2);
-  }
-
-  /* Scroll personalizado - ESTILOS DEL PRIMER HTML */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(241, 241, 241, 0.5);
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
-  }
-
-  /* Efecto vidrio moderno - más compacto */
-  .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-  }
-
-  /* Neumorfismo suave compacto */
-  .neumorphic {
-    border-radius: 0.75rem;
-    background: #f0f9ff;
-    box-shadow:  4px 4px 8px #d9e7f5,
-                -4px -4px 8px #ffffff;
-    transition: all 0.2s ease;
-  }
-
-  .neumorphic:hover {
-    box-shadow:  2px 2px 4px #d9e7f5,
-                -2px -2px 4px #ffffff;
-  }
-
-  /* Animaciones personalizadas */
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0px); }
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes fadeInRight {
-    from {
-      opacity: 0;
-      transform: translateX(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  
-  .animate-fadeInRight {
-    animation: fadeInRight 0.4s ease-out forwards;
-  }
-  
-  /* Bordes modernos más pequeños */
-  .rounded-xl {
-    border-radius: 0.75rem;
-  }
-  .rounded-2xl {
-    border-radius: 1rem;
-  }
-  .rounded-3xl {
-    border-radius: 1.25rem;
-  }
-  .rounded-lg {
-    border-radius: 0.375rem;
-  }
-  
-  /* Efectos hover compactos */
-  .btn-hover {
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    transform: translateY(0);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .btn-hover::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: 0.3s;
-  }
-  
-  .btn-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .btn-hover:hover::before {
-    left: 100%;
-  }
-  
-  /* Efecto para tarjetas compactas */
-  .card-hover {
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform: scale(1);
-  }
-  
-  .card-hover:hover {
-    transform: scale(1.01);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Estilos para contenedores compactos */
-  .seguimientos-container {
-    background-color: rgba(248, 250, 252, 0.9);
-    border: 1px solid rgba(226, 232, 240, 0.3);
-  }
-  
-  .seguimientos-header {
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-    color: #0369a1;
-    border-bottom: 1px solid rgba(186, 230, 253, 0.5);
-  }
-  
-  .seguimientos-footer {
-    background-color: rgba(240, 249, 255, 0.9);
-    border-top: 1px solid rgba(224, 242, 254, 0.5);
-  }
-  
-  /* Estilo compacto para filas */
-  .seguimientos-row {
-    background-color: rgba(248, 250, 252, 0.8);
-    transition: all 0.2s ease;
-  }
-  
-  .seguimientos-row:hover {
-    background-color: rgba(224, 242, 254, 0.8) !important;
-    transform: translateY(-1px);
-  }
-
-  /* Tarjetas de camas compactas */
-  .bed-card {
-    padding: 0.5rem;
-    transition: all 0.2s ease;
-  }
-  
-  /* Badges más pequeños */
-  .status-badge {
-    font-size: 0.6rem;
-    padding: 0.2rem 0.4rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  /* Efecto de cursor personalizado más pequeño */
-  .cursor-follower {
-    position: fixed;
-    width: 12px;
-    height: 12px;
-    background: var(--accent);
-    border-radius: 50%;
-    pointer-events: none;
-    mix-blend-mode: screen;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    opacity: 0.3;
-    transition: transform 0.1s ease;
-  }
-  
-  /* Estilos compactos para la tabla */
-  .modern-table {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    border-radius: 0.75rem;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
-  }
-  
-  .modern-table thead {
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  }
-  
-  .modern-table th {
-    color: #0369a1;
-    font-weight: 600;
-    padding: 0.75rem;
-    text-align: left;
-    font-size: 0.875rem;
-  }
-  
-  .modern-table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid rgba(224, 242, 254, 0.5);
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-  }
-  
-  .modern-table tr:hover td {
-    background-color: rgba(224, 242, 254, 0.3);
-    transform: translateX(2px);
-  }
-  
-  /* Estilos compactos para los botones de acción */
-  .action-btn {
-    transition: all 0.2s ease;
-    border-radius: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.7rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  .action-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .action-btn svg {
-    margin-right: 0.2rem;
-    width: 0.8rem;
-    height: 0.8rem;
-  }
-</style>
-
-<!-- Cursor personalizado compacto -->
+<!-- Cursor personalizado -->
 <div class="cursor-follower" id="cursorFollower"></div>
 
 <div class="container mx-auto px-3 py-8 max-w-6xl">
-  <!-- Header Section más compacto -->
-  <div class="bg-gradient-to-r from-blue-500 to-green-600 p-6 rounded-2xl shadow-lg mb-8 animate__animated animate__fadeInDown animate__fast">
+  <!-- Header Section -->
+  <div class="page-header">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="animate__animated animate__fadeInLeft animate__delay-1s">
-        <h1 class="text-3xl font-bold text-white tracking-tight">Internaciones Activas</h1>
-        <p class="text-white text-x1 mt-1 opacity-250">
+        <h1 class="page-title">Internaciones Activas</h1>
+        <p class="page-subtitle text-x1">
           Gestión y seguimiento de pacientes internados
         </p>
       </div>
       
-      <!-- Formulario compacto -->
+      <!-- Formulario de fechas -->
       <div class="animate__animated animate__fadeInRight animate__delay-1s">
         <form method="POST" action="{% url 'generar_informe_internaciones' %}" class="bg-opacity-20 backdrop-blur-sm p-3 rounded-xl">
           {% csrf_token %}
-          <div class="flex flex-col sm:flex-row items-end gap-3">  <!-- Cambiado a items-end -->
+          <div class="flex flex-col sm:flex-row items-end gap-3">
             <div class="flex-1 min-w-[150px]">
               <label for="id_fecha_inicio" class="block text-xs font-semibold text-white mb-1">Fecha Inicio</label>
               <input type="date" name="fecha_inicio" id="id_fecha_inicio" required 
-                    class="w-full bg-white bg-opacity-80 border border-white border-opacity-30 text-gray-700 text-xs rounded-md focus:ring-1 focus:ring-white focus:border-white p-2 cursor-pointer transition">
+                    class="form-input w-full bg-white bg-opacity-80 border-opacity-30 text-gray-700 text-xs p-2 cursor-pointer">
             </div>
             <div class="flex-1 min-w-[150px]">
               <label for="id_fecha_fin" class="block text-xs font-semibold text-white mb-1">Fecha Fin</label>
               <input type="date" name="fecha_fin" id="id_fecha_fin" required 
-                    class="w-full bg-white bg-opacity-80 border border-white border-opacity-30 text-gray-700 text-xs rounded-md focus:ring-1 focus:ring-white focus:border-white p-2 cursor-pointer transition">
+                    class="form-input w-full bg-white bg-opacity-80 border-opacity-30 text-gray-700 text-xs p-2 cursor-pointer">
             </div>
             <button type="submit" 
-                    class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover animate__animated animate__pulse animate__infinite animate__slower text-sm h-[42px]">  <!-- Añadido h-[42px] y quitado mt-4 -->
+                    class="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-opacity-90 btn-hover animate__animated animate__pulse animate__infinite animate__slower text-sm">
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
@@ -295,6 +42,45 @@
         </form>
       </div>
     </div>
+    
+    <!-- Buscador minimalista -->
+    <div class="mt-4 animate__animated animate__fadeIn">
+      <form method="get" class="flex justify-center">
+        <div class="relative w-full max-w-md">
+          <input 
+            type="text" 
+            name="search" 
+            value="{{ search_query }}"
+            placeholder="Buscar paciente por nombre, apellido o DNI..."
+            class="w-full pl-10 pr-10 py-2.5 text-sm bg-white bg-opacity-90 backdrop-blur-sm border border-white border-opacity-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 text-gray-700 placeholder-gray-500"
+          />
+          <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          {% if search_query %}
+          <a href="{% url 'listar_internaciones' %}" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+    
+    {% if search_query %}
+    <div class="mt-3 text-center text-sm text-white text-opacity-90 animate__animated animate__fadeIn">
+      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      Buscando: <strong>"{{ search_query }}"</strong> - 
+      {% if internaciones %}
+        {{ internaciones.paginator.count }} resultado{{ internaciones.paginator.count|pluralize }}
+      {% else %}
+        Sin resultados
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 
   <!-- Table Container compacto -->
@@ -324,7 +110,7 @@
               </a>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-gray-600 text-sm">
-              {{ internacion.cama.habitacion.idsector.tipo }}
+              {{ internacion.cama.habitacion.idsector.nombre }}
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-gray-600 text-sm">
               {{ internacion.cama.habitacion }}
@@ -395,34 +181,35 @@
       </table>
     </div>
   </div>
+
+  <!-- Paginación -->
+  {% if internaciones.has_other_pages %}
+  <div class="mt-6 flex justify-center">
+    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Paginación">
+      {% if internaciones.has_previous %}
+        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          Primera
+        </a>
+        <a href="?page={{ internaciones.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          Anterior
+        </a>
+      {% endif %}
+
+      <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+        Página {{ internaciones.number }} de {{ internaciones.paginator.num_pages }}
+      </span>
+
+      {% if internaciones.has_next %}
+        <a href="?page={{ internaciones.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          Siguiente
+        </a>
+        <a href="?page={{ internaciones.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+          Última
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
 </div>
 
-<!-- Scripts mejorados -->
-<script>
-  // Efecto de cursor personalizado compacto
-  document.addEventListener('DOMContentLoaded', function() {
-    const cursorFollower = document.getElementById('cursorFollower');
-    
-    document.addEventListener('mousemove', (e) => {
-      cursorFollower.style.left = e.clientX + 'px';
-      cursorFollower.style.top = e.clientY + 'px';
-    });
-    
-    // Efecto al pasar sobre elementos interactivos
-    const interactiveElements = document.querySelectorAll('a, button, input, select, .card-hover, .btn-hover, .action-btn');
-    interactiveElements.forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1.5)';
-        cursorFollower.style.opacity = '0.2';
-        cursorFollower.style.background = 'var(--accent)';
-      });
-      
-      el.addEventListener('mouseleave', () => {
-        cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
-        cursorFollower.style.opacity = '0.1';
-        cursorFollower.style.background = 'var(--primary)';
-      });
-    });
-  });
-</script>
 {% endblock content %}

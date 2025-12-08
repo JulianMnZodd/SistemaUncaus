@@ -3,74 +3,465 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Encabezado mejorado -->
-    <div class="mb-8 border-b border-gray-200 pb-4">
-        <h1 class="text-3xl font-bold text-gray-900">Estadísticas de Camas</h1>
-        <p class="mt-2 text-sm text-gray-500">Datos actualizados en tiempo real</p>
+    <!-- Encabezado mejorado con alertas -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard de Estadísticas</h1>
+                <p class="mt-2 text-sm text-gray-500">Datos actualizados: {{ last_update }}</p>
+            </div>
+            <!-- Controles superiores -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 sm:mt-0">
+                <!-- Enlace a estadísticas avanzadas -->
+                <a href="{% url 'estadisticas_avanzadas' %}" 
+                   class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+                    <i class="bi-graph-up-arrow mr-2"></i>
+                    Análisis Avanzado
+                </a>
+                <!-- Selector de período -->
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700">Período:</label>
+                    <select id="daysFilter" onchange="updateDashboard()" class="block px-3 py-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        {% for option in days_options %}
+                            <option value="{{ option }}" {% if option == selected_days %}selected{% endif %}>
+                                {{ option }} días
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas predictivas -->
+        <div class="mb-6 space-y-2">
+            {% if alertas %}
+                {% for alerta in alertas %}
+                <div class="flex items-center p-3 rounded-lg {% if alerta.tipo == 'critico' %}bg-red-100 text-red-800{% elif alerta.tipo == 'advertencia' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    <i class="bi {{ alerta.icono }} mr-2"></i>
+                    <span class="text-sm font-medium">{{ alerta.mensaje }}</span>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
 
-    <!-- Grid de resumen con partial incluido -->
+    <!-- Grid de resumen principal mejorado -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {% include 'partials/stats_card.html' with icon="bi-bed" title="Total Camas" value=total_camas color="blue" %}
-        {% include 'partials/stats_card.html' with icon="bi-check-circle" title="Disponibles" value=camas_disponibles color="green" %}
-        {% include 'partials/stats_card.html' with icon="bi-exclamation-triangle" title="Ocupadas" value=camas_ocupadas color="red" %}
-        {% include 'partials/stats_card.html' with icon="bi-clock-history" title="Reservadas" value=camas_reservadas color="yellow" %}
+        <!-- Total Camas -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg">
+                        <i class="bi-bed text-2xl text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Camas</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_camas }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disponibles -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg">
+                        <i class="bi-check-circle text-2xl text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Disponibles</p>
+                    <p class="text-2xl font-bold text-green-600">{{ camas_disponibles }}</p>
+                    <p class="text-xs text-gray-500">{{ porcentaje_disponibles }}% del total</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ocupadas -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-lg">
+                        <i class="bi-exclamation-triangle text-2xl text-red-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Ocupadas</p>
+                    <p class="text-2xl font-bold text-red-600">{{ camas_ocupadas }}</p>
+                    <p class="text-xs text-gray-500">{{ porcentaje_ocupadas }}% del total</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservadas -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-lg">
+                        <i class="bi-clock-history text-2xl text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Reservadas</p>
+                    <p class="text-2xl font-bold text-yellow-600">{{ camas_reservadas }}</p>
+                    <p class="text-xs text-gray-500">{{ porcentaje_reservadas }}% del total</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Sección de gráficos mejorada -->
+    <!-- Métricas avanzadas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Tasa de Rotación -->
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-purple-600 uppercase tracking-wider">Tasa Rotación</p>
+                    <p class="text-xl font-bold text-purple-800">{{ tasa_rotacion }}</p>
+                    <p class="text-xs text-purple-600">pacientes/cama</p>
+                </div>
+                <i class="bi-arrow-clockwise text-2xl text-purple-600"></i>
+            </div>
+        </div>
+
+        <!-- Capacidad de Respuesta -->
+        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-blue-600 uppercase tracking-wider">Capacidad</p>
+                    <p class="text-xl font-bold text-blue-800">{{ capacidad_respuesta }}%</p>
+                    <p class="text-xs text-blue-600">ocupación actual</p>
+                </div>
+                <i class="bi-speedometer text-2xl text-blue-600"></i>
+            </div>
+        </div>
+
+        <!-- Eficiencia Operacional -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-green-600 uppercase tracking-wider">Eficiencia</p>
+                    <p class="text-xl font-bold text-green-800">{{ eficiencia_operacional }}</p>
+                    <p class="text-xs text-green-600">índice operacional</p>
+                </div>
+                <i class="bi-gear text-2xl text-green-600"></i>
+            </div>
+        </div>
+
+        <!-- Duración Promedio -->
+        <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-orange-600 uppercase tracking-wider">Duración Promedio</p>
+                    <p class="text-xl font-bold text-orange-800">{{ duracion_promedio }}</p>
+                    <p class="text-xs text-orange-600">por internación</p>
+                </div>
+                <i class="bi-clock text-2xl text-orange-600"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de gráficos principales -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Gráfico de distribución -->
+        <!-- Gráfico de distribución por estado (Dona) -->
         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <i class="bi-pie-chart mr-2 text-blue-600"></i>
+                    Estado de Camas
+                </h2>
+                <div class="flex items-center space-x-4 text-sm">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
+                        <span>Disponibles</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
+                        <span>Ocupadas</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-yellow-500 rounded-full mr-1"></div>
+                        <span>Reservadas</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <canvas id="estadoChart" class="w-full h-80"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráfico de tendencia temporal -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <i class="bi-graph-up mr-2 text-green-600"></i>
+                        Tendencia de Ingresos
+                    </h2>
+                    {% if variacion_internaciones != 0 %}
+                        <div class="flex items-center text-sm">
+                            {% if variacion_internaciones > 0 %}
+                                <i class="bi-arrow-up text-green-600 mr-1"></i>
+                                <span class="text-green-600">+{{ porcentaje_variacion }}%</span>
+                            {% else %}
+                                <i class="bi-arrow-down text-red-600 mr-1"></i>
+                                <span class="text-red-600">{{ porcentaje_variacion }}%</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="p-4">
+                <canvas id="tendenciaChart" class="w-full h-80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos de distribución -->
+    <div class="grid grid-cols-1 gap-6 mb-8">
+        <!-- Distribución por sector -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6 border-b border-gray-200">
                 <h2 class="text-xl font-semibold text-gray-800">
                     <i class="bi-bar-chart-line mr-2 text-blue-600"></i>
                     Distribución por Sector
                 </h2>
-                <span class="text-sm text-gray-500">Actualizado: {% now "H:i" %}</span>
             </div>
-            <div class="p-4 relative">
-                <div class="chart-loader absolute inset-0 bg-white bg-opacity-90 hidden">
-                    <div class="flex items-center justify-center h-full">
-                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+            <div class="p-4">
+                <canvas id="sectorChart" class="w-full h-80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Análisis temporal avanzado -->
+    <div class="grid grid-cols-1 gap-6 mb-8">
+        <!-- Admisiones por día de la semana -->
+        <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <i class="bi-calendar-week mr-2 text-indigo-600"></i>
+                    Admisiones por Día de la Semana
+                </h2>
+            </div>
+            <div class="p-4">
+                <canvas id="diasChart" class="w-full h-80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sectores de Mayor Demanda -->
+    <div class="bg-white rounded-xl shadow-lg mb-8">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">
+                <i class="bi-building mr-2 text-green-600"></i>
+                Sectores de Mayor Demanda
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">Top 5 sectores con más internaciones en el período seleccionado</p>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for sector in sectores_demanda %}
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h3 class="font-semibold text-gray-800">{{ sector.nombre }}</h3>
+                            <p class="text-sm text-gray-600">Piso {{ sector.piso }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-bold text-green-600">{{ sector.total_internaciones }}</p>
+                            <p class="text-xs text-gray-500">internaciones</p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full transition-all duration-300" 
+                             style="width: {% widthratio sector.total_internaciones sectores_demanda.0.total_internaciones 100 %}%"></div>
                     </div>
                 </div>
-                <canvas id="sectorChart" class="w-full h-80" aria-label="Gráfico de distribución por sector"></canvas>
+                {% empty %}
+                <div class="col-span-3 text-center py-8 text-gray-500">
+                    <i class="bi-inbox text-4xl mb-2"></i>
+                    <p>No hay datos suficientes para mostrar</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de estadísticas adicionales -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total de internaciones en el período -->
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Internaciones</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ total_internaciones_periodo }}</p>
+                    <p class="text-xs text-gray-600">en {{ selected_days }} días</p>
+                </div>
+                <i class="bi-person-plus text-3xl text-gray-600"></i>
             </div>
         </div>
 
-        <!-- Gráfico de tendencia -->
-         <!-- Gráfico de tendencia -->
-  <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-    <div class="p-6 border-b border-gray-200">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 class="text-xl font-semibold text-gray-800">
-          <i class="bi bi-graph-up mr-2 text-green-600"></i>
-          Tendencia de Ingresos
-        </h2>
-            <div class="flex gap-2">
-            {% for days in days_options %}
-                <a href="?days={{ days }}" 
-                class="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 
-                        {% if selected_days == days %}bg-blue-600 text-white
-                        {% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
-                    {{ days }} días
-                </a>
-            {% endfor %}
-        </div>
-      </div>
-    </div>
-            <div class="p-4 relative">
-                <div class="chart-loader absolute inset-0 bg-white bg-opacity-90 hidden">
-                    <div class="flex items-center justify-center h-full">
-                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-                    </div>
+        <!-- Reservas activas -->
+        <div class="bg-gradient-to-br from-indigo-50 to-blue-100 rounded-xl p-6 border border-indigo-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-indigo-600 uppercase tracking-wider">Reservas Activas</p>
+                    <p class="text-2xl font-bold text-indigo-800">{{ reservas_activas }}</p>
+                    <p class="text-xs text-indigo-600">vigentes</p>
                 </div>
-                <canvas id="tendenciaChart" class="w-full h-80" aria-label="Gráfico de tendencia de ingresos"></canvas>
+                <i class="bi-bookmark text-3xl text-indigo-600"></i>
             </div>
         </div>
     </div>
 </div>
 
-{% include 'scripts/charts_script.html' %}
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuración común para todos los gráficos
+    Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+    Chart.defaults.color = '#374151';
 
-{% endblock content %}
+    // Función para verificar si el contexto existe antes de crear el gráfico
+    function createChartSafely(canvasId, config) {
+        const canvas = document.getElementById(canvasId);
+        if (canvas) {
+            try {
+                const ctx = canvas.getContext('2d');
+                return new Chart(ctx, config);
+            } catch (error) {
+                console.warn(`Error creating chart ${canvasId}:`, error);
+            }
+        } else {
+            console.warn(`Canvas ${canvasId} not found`);
+        }
+        return null;
+    }
+
+    // Gráfico de estado de camas (Dona)
+    createChartSafely('estadoChart', {
+        type: 'doughnut',
+        data: {
+            labels: ['Disponibles', 'Ocupadas', 'Reservadas'],
+            datasets: [{
+                data: [{{ camas_disponibles|default:0 }}, {{ camas_ocupadas|default:0 }}, {{ camas_reservadas|default:0 }}],
+                backgroundColor: ['#10B981', '#EF4444', '#F59E0B'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { padding: 20 }
+                }
+            }
+        }
+    });
+
+    // Gráfico de tendencia temporal
+    createChartSafely('tendenciaChart', {
+        type: 'line',
+        data: {
+            labels: {{ tendencia_labels|default:"[]"|safe }},
+            datasets: [{
+                label: 'Ingresos diarios',
+                data: {{ tendencia_data|default:"[]"|safe }},
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Gráfico de distribución por sector
+    createChartSafely('sectorChart', {
+        type: 'bar',
+        data: {
+            labels: {{ distribucion_labels|default:"[]"|safe }},
+            datasets: [
+                {
+                    label: 'Disponibles',
+                    data: {{ distribucion_disponibles|default:"[]"|safe }},
+                    backgroundColor: '#10B981',
+                    stack: 'Stack 0'
+                },
+                {
+                    label: 'Ocupadas',
+                    data: {{ distribucion_ocupadas|default:"[]"|safe }},
+                    backgroundColor: '#EF4444',
+                    stack: 'Stack 0'
+                },
+                {
+                    label: 'Reservadas',
+                    data: {{ distribucion_reservadas|default:"[]"|safe }},
+                    backgroundColor: '#F59E0B',
+                    stack: 'Stack 0'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            }
+        }
+    });
+
+    // Gráfico de admisiones por día de la semana
+    createChartSafely('diasChart', {
+        type: 'radar',
+        data: {
+            labels: {{ dias_semana_labels|default:"[]"|safe }},
+            datasets: [{
+                label: 'Admisiones',
+                data: {{ dias_semana_data|default:"[]"|safe }},
+                borderColor: '#6366F1',
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                pointBackgroundColor: '#6366F1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                r: { beginAtZero: true }
+            }
+        }
+    });
+});
+
+// Función para actualizar el dashboard
+function updateDashboard() {
+    const select = document.getElementById('daysFilter');
+    if (select) {
+        const days = select.value;
+        window.location.href = `?days=${days}`;
+    }
+}
+</script>
+{% endblock %}
